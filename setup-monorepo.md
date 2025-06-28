@@ -32,121 +32,11 @@ create-hono version 0.19.1
 
 ```
 
-## Passo 2: Configurações TypeScript para Monorepo
+## Passo 2: Configurações para monorepo - utilize workspaces
 
-### Estrutura de arquivos TypeScript:
-```
-📁 ProjetoIntegrador6A_2
-├── 📄 tsconfig.base.json         # Configuração base compartilhada
-├── 📁 client
-│   ├── 📄 tsconfig.json          # Config principal (referencia app/node)
-│   ├── 📄 tsconfig.app.json      # Config do aplicativo React
-│   ├── 📄 tsconfig.node.json     # Config do Vite (Node)
-│   └── ... 
-├── 📁 server
-│   ├── 📄 tsconfig.json          # Config do backend
-│   └── ...
-└── 📁 shared
-    ├── 📄 tsconfig.json          # Config para tipos compartilhados
-    └── ...
-```
+<!-- mostre aqui como ficaria cada tsconfig ( tanto os do client, que são gerados pelo proprio vite, quanto o do server, gerado pelo hono, quando shared e tsconfig.base da raiz do projeto para poder usar aliases corretamente e organizar tudo da maneira mais simples) -->
 
-### `tsconfig.base.json` (raiz do projeto):
-```json
-{
-  "compilerOptions": {
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["./shared/*"],
-      "@/*": ["./client/src/*"]
-    }
-  },
-  "exclude": ["node_modules", "dist"]
-}
-```
 
-### `client/tsconfig.json` (arquivo principal):
-```json
-{
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" },
-    { "path": "../shared/tsconfig.json" }
-  ]
-}
-```
-
-### `client/tsconfig.app.json` (configuração do app React):
-```json
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "outDir": "dist",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src"]
-}
-```
-
-### `client/tsconfig.node.json` (configuração do Vite):
-```json
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-    "target": "ES2022",
-    "lib": ["ES2023"],
-    "module": "ESNext",
-    "noEmit": true,
-    "types": ["node"]
-  },
-  "include": ["vite.config.ts"]
-}
-```
-
-### `server/tsconfig.json`:
-```json
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "types": ["node", "bun-types"] 
-  }
-}
-```
-
-### `shared/tsconfig.json`:
-```json
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "outDir": "dist",
-    "rootDir": "."
-  },
-  "include": ["**/*.ts"]
-}
-```
 
 ## Passo 3: Configurar Frontend (Vite + React/TS)
 
@@ -209,7 +99,8 @@ export default App;
 
 Instalação de pacotes via linha de comando:
 ```bash
-bun --cwd server add drizzle-orm postgres -d drizzle-kit typescript
+cd server 
+bun add drizzle-orm postgres -d drizzle-kit typescript
 ```
 
 ### `server/src/models/user.ts`:
@@ -416,45 +307,7 @@ DATABASE_URL="postgres://user:password@localhost:5432/projeto"
 
 ```
 ProjetoIntegrador6A_2/
-├── client/
-│   ├── src/
-│   │   ├── api/
-│   │   ├── components/
-│   │   ├── App.tsx
-│   │   ├── main.tsx
-│   │   └── vite-env.d.ts
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tsconfig.app.json
-│   ├── tsconfig.node.json
-│   └── vite.config.ts
-├── server/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── utils/
-│   │   ├── index.ts
-│   │   └── ...
-│   ├── drizzle.config.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── shared/
-│   ├── types/
-│   │   ├── user.ts
-│   │   ├── product.ts
-│   │   └── index.ts
-│   ├── package.json
-│   └── tsconfig.json
-├── .dockerignore
-├── .env
-├── .gitignore
-├── docker-compose.yml
-├── Dockerfile
-├── package.json
-├── tsconfig.base.json
-└── tsconfig.json
+<!-- mostre como ficaria a estrutura -->
 ```
 
 ## Dicas de Manutenção Avançadas
@@ -506,48 +359,7 @@ COPY --from=production /app/server/dist ./server/dist
 CMD ["bun", "run", "server/dist/index.js"]
 ```
 
-### 4. VS Code Workspace Settings
-`.vscode/settings.json`:
-```json
-{
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.referencesCodeLens.enabled": true,
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/dist": true,
-    "**/drizzle": true,
-    "**/.bun": true
-  },
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/node_modules/**"
-  ]
-}
-```
 
-### 5. Atalhos Úteis para Desenvolvimento
-```json
-// .vscode/tasks.json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Type Check",
-      "type": "shell",
-      "command": "bun run type-check",
-      "problemMatcher": ["$tsc"],
-      "group": "build"
-    },
-    {
-      "label": "Run Dev",
-      "type": "shell",
-      "command": "bun run dev",
-      "isBackground": true,
-      "problemMatcher": []
-    }
-  ]
-}
-```
 
 ## Como Iniciar o Projeto
 

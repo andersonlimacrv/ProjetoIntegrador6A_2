@@ -1,0 +1,12 @@
+{
+  "name": "workspace",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
