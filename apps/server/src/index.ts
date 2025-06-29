@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import users from "./routes/users";
+import tasks from "./routes/tasks";
 import { Config } from "./config";
 import {
   errorHandler,
@@ -10,6 +11,7 @@ import {
   securityHeaders,
 } from "./middlewares/errorHandler";
 import { checkDatabaseHealth } from "./db/init";
+import { healthCheck } from "./controllers/healthController";
 
 const app = new Hono();
 
@@ -30,18 +32,7 @@ app.use(
 );
 
 // Health check
-app.get("/health", async (c) => {
-  const dbHealth = await checkDatabaseHealth();
-
-  return c.json({
-    status: "OK",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    environment: Config.NODE_ENV,
-    database: dbHealth,
-    version: "1.0.0",
-  });
-});
+app.get("/health", healthCheck);
 
 // Rota raiz
 app.get("/", (c) => {
@@ -67,6 +58,7 @@ app.get("/", (c) => {
 
 // Rotas da API
 app.route("/api/users", users);
+app.route("/api/tasks", tasks);
 
 // Middleware 404
 app.notFound((c) => {

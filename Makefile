@@ -1,9 +1,54 @@
 # Makefile para Projeto Integrador
-.PHONY: help install dev build start clean docker-build docker-up docker-down docker-logs db-generate db-migrate db-studio
+.PHONY: help dev build clean docker-up docker-down docker-rebuild db-seed db-reset
 
 # Variáveis
 NODE_ENV ?= development
 DOCKER_COMPOSE = docker-compose
+
+# Comandos principais
+help:
+	@echo "Comandos disponíveis:"
+	@echo "  dev           - Executar em desenvolvimento"
+	@echo "  build         - Construir para produção"
+	@echo "  clean         - Limpar arquivos temporários"
+	@echo "  docker-up     - Subir containers"
+	@echo "  docker-down   - Parar containers"
+	@echo "  docker-rebuild- Reconstruir containers"
+	@echo "  db-seed       - Popular banco com dados"
+	@echo "  db-reset      - Resetar banco"
+
+# Desenvolvimento
+dev:
+	bun run dev
+
+build:
+	bun run build
+
+clean:
+	rm -rf node_modules
+	rm -rf apps/*/node_modules
+	rm -rf packages/*/node_modules
+	rm -rf apps/*/dist
+	rm -rf packages/*/dist
+
+# Docker
+docker-up:
+	docker-compose up -d
+
+docker-down:
+	docker-compose down
+
+docker-rebuild:
+	docker-compose down
+	docker-compose build --no-cache
+	docker-compose up -d
+
+# Banco de dados
+db-seed:
+	cd apps/server && bun run seed
+
+db-reset:
+	cd apps/server && bun run seed reset
 
 # Instalar dependências
 install:
@@ -11,50 +56,16 @@ install:
 	bun install
 	@echo "✅ Dependências instaladas!"
 
-# Executar em modo desenvolvimento
-dev:
-	@echo "🚀 Iniciando modo desenvolvimento..."
-	bun run dev
-
-# Build do projeto
-build:
-	@echo "🔨 Fazendo build do projeto..."
-	bun run build
-	@echo "✅ Build concluído!"
-
 # Executar em modo produção
 start:
 	@echo "🚀 Iniciando modo produção..."
 	bun run start
-
-# Limpar arquivos temporários
-clean:
-	@echo "🧹 Limpando arquivos temporários..."
-	-@rmdir /s /q node_modules 2>nul
-	-@rmdir /s /q packages\shared\dist 2>nul
-	-@rmdir /s /q apps\client\dist 2>nul
-	-@rmdir /s /q apps\server\dist 2>nul
-	-@rmdir /s /q apps\server\drizzle 2>nul
-	@echo "✅ Limpeza concluída!"
 
 # Docker commands
 docker-build:
 	@echo "🐳 Build das imagens Docker..."
 	$(DOCKER_COMPOSE) build
 	@echo "✅ Build das imagens concluído!"
-
-docker-up:
-	@echo "🐳 Subindo containers Docker..."
-	$(DOCKER_COMPOSE) up -d
-	@echo "✅ Containers iniciados!"
-	@echo "🌐 Frontend: http://localhost:5173"
-	@echo "🔧 Backend: http://localhost:3000"
-	@echo "🗄️  Database: localhost:5432"
-
-down:
-	@echo "🐳 Parando containers Docker..."
-	$(DOCKER_COMPOSE) down
-	@echo "✅ Containers parados!"
 
 logs:
 	@echo "📋 Logs dos containers..."
@@ -67,7 +78,6 @@ logs-server:
 logs-client:
 	@echo "📋 Logs do cliente..."
 	$(DOCKER_COMPOSE) logs -f projetointegrador_client
-
 
 # Database commands
 db-generate:

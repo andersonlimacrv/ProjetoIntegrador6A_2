@@ -17,6 +17,28 @@ export interface UpdateUserDTO {
   email?: string;
 }
 
+export interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  completed: boolean;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CreateTaskDTO {
+  title: string;
+  description?: string;
+  userId: number;
+}
+
+export interface UpdateTaskDTO {
+  title?: string;
+  description?: string;
+  completed?: boolean;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -45,6 +67,35 @@ export const UpdateUserSchema = z.object({
   email: z.string().email("Email inválido").optional(),
 });
 
+export const TaskSchema = z.object({
+  id: z.number(),
+  title: z.string().min(1, "Título é obrigatório"),
+  description: z.string().optional(),
+  completed: z.boolean(),
+  userId: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const CreateTaskSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Título é obrigatório")
+    .max(200, "Título muito longo"),
+  description: z.string().max(1000, "Descrição muito longa").optional(),
+  userId: z.number().int().positive("ID do usuário deve ser positivo"),
+});
+
+export const UpdateTaskSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Título é obrigatório")
+    .max(200, "Título muito longo")
+    .optional(),
+  description: z.string().max(1000, "Descrição muito longa").optional(),
+  completed: z.boolean().optional(),
+});
+
 // Utils
 export const greet = (name: string) => `Hello, ${name}!`;
 
@@ -64,6 +115,7 @@ export const generateId = (): number => {
 
 // Tipos compartilhados
 export * from "./types/user";
+export * from "./types/task";
 
 // Utilitários compartilhados
 export * from "./utils";

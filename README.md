@@ -1,162 +1,137 @@
 # Projeto Integrador 6A
 
-Um sistema completo de gerenciamento desenvolvido com tecnologias modernas, incluindo um monorepo com frontend React, backend Hono.js, banco de dados PostgreSQL com Drizzle ORM, e containerização Docker.
+Sistema de gerenciamento desenvolvido com **Bun**, **React**, **Vite**, **Hono.js**, **Drizzle ORM**, **Tailwind CSS** e **shadcn/ui**.
 
-## 🚀 Tecnologias
+## 🏗️ Arquitetura
 
-### Backend
-
-- **Bun** - Runtime JavaScript rápido
-- **Hono.js** - Framework web moderno e leve
-- **Drizzle ORM** - ORM type-safe para PostgreSQL
-- **PostgreSQL** - Banco de dados relacional
-- **TypeScript** - Tipagem estática
-
-### Frontend
-
-- **React 18** - Biblioteca de interface
-- **Vite** - Build tool rápida
-- **Tailwind CSS** - Framework CSS utilitário
-- **shadcn/ui** - Componentes UI modernos
-- **TypeScript** - Tipagem estática
-
-### Infraestrutura
-
-- **Docker** - Containerização
-- **Docker Compose** - Orquestração de containers
-- **Monorepo** - Estrutura com workspaces
-
-## 📁 Estrutura do Projeto
+### Estrutura do Projeto
 
 ```
 ProjetoIntegrador6A_2/
 ├── apps/
-│   ├── client/          # Frontend React
-│   └── server/          # Backend Hono.js
+│   ├── client/          # Frontend React + Vite
+│   └── server/          # Backend Hono + Drizzle
 ├── packages/
 │   └── shared/          # Tipos e utilitários compartilhados
-├── infra/
-│   ├── docker/          # Dockerfiles
-│   └── db/              # Scripts de banco
-├── docker-compose.yml   # Orquestração Docker
-├── Makefile            # Comandos automatizados
-└── README.md           # Documentação
+├── infra/               # Configurações Docker e banco
+└── docker-compose.yml   # Orquestração dos serviços
 ```
 
-## 🛠️ Instalação e Configuração
+### Padrão MVC no Servidor
 
-### Pré-requisitos
+O servidor segue um padrão **MVC estrito** com **reutilização máxima**:
 
-- [Bun](https://bun.sh/) (versão 1.0+)
-- [Docker](https://docker.com/) (versão 20.0+)
-- [Docker Compose](https://docs.docker.com/compose/) (versão 2.0+)
+#### **Models** (`src/models/`)
 
-### Setup Rápido
+- **Re-exportam tipos** do pacote `shared`
+- **Sem duplicação** de interfaces
+- Exemplo: `User.ts` e `Task.ts` apenas re-exportam do `@packages/shared`
 
-1. **Clone o repositório**
+#### **Repositories** (`src/repositories/`)
 
-   ```bash
-   git clone <url-do-repositorio>
-   cd ProjetoIntegrador6A_2
-   ```
+- **Acesso direto** ao banco de dados
+- **Usam tipos** do pacote `shared`
+- Implementam operações CRUD básicas
+- Exemplo: `UserRepository.ts`, `TaskRepository.ts`
 
-2. **Configure as variáveis de ambiente**
+#### **Services** (`src/services/`)
 
-   ```bash
-   cp env.example .env
-   # Edite o arquivo .env conforme necessário
-   ```
+- **Lógica de negócio** simples e direta
+- **Validações** de regras de negócio
+- **Usam tipos** do pacote `shared`
+- Exemplo: `UserService.ts`, `TaskService.ts`
 
-3. **Setup completo com Docker**
-   ```bash
-   make setup
-   ```
+#### **Controllers** (`src/controllers/`)
 
-### Setup Manual
+- **Orquestração** das operações
+- **Validação** com schemas do `shared`
+- **Respostas padronizadas**
+- Exemplo: `userController.ts`, `taskController.ts`
 
-1. **Instalar dependências**
+#### **Routes** (`src/routes/`)
 
-   ```bash
-   make install
-   ```
+- **Endpoints** da API
+- **Middlewares** de validação
+- Exemplo: `users.ts`, `tasks.ts`
 
-2. **Subir containers Docker**
+### Pacote Shared (Reutilização Máxima)
 
-   ```bash
-   make docker-up
-   ```
+O `packages/shared` é o **coração da reutilização**:
 
-3. **Gerar e executar migrações**
-   ```bash
-   make db-generate
-   make db-migrate
-   ```
+#### **Tipos TypeScript**
+
+```typescript
+// Compartilhados entre frontend e backend
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  completed: boolean;
+  userId: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+#### **Schemas de Validação**
+
+```typescript
+// Zod schemas reutilizáveis
+export const CreateUserSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().email("Email inválido"),
+});
+
+export const CreateTaskSchema = z.object({
+  title: z.string().min(1, "Título é obrigatório"),
+  description: z.string().optional(),
+  userId: z.number().positive(),
+});
+```
+
+#### **Vantagens da Reutilização**
+
+- **Type Safety** em toda aplicação
+- **Validação consistente** frontend/backend
+- **Manutenibilidade** centralizada
+- **Zero duplicação** de código
+- **Desenvolvimento mais rápido**
 
 ## 🚀 Como Executar
 
-### Desenvolvimento
+### Desenvolvimento Local
 
 ```bash
-# Executar tudo em modo desenvolvimento
+# Instalar dependências
+bun install
+
+# Executar em desenvolvimento
 make dev
-
-# Ou executar separadamente
-make dev-server  # Apenas backend
-make dev-client  # Apenas frontend
 ```
-
-### Produção
-
-```bash
-# Build e execução
-make build
-make start
-
-# Ou com Docker
-make docker-build
-make docker-up
-```
-
-## 📋 Comandos Disponíveis
-
-### Desenvolvimento
-
-- `make dev` - Executar em modo desenvolvimento
-- `make dev-server` - Executar apenas o servidor
-- `make dev-client` - Executar apenas o cliente
-- `make build` - Build do projeto
-- `make start` - Executar em modo produção
 
 ### Docker
 
-- `make docker-build` - Build das imagens Docker
-- `make docker-up` - Subir containers
-- `make docker-down` - Parar containers
-- `make docker-logs` - Ver logs
+```bash
+# Construir e executar
+make docker-up
 
-### Banco de Dados
+# Parar containers
+make docker-down
+```
 
-- `make db-generate` - Gerar migrações
-- `make db-migrate` - Executar migrações
-- `make db-studio` - Abrir Drizzle Studio
+## 📊 Endpoints da API
 
-### Utilitários
+### Health Check
 
-- `make install` - Instalar dependências
-- `make clean` - Limpar arquivos temporários
-- `make type-check` - Verificar tipos
-- `make lint` - Executar linting
-
-## 🌐 URLs de Acesso
-
-Após executar o projeto:
-
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:3000
-- **Health Check**: http://localhost:3000/health
-- **Drizzle Studio**: http://localhost:4983 (apenas em desenvolvimento)
-
-## 📊 API Endpoints
+- `GET /health` - Status do servidor e banco de dados
 
 ### Usuários
 
@@ -166,147 +141,197 @@ Após executar o projeto:
 - `PUT /api/users/:id` - Atualizar usuário
 - `DELETE /api/users/:id` - Deletar usuário
 
-### Sistema
+### Tasks
 
-- `GET /health` - Health check do servidor
-- `GET /` - Informações da API
+- `GET /api/tasks` - Listar todas as tasks
+- `GET /api/tasks/:id` - Buscar task por ID
+- `GET /api/tasks/user/:userId` - Tasks de um usuário
+- `GET /api/tasks/completed` - Tasks completadas
+- `GET /api/tasks/pending` - Tasks pendentes
+- `POST /api/tasks` - Criar nova task
+- `PUT /api/tasks/:id` - Atualizar task
+- `PATCH /api/tasks/:id/complete` - Marcar como completa
+- `PATCH /api/tasks/:id/incomplete` - Marcar como incompleta
+- `DELETE /api/tasks/:id` - Deletar task
 
-## 🗄️ Banco de Dados
+## 🛠️ Comandos Úteis
 
-O projeto utiliza PostgreSQL com Drizzle ORM. As tabelas são criadas automaticamente através de migrações.
+### Desenvolvimento
 
-### Estrutura das Tabelas
+```bash
+make dev          # Executar em desenvolvimento
+make build        # Construir para produção
+make clean        # Limpar arquivos temporários
+```
 
-```sql
--- Tabela de usuários
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+### Docker
 
--- Tabela de posts (futura implementação)
-CREATE TABLE posts (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(200) NOT NULL,
-  content TEXT NOT NULL,
-  author_id INTEGER REFERENCES users(id),
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+```bash
+make docker-up    # Subir containers
+make docker-down  # Parar containers
+make docker-rebuild # Reconstruir containers
+```
+
+### Banco de Dados
+
+```bash
+make db-seed      # Popular banco com dados de exemplo
+make db-reset     # Resetar banco (limpar + popular)
 ```
 
 ## 🔧 Configuração
 
 ### Variáveis de Ambiente
 
-Copie o arquivo `env.example` para `.env` e configure:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
-# Database
-DATABASE_URL="postgresql://postgres:password@localhost:5432/projetointegrador"
+# Servidor
+NODE_ENV=development
+SERVER_PORT=3001
+
+# Banco de Dados
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=projetointegrador
-DB_USER=postgres
-DB_PASSWORD=password
-
-# Server
-SERVER_PORT=3000
-NODE_ENV=development
-
-# Client
-CLIENT_PORT=5173
-VITE_API_URL=http://localhost:3000
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
+DB_NAME=integrador_db
+DB_USER=useryabuser
+DB_PASSWORD=senha_spr_sekreta
+DATABASE_URL=postgresql://useryabuser:senha_spr_sekreta@localhost:5432/integrador_db
 
 # CORS
-CORS_ORIGIN=http://localhost:5173
+CORS_ORIGIN=http://localhost:5190
+
+# Frontend
+CLIENT_PORT=5190
+VITE_API_URL=http://localhost:3001
 ```
 
-## 🐳 Docker
+## 📚 Estrutura do Código
 
-### Containers
+### Frontend (apps/client)
 
-- **postgres**: Banco de dados PostgreSQL
-- **server**: Backend Hono.js
-- **client**: Frontend React com Vite Dev Server
-- **drizzle-studio**: Interface para gerenciar o banco (dev)
+- **Components** - Componentes React reutilizáveis
+- **Services** - Cliente HTTP para comunicação com API
+- **Types** - Tipos importados do pacote shared
 
-### Volumes
+### Backend (apps/server)
 
-- `postgres_data`: Dados persistentes do PostgreSQL
+- **MVC Pattern** - Separação clara de responsabilidades
+- **Validação** - Middlewares de validação com Zod
+- **Tratamento de Erros** - Middleware global de erros
+- **Logs** - Sistema de logging detalhado
 
-### Networks
+### Shared (packages/shared)
 
-- `app-network`: Rede interna dos containers
+- **Types** - Interfaces e DTOs compartilhados
+- **Schemas** - Validação Zod reutilizável
+- **Utils** - Funções utilitárias
 
-## 🧪 Desenvolvimento
+## 🔄 Fluxo de Desenvolvimento
 
-### Estrutura de Código
+### 1. Definir Tipos no Shared
 
-- **TypeScript** em todo o projeto
-- **ESLint** para linting
-- **Prettier** para formatação
-- **Husky** para git hooks (futura implementação)
+```typescript
+// packages/shared/src/types/user.ts
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+```
 
-### Padrões
+### 2. Criar Schema no Shared
 
-- **Monorepo** com workspaces
-- **Componentes reutilizáveis** no frontend
-- **Controllers** para lógica de negócio
-- **Schemas** para validação de dados
-- **Tipos compartilhados** entre frontend e backend
+```typescript
+// packages/shared/src/types/user.ts
+export const CreateUserSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+});
+```
 
-## 📝 Scripts NPM/Bun
+### 3. Implementar no Backend
 
-### Raiz do Projeto
+```typescript
+// apps/server/src/models/User.ts
+export * from "@packages/shared";
 
-- `bun run dev` - Desenvolvimento completo
-- `bun run build` - Build completo
-- `bun run start` - Produção completa
-- `bun run type-check` - Verificação de tipos
-- `bun run lint` - Linting
+// apps/server/src/repositories/UserRepository.ts
+import { User, CreateUserDTO } from "@packages/shared";
 
-### Servidor
+// apps/server/src/controllers/userController.ts
+import { CreateUserSchema } from "@packages/shared";
+```
 
-- `bun run dev` - Desenvolvimento
-- `bun run build` - Build
-- `bun run db:generate` - Gerar migrações
-- `bun run db:migrate` - Executar migrações
-- `bun run db:studio` - Drizzle Studio
+### 4. Usar no Frontend
 
-### Cliente
+```typescript
+// apps/client/src/services/api.ts
+import { User, CreateUserDTO } from "@packages/shared";
 
-- `bun run dev` - Desenvolvimento
-- `bun run build` - Build
-- `bun run preview` - Preview da build
+// apps/client/src/components/UserList.tsx
+import { User } from "@packages/shared";
+```
 
-## 🤝 Contribuição
+## 🧪 Testes
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+### API
 
-## 📄 Licença
+```bash
+# Health check
+curl http://localhost:3001/health
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+# Listar usuários
+curl http://localhost:3001/api/users
 
-## 🆘 Suporte
+# Listar tasks
+curl http://localhost:3001/api/tasks
 
-Se você encontrar algum problema ou tiver dúvidas:
+# Criar task
+curl -X POST http://localhost:3001/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Nova Task", "description": "Descrição", "userId": 1}'
+```
 
-1. Verifique a documentação
-2. Execute `make help` para ver todos os comandos
-3. Verifique os logs com `make docker-logs`
-4. Abra uma issue no repositório
+## 🚨 Tratamento de Erros
 
----
+- **400** - Dados inválidos
+- **404** - Recurso não encontrado
+- **409** - Conflito (ex: email já existe)
+- **500** - Erro interno do servidor
 
-**Desenvolvido com ❤️ usando Bun, React, Hono.js e TypeScript**
+## 📝 Logs
+
+O sistema inclui logs detalhados:
+
+- Requisições HTTP com tempo de resposta
+- Erros de validação
+- Status da conexão com banco
+- Operações de CRUD
+
+## 🔍 Monitoramento
+
+- **Health Check** - `/health` para verificar status
+- **Logs** - Console logs detalhados
+- **Docker** - Logs dos containers
+
+## 📚 Dependências Principais
+
+### Backend
+
+- **Hono.js** - Framework web
+- **Drizzle ORM** - ORM para PostgreSQL
+- **Zod** - Validação de esquemas
+- **PostgreSQL** - Banco de dados
+
+### Frontend
+
+- **React** - Framework UI
+- **Vite** - Build tool
+- **Tailwind CSS** - Framework CSS
+- **shadcn/ui** - Componentes UI
+
+### Shared
+
+- **TypeScript** - Tipagem estática
+- **Zod** - Validação de esquemas

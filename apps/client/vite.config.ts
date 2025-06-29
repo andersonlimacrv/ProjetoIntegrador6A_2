@@ -12,12 +12,27 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
-        "@shared": path.resolve(__dirname, "../../packages/shared/src"),
+        "@packages/shared": path.resolve(
+          __dirname,
+          "../../packages/shared/src"
+        ),
       },
     },
     server: {
-      port: parseInt(env.VITE_CLIENT_PORT || "5173"),
+      port: parseInt(env.CLIENT_PORT || "5190"),
       host: "0.0.0.0",
+      proxy: {
+        "/api": {
+          target: env.VITE_API_URL || "http://localhost:3001",
+          changeOrigin: true,
+          secure: false,
+        },
+        "/health": {
+          target: env.VITE_API_URL || "http://localhost:3001",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
     build: {
       outDir: "dist",

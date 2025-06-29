@@ -15,8 +15,17 @@ import {
   UpdateUserDTO,
   formatDate,
 } from "@packages/shared";
-import { apiService } from "../services/api";
+import { api } from "../services/api";
 import { Plus, Edit, Trash2, User as UserIcon } from "lucide-react";
+
+// Função para converter dados da API para objetos Date
+function convertApiUserToUser(apiUser: any): User {
+  return {
+    ...apiUser,
+    createdAt: new Date(apiUser.createdAt),
+    updatedAt: new Date(apiUser.updatedAt),
+  };
+}
 
 export default function UserList() {
   const [users, setUsers] = useState<User[]>([]);
@@ -29,33 +38,46 @@ export default function UserList() {
     email: "",
   });
 
-  // Carregar usuários
-  const loadUsers = async () => {
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  async function loadUsers() {
     try {
       setLoading(true);
-      const response = await apiService.getUsers();
+      setError(null);
+      console.log("Carregando usuários...");
+
+      const response = await api.getUsers();
+      console.log("Resposta da API:", response);
 
       if (response.success && response.data) {
-        setUsers(response.data);
+        // Converter strings de data para objetos Date
+        const convertedUsers = response.data.map(convertApiUserToUser);
+        setUsers(convertedUsers);
+        console.log("Usuários definidos:", convertedUsers.length);
       } else {
+        console.error("Erro na resposta da API:", response.error);
         setError(response.error || "Erro ao carregar usuários");
+        setUsers([]);
       }
     } catch (err) {
-      setError("Erro de conexão");
+      console.error("Erro ao carregar usuários:", err);
+      setError("Erro ao carregar usuários");
+      setUsers([]);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  // Criar usuário
-  const handleCreateUser = async (e: React.FormEvent) => {
+  async function handleCreateUser(e: React.FormEvent) {
     e.preventDefault();
 
     try {
-      const response = await apiService.createUser(formData);
-
+      const response = await api.createUser(formData);
       if (response.success && response.data) {
-        setUsers([...users, response.data]);
+        const newUser = convertApiUserToUser(response.data);
+        setUsers((prevUsers) => [...prevUsers, newUser]);
         setFormData({ name: "", email: "" });
         setShowForm(false);
         setError(null);
@@ -63,79 +85,88 @@ export default function UserList() {
         setError(response.error || "Erro ao criar usuário");
       }
     } catch (err) {
-      setError("Erro de conexão");
+      console.error("Erro ao criar usuário:", err);
+      setError("Erro ao criar usuário");
     }
-  };
+  }
 
-  // Atualizar usuário
-  const handleUpdateUser = async (e: React.FormEvent) => {
+  async function handleUpdateUser(e: React.FormEvent) {
     e.preventDefault();
 
     if (!editingUser) return;
 
     try {
-      const response = await apiService.updateUser(editingUser.id, formData);
-
+      const response = await api.updateUser(editingUser.id, formData);
       if (response.success && response.data) {
-        setUsers(
-          users.map((user) =>
-            user.id === editingUser.id ? response.data! : user
+        const updatedUser = convertApiUserToUser(response.data);
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === editingUser.id ? updatedUser : user
           )
         );
         setFormData({ name: "", email: "" });
         setEditingUser(null);
+        setShowForm(false);
         setError(null);
       } else {
         setError(response.error || "Erro ao atualizar usuário");
       }
     } catch (err) {
-      setError("Erro de conexão");
+      console.error("Erro ao atualizar usuário:", err);
+      setError("Erro ao atualizar usuário");
     }
-  };
+  }
 
-  // Deletar usuário
-  const handleDeleteUser = async (id: number) => {
+  async function handleDeleteUser(id: number) {
     if (!confirm("Tem certeza que deseja deletar este usuário?")) return;
 
     try {
-      const response = await apiService.deleteUser(id);
-
+      const response = await api.deleteUser(id);
       if (response.success) {
-        setUsers(users.filter((user) => user.id !== id));
-        setError(null);
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
       } else {
         setError(response.error || "Erro ao deletar usuário");
       }
     } catch (err) {
-      setError("Erro de conexão");
+      console.error("Erro ao deletar usuário:", err);
+      setError("Erro ao deletar usuário");
     }
-  };
+  }
 
-  // Editar usuário
-  const handleEditUser = (user: User) => {
+  function handleEditUser(user: User) {
     setEditingUser(user);
     setFormData({
       name: user.name,
       email: user.email,
     });
     setShowForm(true);
-  };
+  }
 
-  // Cancelar edição
-  const handleCancelEdit = () => {
+  function handleCancelEdit() {
     setEditingUser(null);
     setFormData({ name: "", email: "" });
     setShowForm(false);
-  };
+  }
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  console.log("Estado atual - users:", users);
+  console.log("Estado atual - loading:", loading);
+  console.log("Estado atual - error:", error);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Carregando usuários...</div>
+      <div className="flex justify-center items-center p-8">
+        <p>Carregando usuários...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={loadUsers}>Tentar novamente</Button>
+        </div>
       </div>
     );
   }
@@ -154,12 +185,6 @@ export default function UserList() {
           Novo Usuário
         </Button>
       </div>
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
 
       {showForm && (
         <Card className="mb-6">
@@ -221,61 +246,76 @@ export default function UserList() {
         </Card>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {users.map((user) => (
-          <Card key={user.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <UserIcon className="w-5 h-5 text-primary" />
-                <CardTitle className="text-lg">{user.name}</CardTitle>
-              </div>
-              <CardDescription>{user.email}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Criado em: {formatDate(new Date(user.createdAt))}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Atualizado em: {formatDate(new Date(user.updatedAt))}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditUser(user)}
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteUser(user.id)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Deletar
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {users.length === 0 && !loading && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <UserIcon className="w-12 h-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">
-              Nenhum usuário encontrado
-            </h3>
-            <p className="text-muted-foreground text-center">
-              Comece criando o primeiro usuário do sistema.
-            </p>
-          </CardContent>
-        </Card>
+      {users.length === 0 ? (
+        <div className="text-center py-8">
+          <UserIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Nenhum usuário encontrado
+          </h3>
+          <p className="text-gray-500 mb-4">
+            Comece criando o primeiro usuário do sistema
+          </p>
+          <Button onClick={() => setShowForm(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Criar Primeiro Usuário
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {users.map((user) => (
+            <UserCard
+              key={user.id}
+              user={user}
+              onEdit={handleEditUser}
+              onDelete={handleDeleteUser}
+            />
+          ))}
+        </div>
       )}
     </div>
+  );
+}
+
+interface UserCardProps {
+  user: User;
+  onEdit: (user: User) => void;
+  onDelete: (id: number) => void;
+}
+
+function UserCard({ user, onEdit, onDelete }: UserCardProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">{user.name}</CardTitle>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => onEdit(user)}>
+              <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onDelete(user.id)}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div>
+            <span className="text-sm font-medium text-gray-500">Email:</span>
+            <p className="text-sm">{user.email}</p>
+          </div>
+          <div>
+            <span className="text-sm font-medium text-gray-500">
+              Criado em:
+            </span>
+            <p className="text-sm">{formatDate(user.createdAt)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
