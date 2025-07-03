@@ -1,5 +1,5 @@
 import { db } from "./connection";
-import { users } from "./schema";
+import { users, tasks } from "./schema";
 
 /**
  * Dados de exemplo para popular o banco
@@ -12,8 +12,24 @@ const sampleUsers = [
   { name: "Carlos Ferreira", email: "carlos@example.com" },
 ];
 
+const sampleTasks = [
+  {
+    title: "Estudar React",
+    description: "Revisar hooks e componentes",
+    userId: 1,
+  },
+  { title: "Implementar API", description: "Criar endpoints REST", userId: 1 },
+  {
+    title: "Testar aplicação",
+    description: "Executar testes unitários",
+    userId: 2,
+  },
+  { title: "Deploy", description: "Fazer deploy em produção", userId: 2 },
+  { title: "Documentação", description: "Atualizar README", userId: 3 },
+];
+
 /**
- * Cria dados de exemplo se a tabela estiver vazia
+ * Cria dados de exemplo se as tabelas estiverem vazias
  */
 export async function seedDatabase() {
   try {
@@ -22,7 +38,7 @@ export async function seedDatabase() {
     const existingUsers = await db.select().from(users);
 
     if (existingUsers.length === 0) {
-      console.log("🌱 Criando dados de exemplo...");
+      console.log("🌱 Criando usuários de exemplo...");
 
       for (const userData of sampleUsers) {
         await db.insert(users).values(userData);
@@ -32,18 +48,35 @@ export async function seedDatabase() {
     } else {
       console.log(`ℹ️ Já existem ${existingUsers.length} usuários no banco`);
     }
+
+    const existingTasks = await db.select().from(tasks);
+
+    if (existingTasks.length === 0) {
+      console.log("🌱 Criando tasks de exemplo...");
+
+      for (const taskData of sampleTasks) {
+        await db.insert(tasks).values(taskData);
+      }
+
+      console.log(`✅ ${sampleTasks.length} tasks de exemplo criadas!`);
+    } else {
+      console.log(`ℹ️ Já existem ${existingTasks.length} tasks no banco`);
+    }
+
+    console.log("🎉 Seed concluído com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao verificar dados de exemplo:", error);
   }
 }
 
 /**
- * Limpa todos os dados da tabela (apenas para desenvolvimento)
+ * Limpa todos os dados das tabelas (apenas para desenvolvimento)
  */
 export async function clearDatabase() {
   try {
     console.log("🧹 Limpando dados do banco...");
 
+    await db.delete(tasks);
     await db.delete(users);
 
     console.log("✅ Dados limpos com sucesso!");

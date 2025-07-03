@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import app from "./index";
 import { Config } from "./config";
-import { initializeDatabase, createTables } from "./db/init";
+import { initializeDatabase } from "./db/init";
 import { seedDatabase } from "./db/seed";
 
 async function startServer() {
@@ -16,13 +16,6 @@ async function startServer() {
 
     if (!dbInitialized) {
       console.error("❌ Falha ao inicializar banco de dados. Encerrando...");
-      process.exit(1);
-    }
-
-    // Cria as tabelas se necessário
-    const tablesCreated = await createTables();
-    if (!tablesCreated) {
-      console.error("❌ Falha ao criar tabelas. Encerrando...");
       process.exit(1);
     }
 

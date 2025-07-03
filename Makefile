@@ -1,5 +1,5 @@
 # Makefile para Projeto Integrador
-.PHONY: help dev build clean docker-up docker-down docker-rebuild db-seed db-reset
+.PHONY: help dev build clean docker-up docker-down docker-rebuild db-create-tables db-seed db-clear db-reset
 
 # Variáveis
 NODE_ENV ?= development
@@ -14,8 +14,10 @@ help:
 	@echo "  docker-up     - Subir containers"
 	@echo "  docker-down   - Parar containers"
 	@echo "  docker-rebuild- Reconstruir containers"
+	@echo "  db-create-tables - Criar tabelas do banco"
 	@echo "  db-seed       - Popular banco com dados"
-	@echo "  db-reset      - Resetar banco"
+	@echo "  db-clear      - Limpar dados do banco"
+	@echo "  db-reset      - Resetar banco (limpar + popular)"
 
 # Desenvolvimento
 dev:
@@ -44,11 +46,25 @@ docker-rebuild:
 	docker-compose up -d
 
 # Banco de dados
+db-create-tables:
+	@echo "🗄️ Criando tabelas do banco..."
+	cd apps/server && bun run db:create-tables
+	@echo "✅ Tabelas criadas!"
+
 db-seed:
-	cd apps/server && bun run seed
+	@echo "🌱 Populando banco com dados..."
+	cd apps/server && bun run db:seed
+	@echo "✅ Banco populado!"
+
+db-clear:
+	@echo "🧹 Limpando dados do banco..."
+	cd apps/server && bun run db:clear
+	@echo "✅ Dados limpos!"
 
 db-reset:
-	cd apps/server && bun run seed reset
+	@echo "🔄 Resetando banco..."
+	cd apps/server && bun run db:reset
+	@echo "✅ Banco resetado!"
 
 # Instalar dependências
 install:
@@ -71,14 +87,6 @@ logs:
 	@echo "📋 Logs dos containers..."
 	$(DOCKER_COMPOSE) logs -f
 
-logs-server:
-	@echo "📋 Logs do servidor..."
-	$(DOCKER_COMPOSE) logs -f projetointegrador_server
-
-logs-client:
-	@echo "📋 Logs do cliente..."
-	$(DOCKER_COMPOSE) logs -f projetointegrador_client
-
 # Database commands
 db-generate:
 	@echo "🗄️ Gerando migrações do banco..."
@@ -97,35 +105,17 @@ setup:
 	@make docker-up
 	@echo "⏳ Aguardando serviços iniciarem..."
 	@sleep 10
-	@make db-generate
-	@make db-migrate
+	@make db-create-tables
+	@make db-seed
 	@echo "✅ Setup concluído!"
-	@echo "🌐 Acesse: http://localhost:5173"
+	@echo "🌐 Acesse: http://localhost:5190"
 
 # Comandos de desenvolvimento rápido
 dev-server:
-	@echo "🔧 Iniciando apenas o servidor..."
+	@echo "�� Iniciando apenas o servidor..."
 	cd apps/server && bun run dev
 
 dev-client:
 	@echo "🎨 Iniciando apenas o cliente..."
 	cd apps/client && bun run dev
 
-# Comandos de teste
-test:
-	@echo "🧪 Executando testes..."
-	bun test
-
-# Comandos de linting
-lint:
-	@echo "🔍 Executando linting..."
-	bun run lint
-
-lint-fix:
-	@echo "🔧 Corrigindo problemas de linting..."
-	bun run lint --fix
-
-# Comandos de type checking
-type-check:
-	@echo "🔍 Verificando tipos..."
-	bun run type-check 

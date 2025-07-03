@@ -1,6 +1,7 @@
 import { db } from "./connection";
 import { sql } from "drizzle-orm";
 import { Config } from "../config";
+import { createTables } from "./../scripts/createTables";
 
 /**
  * Inicializa o banco de dados
@@ -11,6 +12,7 @@ export async function initializeDatabase() {
 
     // Testa a conexão com uma query simples
     await db.execute(sql`SELECT 1 as test`);
+    /* await createTables(); */
 
     console.log("✅ Conexão com o banco de dados estabelecida com sucesso!");
     console.log("📊 Banco de dados pronto para uso");
@@ -51,31 +53,5 @@ export async function checkDatabaseHealth(): Promise<{
       message: "Falha na conexão com o banco de dados",
       timestamp: new Date().toISOString(),
     };
-  }
-}
-
-/**
- * Cria as tabelas do banco de dados
- */
-export async function createTables() {
-  try {
-    console.log("🔄 Criando tabelas do banco de dados...");
-
-    // Cria a tabela users usando o schema do Drizzle
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    console.log("✅ Tabela 'users' criada com sucesso!");
-    return true;
-  } catch (error) {
-    console.error("❌ Erro ao criar tabelas:", error);
-    return false;
   }
 }

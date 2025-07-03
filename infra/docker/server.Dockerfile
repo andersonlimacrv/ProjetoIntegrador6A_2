@@ -41,12 +41,15 @@ COPY --from=base /app/apps/server/package.json ./apps/server/
 # Instalar apenas dependências de produção
 RUN bun install --production
 
-# Expor porta (será sobrescrita pelo docker-compose)
-EXPOSE 3000
+ARG SERVER_PORT
+ENV SERVER_PORT=${SERVER_PORT}
+
+EXPOSE ${CLIENT_PORT}
+
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:${SERVER_PORT:-3000}/health || exit 1
+  CMD curl -f http://localhost:${SERVER_PORT}/health || exit 1
 
 # Comando de inicialização
 CMD ["bun", "run", "apps/server/dist/server.js"]
