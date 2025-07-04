@@ -1,0 +1,163 @@
+### Testes para Activities API
+### Base URL: http://localhost:3000/api/activities
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar nova atividade
+POST http://localhost:3000/api/activities
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "type": "task_created",
+  "description": "Tarefa 'Implementar login' foi criada",
+  "user_id": "{{user_id}}",
+  "project_id": "{{project_id}}",
+  "task_id": "{{task_id}}",
+  "metadata": {
+    "task_title": "Implementar login",
+    "priority": "high"
+  }
+}
+
+### 2. Listar todas as atividades
+GET http://localhost:3000/api/activities
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar atividade por ID
+GET http://localhost:3000/api/activities/{{activity_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Atualizar atividade
+PUT http://localhost:3000/api/activities/{{activity_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "description": "Tarefa 'Implementar login' foi criada e atribuída"
+}
+
+### 5. Deletar atividade
+DELETE http://localhost:3000/api/activities/{{activity_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATIVIDADES POR USUÁRIO
+### ========================================
+
+### 6. Listar atividades por usuário
+GET http://localhost:3000/api/activities/user/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATIVIDADES POR PROJETO
+### ========================================
+
+### 7. Listar atividades por projeto
+GET http://localhost:3000/api/activities/project/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATIVIDADES POR TAREFA
+### ========================================
+
+### 8. Listar atividades por tarefa
+GET http://localhost:3000/api/activities/task/{{task_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATIVIDADES POR TIPO
+### ========================================
+
+### 9. Listar atividades por tipo
+GET http://localhost:3000/api/activities/type/task_created
+Authorization: Bearer {{auth_token}}
+
+### 10. Listar atividades por tipo (task_updated)
+GET http://localhost:3000/api/activities/type/task_updated
+Authorization: Bearer {{auth_token}}
+
+### 11. Listar atividades por tipo (task_completed)
+GET http://localhost:3000/api/activities/type/task_completed
+Authorization: Bearer {{auth_token}}
+
+### 12. Listar atividades por tipo (comment_added)
+GET http://localhost:3000/api/activities/type/comment_added
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### FEED DO USUÁRIO
+### ========================================
+
+### 13. Buscar feed do usuário
+GET http://localhost:3000/api/activities/feed/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### EXEMPLOS DE ATIVIDADES ESPECÍFICAS
+### ========================================
+
+### 14. Criar atividade de criação de projeto
+POST http://localhost:3000/api/activities
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "type": "project_created",
+  "description": "Projeto 'Sistema de Gestão' foi criado",
+  "user_id": "{{user_id}}",
+  "project_id": "{{project_id}}",
+  "metadata": {
+    "project_name": "Sistema de Gestão",
+    "project_slug": "sistema-gestao"
+  }
+}
+
+### 15. Criar atividade de atribuição de tarefa
+POST http://localhost:3000/api/activities
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "type": "task_assigned",
+  "description": "Tarefa 'Implementar login' foi atribuída para João Silva",
+  "user_id": "{{user_id}}",
+  "project_id": "{{project_id}}",
+  "task_id": "{{task_id}}",
+  "metadata": {
+    "task_title": "Implementar login",
+    "assignee_name": "João Silva",
+    "assignee_id": "{{assignee_id}}"
+  }
+}
+
+### 16. Criar atividade de conclusão de tarefa
+POST http://localhost:3000/api/activities
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "type": "task_completed",
+  "description": "Tarefa 'Implementar login' foi concluída",
+  "user_id": "{{user_id}}",
+  "project_id": "{{project_id}}",
+  "task_id": "{{task_id}}",
+  "metadata": {
+    "task_title": "Implementar login",
+    "completion_time": "2024-01-15T10:30:00Z",
+    "actual_hours": 8.5
+  }
+}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @activity_id = 123e4567-e89b-12d3-a456-426614174000
+# @user_id = 456e7890-e89b-12d3-a456-426614174001
+# @project_id = 789e0123-e89b-12d3-a456-426614174002
+# @task_id = abc-def-ghi-jkl
+# @assignee_id = mno-pqr-stu-vwx
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

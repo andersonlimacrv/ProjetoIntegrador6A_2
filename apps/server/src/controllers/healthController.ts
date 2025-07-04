@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { checkDatabaseHealth } from "../db/init";
 import { Config } from "../config";
+import { ApiResponse } from "@shared";
 
 /**
  * Health check do servidor

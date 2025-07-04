@@ -1,0 +1,99 @@
+### Testes para User Stories API
+### Base URL: http://localhost:3000/api/user-stories
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar nova história de usuário
+POST http://localhost:3000/api/user-stories
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Como usuário, quero fazer login no sistema",
+  "description": "Implementar funcionalidade de login com email e senha",
+  "acceptance_criteria": "1. Usuário deve inserir email válido\n2. Usuário deve inserir senha\n3. Sistema deve validar credenciais\n4. Sistema deve redirecionar para dashboard após login",
+  "project_id": "{{project_id}}",
+  "epic_id": "{{epic_id}}",
+  "priority": 1,
+  "story_points": 3
+}
+
+### 2. Listar todas as histórias de usuário
+GET http://localhost:3000/api/user-stories
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar história de usuário por ID
+GET http://localhost:3000/api/user-stories/{{story_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Atualizar história de usuário
+PUT http://localhost:3000/api/user-stories/{{story_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Como usuário, quero fazer login no sistema com autenticação de dois fatores",
+  "description": "Implementar funcionalidade de login com email, senha e autenticação de dois fatores",
+  "story_points": 5
+}
+
+### 5. Deletar história de usuário
+DELETE http://localhost:3000/api/user-stories/{{story_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### HISTÓRIAS POR PROJETO
+### ========================================
+
+### 6. Listar histórias por projeto
+GET http://localhost:3000/api/user-stories/project/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### HISTÓRIAS POR ÉPICO
+### ========================================
+
+### 7. Listar histórias por épico
+GET http://localhost:3000/api/user-stories/epic/{{epic_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS DA HISTÓRIA
+### ========================================
+
+### 8. Listar tarefas da história
+GET http://localhost:3000/api/user-stories/{{story_id}}/tasks
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### STATUS DA HISTÓRIA
+### ========================================
+
+### 9. Atualizar status da história
+PATCH http://localhost:3000/api/user-stories/{{story_id}}/status/{{status_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### SPRINT DA HISTÓRIA
+### ========================================
+
+### 10. Adicionar história ao sprint
+POST http://localhost:3000/api/user-stories/{{story_id}}/sprint/{{sprint_id}}
+Authorization: Bearer {{auth_token}}
+
+### 11. Remover história do sprint
+DELETE http://localhost:3000/api/user-stories/{{story_id}}/sprint
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @story_id = 123e4567-e89b-12d3-a456-426614174000
+# @project_id = 456e7890-e89b-12d3-a456-426614174001
+# @epic_id = 789e0123-e89b-12d3-a456-426614174002
+# @sprint_id = abc-def-ghi-jkl
+# @status_id = mno-pqr-stu-vwx
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

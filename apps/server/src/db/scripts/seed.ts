@@ -1,4 +1,4 @@
-import { seedDatabase } from "../db/seed";
+import { seedDatabase } from "../seed";
 
 /**
  * Script para povoar o banco de dados

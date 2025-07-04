@@ -1,0 +1,102 @@
+### Testes para Comments API
+### Base URL: http://localhost:3000/api/comments
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar novo comentário
+POST http://localhost:3000/api/comments
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "Iniciando implementação da funcionalidade de login",
+  "task_id": "{{task_id}}",
+  "user_id": "{{user_id}}"
+}
+
+### 2. Listar todos os comentários
+GET http://localhost:3000/api/comments
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar comentário por ID
+GET http://localhost:3000/api/comments/{{comment_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Atualizar comentário
+PUT http://localhost:3000/api/comments/{{comment_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "Iniciando implementação da funcionalidade de login com validações"
+}
+
+### 5. Deletar comentário
+DELETE http://localhost:3000/api/comments/{{comment_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### COMENTÁRIOS POR TAREFA
+### ========================================
+
+### 6. Listar comentários por tarefa
+GET http://localhost:3000/api/comments/task/{{task_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### COMENTÁRIOS POR USUÁRIO
+### ========================================
+
+### 7. Listar comentários por usuário
+GET http://localhost:3000/api/comments/user/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### REAÇÕES
+### ========================================
+
+### 8. Listar reações do comentário
+GET http://localhost:3000/api/comments/{{comment_id}}/reactions
+Authorization: Bearer {{auth_token}}
+
+### 9. Adicionar reação ao comentário
+POST http://localhost:3000/api/comments/{{comment_id}}/reactions
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "type": "like",
+  "user_id": "{{user_id}}"
+}
+
+### 10. Remover reação do comentário
+DELETE http://localhost:3000/api/comments/{{comment_id}}/reactions/{{reaction_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### COMENTÁRIOS ANINHADOS
+### ========================================
+
+### 11. Criar comentário de resposta
+POST http://localhost:3000/api/comments
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "Concordo com a abordagem!",
+  "task_id": "{{task_id}}",
+  "user_id": "{{user_id}}",
+  "parent_id": "{{comment_id}}"
+}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @comment_id = 123e4567-e89b-12d3-a456-426614174000
+# @task_id = 456e7890-e89b-12d3-a456-426614174001
+# @user_id = 789e0123-e89b-12d3-a456-426614174002
+# @reaction_id = abc-def-ghi-jkl
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

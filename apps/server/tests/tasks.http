@@ -1,0 +1,234 @@
+### Testes para Tasks API
+### Base URL: http://localhost:3000/api/tasks
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar nova tarefa
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Implementar tela de login",
+  "description": "Criar interface de usuário para autenticação",
+  "project_id": "{{project_id}}",
+  "user_story_id": "{{story_id}}",
+  "assignee_id": "{{user_id}}",
+  "reporter_id": "{{user_id}}",
+  "priority": "high",
+  "estimated_hours": 8.0,
+  "due_date": "2024-12-31T23:59:59Z"
+}
+
+### 2. Listar todas as tarefas
+GET http://localhost:3000/api/tasks
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar tarefa por ID
+GET http://localhost:3000/api/tasks/{{task_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Buscar tarefa com detalhes completos
+GET http://localhost:3000/api/tasks/{{task_id}}/details
+Authorization: Bearer {{auth_token}}
+
+### 5. Atualizar tarefa
+PUT http://localhost:3000/api/tasks/{{task_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Implementar tela de login responsiva",
+  "description": "Criar interface de usuário responsiva para autenticação",
+  "priority": "medium",
+  "estimated_hours": 12.0
+}
+
+### 6. Deletar tarefa
+DELETE http://localhost:3000/api/tasks/{{task_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR PROJETO
+### ========================================
+
+### 7. Listar tarefas por projeto
+GET http://localhost:3000/api/tasks/project/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR HISTÓRIA
+### ========================================
+
+### 8. Listar tarefas por história de usuário
+GET http://localhost:3000/api/tasks/story/{{story_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR RESPONSÁVEL
+### ========================================
+
+### 9. Listar tarefas por responsável
+GET http://localhost:3000/api/tasks/assignee/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR REPORTER
+### ========================================
+
+### 10. Listar tarefas por reporter
+GET http://localhost:3000/api/tasks/reporter/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR STATUS
+### ========================================
+
+### 11. Listar tarefas por status
+GET http://localhost:3000/api/tasks/status/{{status_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TAREFAS POR PRIORIDADE
+### ========================================
+
+### 12. Listar tarefas por prioridade
+GET http://localhost:3000/api/tasks/priority/high
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATRIBUIÇÕES
+### ========================================
+
+### 13. Atribuir tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/assign/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### 14. Remover atribuição
+DELETE http://localhost:3000/api/tasks/{{task_id}}/assign/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### 15. Listar atribuições da tarefa
+GET http://localhost:3000/api/tasks/{{task_id}}/assignments
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ETIQUETAS
+### ========================================
+
+### 16. Listar etiquetas da tarefa
+GET http://localhost:3000/api/tasks/{{task_id}}/labels
+Authorization: Bearer {{auth_token}}
+
+### 17. Adicionar etiqueta à tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/labels/{{label_id}}
+Authorization: Bearer {{auth_token}}
+
+### 18. Remover etiqueta da tarefa
+DELETE http://localhost:3000/api/tasks/{{task_id}}/labels/{{label_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ANEXOS
+### ========================================
+
+### 19. Listar anexos da tarefa
+GET http://localhost:3000/api/tasks/{{task_id}}/attachments
+Authorization: Bearer {{auth_token}}
+
+### 20. Adicionar anexo à tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/attachments
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+Authorization: Bearer {{auth_token}}
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="file"; filename="documento.pdf"
+Content-Type: application/pdf
+
+< ./documento.pdf
+------WebKitFormBoundary--
+
+### 21. Remover anexo da tarefa
+DELETE http://localhost:3000/api/tasks/{{task_id}}/attachments/{{attachment_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### DEPENDÊNCIAS
+### ========================================
+
+### 22. Listar dependências da tarefa
+GET http://localhost:3000/api/tasks/{{task_id}}/dependencies
+Authorization: Bearer {{auth_token}}
+
+### 23. Adicionar dependência à tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/dependencies
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "dependent_task_id": "{{dependent_task_id}}"
+}
+
+### 24. Remover dependência da tarefa
+DELETE http://localhost:3000/api/tasks/{{task_id}}/dependencies/{{dependency_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### COMENTÁRIOS
+### ========================================
+
+### 25. Listar comentários da tarefa
+GET http://localhost:3000/api/tasks/{{task_id}}/comments
+Authorization: Bearer {{auth_token}}
+
+### 26. Adicionar comentário à tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/comments
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "Iniciando implementação da tela de login"
+}
+
+### ========================================
+### TEMPO
+### ========================================
+
+### 27. Listar tarefas em atraso
+GET http://localhost:3000/api/tasks/overdue
+Authorization: Bearer {{auth_token}}
+
+### 28. Atualizar tempo da tarefa
+PATCH http://localhost:3000/api/tasks/{{task_id}}/time
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "actual_hours": 10.5
+}
+
+### ========================================
+### TAREFAS POR SPRINT
+### ========================================
+
+### 29. Listar tarefas por sprint
+GET http://localhost:3000/api/tasks/sprint/{{sprint_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @task_id = 123e4567-e89b-12d3-a456-426614174000
+# @project_id = 456e7890-e89b-12d3-a456-426614174001
+# @story_id = 789e0123-e89b-12d3-a456-426614174002
+# @user_id = abc-def-ghi-jkl
+# @status_id = mno-pqr-stu-vwx
+# @label_id = yz1-234-567-890
+# @attachment_id = abc123-def456
+# @dependent_task_id = 111-222-333-444
+# @dependency_id = 555-666-777-888
+# @sprint_id = 999-000-111-222
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

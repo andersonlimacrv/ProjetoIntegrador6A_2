@@ -1,174 +1,866 @@
 import { Context } from "hono";
-import { taskService } from "../services/TaskService";
+ import { TaskService } from "../services/TaskService";
 import {
-  CreateTaskSchema,
-  UpdateTaskSchema,
-  TaskIdSchema,
-} from "@packages/shared";
-import { validate, validateParams } from "../middlewares/validation";
+   ApiResponse,
+   Task,
+   CreateTaskInput,
+   UpdateTaskInput,
+   TaskIdInput,
+   CreateCommentInput,
+ } from "@shared";
 
-/**
- * Controller para operações de tasks
- */
 export class TaskController {
-  /**
-   * Lista todas as tasks
-   */
-  static async getAllTasks(c: Context) {
-    const result = await taskService.getAllTasks();
+   private taskService: TaskService;
 
-    if (!result.success) {
-      return c.json(result, 500);
-    }
+   constructor() {
+     this.taskService = new TaskService();
+   }
 
-    return c.json(result);
-  }
+   async getAllTasks(c: Context): Promise<Response> {
+     try {
+       const tasks = await this.taskService.getAllTasks();
 
-  /**
-   * Lista tasks de um usuário específico
-   */
-  static async getTasksByUserId(c: Context) {
-    const userId = parseInt(c.req.param("userId"));
-    const result = await taskService.getTasksByUserId(userId);
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao listar tarefas",
+         },
+         400
+       );
+     }
+   }
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+   async getTaskById(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const task = await this.taskService.getTaskById(parseInt(id));
 
-    return c.json(result);
-  }
+       if (!task) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Tarefa não encontrada",
+           },
+           404
+         );
+       }
 
-  /**
-   * Busca uma task por ID
-   */
-  static async getTaskById(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const result = await taskService.getTaskById(validatedParams.id);
+       return c.json<ApiResponse<Task>>({
+         success: true,
+         data: task,
+         message: "Tarefa encontrada com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao buscar tarefa",
+         },
+         400
+       );
+     }
+   }
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+   async createTask(c: Context): Promise<Response> {
+     try {
+       const input: CreateTaskInput = await c.req.json();
+       const task = await this.taskService.createTask(input);
 
-    return c.json(result);
-  }
+       return c.json<ApiResponse<Task>>(
+         {
+           success: true,
+           data: task,
+           message: "Tarefa criada com sucesso",
+         },
+         201
+       );
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao criar tarefa",
+         },
+         400
+       );
+     }
+   }
 
-  /**
-   * Busca uma task por ID com dados do usuário
-   */
-  static async getTaskByIdWithUser(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const result = await taskService.getTaskByIdWithUser(validatedParams.id);
+   async updateTask(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const input: UpdateTaskInput = await c.req.json();
+       const task = await this.taskService.updateTask(parseInt(id), input);
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+       if (!task) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Tarefa não encontrada",
+           },
+           404
+         );
+       }
 
-    return c.json(result);
-  }
+       return c.json<ApiResponse<Task>>({
+         success: true,
+         data: task,
+         message: "Tarefa atualizada com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao atualizar tarefa",
+         },
+         400
+       );
+     }
+   }
 
-  /**
-   * Cria uma nova task
-   */
-  static async createTask(c: Context) {
-    const validatedData = c.get("validatedData");
-    const result = await taskService.createTask(validatedData);
+   async deleteTask(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const success = await this.taskService.deleteTask(parseInt(id));
 
-    if (!result.success) {
-      return c.json(result, 400);
-    }
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Tarefa não encontrada",
+           },
+           404
+         );
+       }
 
-    return c.json(result, 201);
-  }
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Tarefa deletada com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao deletar tarefa",
+         },
+         400
+       );
+     }
+   }
 
-  /**
-   * Atualiza uma task existente
-   */
-  static async updateTask(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const validatedData = c.get("validatedData");
+   async getTasksByProject(c: Context): Promise<Response> {
+     try {
+       const { projectId } = c.req.param();
+       const tasks = await this.taskService.getTasksByProject(
+         parseInt(projectId)
+       );
 
-    const result = await taskService.updateTask(
-      validatedParams.id,
-      validatedData
-    );
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas do projeto listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas do projeto",
+         },
+         400
+       );
+     }
+   }
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+   async getTasksByStory(c: Context): Promise<Response> {
+     try {
+       const { storyId } = c.req.param();
+       const tasks = await this.taskService.getTasksByStory(parseInt(storyId));
 
-    return c.json(result);
-  }
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas da história listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas da história",
+         },
+         400
+       );
+     }
+   }
 
-  /**
-   * Marca uma task como completa
-   */
-  static async markTaskAsCompleted(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const result = await taskService.markTaskAsCompleted(validatedParams.id);
+   async getTasksByAssignee(c: Context): Promise<Response> {
+     try {
+       const { assigneeId } = c.req.param();
+       const tasks = await this.taskService.getTasksByAssignee(
+         parseInt(assigneeId)
+       );
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas do responsável listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas do responsável",
+         },
+         400
+       );
+     }
+   }
 
-    return c.json(result);
-  }
+   async getTasksByReporter(c: Context): Promise<Response> {
+     try {
+       const { reporterId } = c.req.param();
+       const tasks = await this.taskService.getTasksByReporter(
+         parseInt(reporterId)
+       );
 
-  /**
-   * Marca uma task como incompleta
-   */
-  static async markTaskAsIncomplete(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const result = await taskService.markTaskAsIncomplete(validatedParams.id);
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas do reporter listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas do reporter",
+         },
+         400
+       );
+     }
+   }
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+   async getTasksByStatus(c: Context): Promise<Response> {
+     try {
+       const { statusId } = c.req.param();
+       const tasks = await this.taskService.getTasksByStatus(
+         parseInt(statusId)
+       );
 
-    return c.json(result);
-  }
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas por status listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas por status",
+         },
+         400
+       );
+     }
+   }
 
-  /**
-   * Deleta uma task
-   */
-  static async deleteTask(c: Context) {
-    const validatedParams = c.get("validatedParams");
-    const result = await taskService.deleteTask(validatedParams.id);
+   async getTasksByPriority(c: Context): Promise<Response> {
+     try {
+       const { priority } = c.req.param();
+       const tasks = await this.taskService.getTasksByPriority(
+         parseInt(priority)
+       );
 
-    if (!result.success) {
-      return c.json(result, 404);
-    }
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas por prioridade listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas por prioridade",
+         },
+         400
+       );
+     }
+   }
 
-    return c.json(result);
-  }
+   async assignTask(c: Context): Promise<Response> {
+     try {
+       const { id, userId } = c.req.param();
+       const success = await this.taskService.assignTask(
+         parseInt(id),
+         parseInt(userId)
+       );
 
-  /**
-   * Lista tasks completadas
-   */
-  static async getCompletedTasks(c: Context) {
-    const result = await taskService.getCompletedTasks();
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao atribuir tarefa",
+           },
+           400
+         );
+       }
 
-    if (!result.success) {
-      return c.json(result, 500);
-    }
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Tarefa atribuída com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao atribuir tarefa",
+         },
+         400
+       );
+     }
+   }
 
-    return c.json(result);
-  }
+   async unassignTask(c: Context): Promise<Response> {
+     try {
+       const { id, userId } = c.req.param();
+       const success = await this.taskService.unassignTask(
+         parseInt(id),
+         parseInt(userId)
+       );
 
-  /**
-   * Lista tasks pendentes
-   */
-  static async getPendingTasks(c: Context) {
-    const result = await taskService.getPendingTasks();
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao desatribuir tarefa",
+           },
+           400
+         );
+       }
 
-    if (!result.success) {
-      return c.json(result, 500);
-    }
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Tarefa desatribuída com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao desatribuir tarefa",
+         },
+         400
+       );
+     }
+   }
 
-    return c.json(result);
-  }
-}
+   async getTaskAssignments(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const assignments = await this.taskService.getTaskAssignments(
+         parseInt(id)
+       );
 
-// Middlewares de validação pré-configurados
-export const validateCreateTask = validate(CreateTaskSchema);
-export const validateUpdateTask = validate(UpdateTaskSchema);
-export const validateTaskId = validateParams(TaskIdSchema);
+       return c.json<ApiResponse<any[]>>({
+         success: true,
+         data: assignments,
+         message: "Atribuições da tarefa listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar atribuições",
+         },
+         400
+       );
+     }
+   }
+
+   async getTaskLabels(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const labels = await this.taskService.getTaskLabels(parseInt(id));
+
+       return c.json<ApiResponse<any[]>>({
+         success: true,
+         data: labels,
+         message: "Etiquetas da tarefa listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar etiquetas",
+         },
+         400
+       );
+     }
+   }
+
+   async addLabelToTask(c: Context): Promise<Response> {
+     try {
+       const { id, labelId } = c.req.param();
+       const success = await this.taskService.addLabelToTask(
+         parseInt(id),
+         parseInt(labelId)
+       );
+
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao adicionar etiqueta",
+           },
+           400
+         );
+       }
+
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Etiqueta adicionada com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao adicionar etiqueta",
+         },
+         400
+       );
+     }
+   }
+
+   async removeLabelFromTask(c: Context): Promise<Response> {
+     try {
+       const { id, labelId } = c.req.param();
+       const success = await this.taskService.removeLabelFromTask(
+         parseInt(id),
+         parseInt(labelId)
+       );
+
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao remover etiqueta",
+           },
+           400
+         );
+       }
+
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Etiqueta removida com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao remover etiqueta",
+         },
+         400
+       );
+     }
+   }
+
+   async getTaskAttachments(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const attachments = await this.taskService.getTaskAttachments(
+         parseInt(id)
+       );
+
+       return c.json<ApiResponse<any[]>>({
+         success: true,
+         data: attachments,
+         message: "Anexos da tarefa listados com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao listar anexos",
+         },
+         400
+       );
+     }
+   }
+
+   async addAttachmentToTask(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const attachment = await c.req.json();
+       const result = await this.taskService.addAttachmentToTask(
+         parseInt(id),
+         attachment
+       );
+
+       return c.json<ApiResponse<any>>({
+         success: true,
+         data: result,
+         message: "Anexo adicionado com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao adicionar anexo",
+         },
+         400
+       );
+     }
+   }
+
+   async removeAttachmentFromTask(c: Context): Promise<Response> {
+     try {
+       const { id, attachmentId } = c.req.param();
+       const success = await this.taskService.removeAttachmentFromTask(
+         parseInt(id),
+         parseInt(attachmentId)
+       );
+
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao remover anexo",
+           },
+           400
+         );
+       }
+
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Anexo removido com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error ? error.message : "Erro ao remover anexo",
+         },
+         400
+       );
+     }
+   }
+
+   async getTaskDependencies(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const dependencies = await this.taskService.getTaskDependencies(
+         parseInt(id)
+       );
+
+       return c.json<ApiResponse<any[]>>({
+         success: true,
+         data: dependencies,
+         message: "Dependências da tarefa listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar dependências",
+         },
+         400
+       );
+     }
+   }
+
+   async addDependencyToTask(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const dependency = await c.req.json();
+       const result = await this.taskService.addDependencyToTask(
+         parseInt(id),
+         dependency
+       );
+
+       return c.json<ApiResponse<any>>({
+         success: true,
+         data: result,
+         message: "Dependência adicionada com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao adicionar dependência",
+         },
+         400
+       );
+     }
+   }
+
+   async removeDependencyFromTask(c: Context): Promise<Response> {
+     try {
+       const { id, dependencyId } = c.req.param();
+       const success = await this.taskService.removeDependencyFromTask(
+         parseInt(id),
+         parseInt(dependencyId)
+       );
+
+       if (!success) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Erro ao remover dependência",
+           },
+           400
+         );
+       }
+
+       return c.json<ApiResponse<null>>({
+         success: true,
+         data: null,
+         message: "Dependência removida com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao remover dependência",
+         },
+         400
+       );
+     }
+   }
+
+   async getTaskComments(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const comments = await this.taskService.getTaskComments(parseInt(id));
+
+       return c.json<ApiResponse<any[]>>({
+         success: true,
+         data: comments,
+         message: "Comentários da tarefa listados com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar comentários",
+         },
+         400
+       );
+     }
+   }
+
+   async addCommentToTask(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const input: CreateCommentInput = await c.req.json();
+       const comment = await this.taskService.addCommentToTask(
+         parseInt(id),
+         input
+       );
+
+       return c.json<ApiResponse<any>>({
+         success: true,
+         data: comment,
+         message: "Comentário adicionado com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao adicionar comentário",
+         },
+         400
+       );
+     }
+   }
+
+   async getOverdueTasks(c: Context): Promise<Response> {
+     try {
+       const tasks = await this.taskService.getOverdueTasks();
+
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas em atraso listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas em atraso",
+         },
+         400
+       );
+     }
+   }
+
+   async updateTaskTime(c: Context): Promise<Response> {
+     try {
+       const { id } = c.req.param() as TaskIdInput;
+       const timeData = await c.req.json();
+       const task = await this.taskService.updateTaskTime(
+         parseInt(id),
+         timeData
+       );
+
+       if (!task) {
+         return c.json<ApiResponse<null>>(
+           {
+             success: false,
+             data: null,
+             message: "Tarefa não encontrada",
+           },
+           404
+         );
+       }
+
+       return c.json<ApiResponse<Task>>({
+         success: true,
+         data: task,
+         message: "Tempo da tarefa atualizado com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao atualizar tempo da tarefa",
+         },
+         400
+       );
+     }
+   }
+
+   async getTasksBySprint(c: Context): Promise<Response> {
+     try {
+       const { sprintId } = c.req.param();
+       const tasks = await this.taskService.getTasksBySprint(
+         parseInt(sprintId)
+       );
+
+       return c.json<ApiResponse<Task[]>>({
+         success: true,
+         data: tasks,
+         message: "Tarefas do sprint listadas com sucesso",
+       });
+     } catch (error) {
+       return c.json<ApiResponse<null>>(
+         {
+           success: false,
+           data: null,
+           message:
+             error instanceof Error
+               ? error.message
+               : "Erro ao listar tarefas do sprint",
+         },
+         400
+       );
+     }
+   }
+ }

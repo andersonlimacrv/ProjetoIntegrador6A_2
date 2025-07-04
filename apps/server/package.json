@@ -4,11 +4,14 @@
   "type": "module",
   "dependencies": {
     "@packages/shared": "workspace:*",
-    "hono": "^4.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.3.1",
     "drizzle-orm": "^0.29.0",
+    "hono": "^4.0.0",
+    "jsonwebtoken": "^9.0.2",
     "postgres": "^3.4.0",
-    "zod": "^3.22.4",
-    "dotenv": "^16.3.1"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -23,10 +26,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:create-tables": "bun run src/scripts/createTables.ts",
-    "db:seed": "bun run src/scripts/seed.ts",
-    "db:clear": "bun run src/scripts/clear.ts",
-    "db:reset": "bun run src/scripts/reset.ts",
-    "seed": "bun run src/scripts/seed.ts"
+    "db:create-tables": "bun run src/db/scripts/createTables.ts",
+    "db:drop-tables": "bun run src/db/scripts/dropTables.ts",
+    "db:seed": "bun run src/db/scripts/seed.ts",
+    "db:validate-schema": "bun run src/db/scripts/validateSchema.ts",
+    "db:validate-detailed": "bun run src/db/scripts/detailedValidation.ts"
   }
 }

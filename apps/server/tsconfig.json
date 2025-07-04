@@ -10,7 +10,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@packages/shared/*": ["../../packages/shared/src/*"]
+      "@packages/shared": ["../../packages/shared/src/index.ts"],
+      "@shared": ["../../packages/shared/src/index.ts"],
+      "@shared/*": ["../../packages/shared/src/*"]
     }
   },
   "include": ["src/**/*"],

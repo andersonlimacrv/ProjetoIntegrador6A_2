@@ -1,0 +1,98 @@
+### Testes para Users API
+
+
+# @user_id = 123e4567-e89b-12d3-a456-426614174000
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+# @refresh_token = refresh_token_123456789
+# @session_id = 456e7890-e89b-12d3-a456-426614174001 
+@base_url = {{$dotenv VITE_API_URL}}
+
+### 1. Criar novo usuário
+POST {{base_url}}/api/users
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao.silva@exemplo.com",
+  "password": "senha123456"
+}
+
+### 2. Listar todos os usuários
+GET {{base_url}}/api/users
+
+### 3. Buscar usuário por ID
+GET {{base_url}}/api/users/{{user_id}}
+
+### 4. Atualizar usuário
+PUT {{base_url}}/api/users/{{user_id}}
+Content-Type: application/json
+
+{
+  "name": "João Silva Santos",
+  "avatar_url": "https://exemplo.com/avatar.jpg"
+}
+
+### 5. Deletar usuário
+DELETE {{base_url}}/api/users/{{user_id}}
+
+### ========================================
+### AUTENTICAÇÃO
+### ========================================
+
+### 6. Login do usuário
+POST {{base_url}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "joao.silva@exemplo.com",
+  "password": "senha123456"
+}
+
+### 7. Logout do usuário
+POST {{base_url}}/api/users/logout
+Authorization: Bearer {{auth_token}}
+
+### 8. Refresh token
+POST {{base_url}}/api/users/refresh-token
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### ========================================
+### SESSÕES
+### ========================================
+
+### 9. Listar sessões do usuário
+GET {{base_url}}/api/users/{{user_id}}/sessions
+Authorization: Bearer {{auth_token}}
+
+### 10. Deletar sessão específica
+DELETE {{base_url}}/api/users/{{user_id}}/sessions/{{session_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ATIVIDADES
+### ========================================
+
+### 11. Listar atividades do usuário
+GET {{base_url}}/api/users/{{user_id}}/activities
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### TENANTS DO USUÁRIO
+### ========================================
+
+### 12. Listar tenants do usuário
+GET {{base_url}}/api/users/{{user_id}}/tenants
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### EQUIPES DO USUÁRIO
+### ========================================
+
+### 13. Listar equipes do usuário
+GET {{base_url}}/api/users/{{user_id}}/teams
+Authorization: Bearer {{auth_token}}
+

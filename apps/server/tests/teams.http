@@ -1,0 +1,94 @@
+### Testes para Teams API
+### Base URL: http://localhost:3000/api/teams
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar nova equipe
+POST http://localhost:3000/api/teams
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Equipe de Desenvolvimento",
+  "description": "Equipe responsável pelo desenvolvimento de software",
+  "tenant_id": "{{tenant_id}}"
+}
+
+### 2. Listar todas as equipes
+GET http://localhost:3000/api/teams
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar equipe por ID
+GET http://localhost:3000/api/teams/{{team_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Atualizar equipe
+PUT http://localhost:3000/api/teams/{{team_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Equipe de Desenvolvimento Full-Stack",
+  "description": "Equipe responsável pelo desenvolvimento full-stack de software"
+}
+
+### 5. Deletar equipe
+DELETE http://localhost:3000/api/teams/{{team_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### EQUIPES POR TENANT
+### ========================================
+
+### 6. Listar equipes por tenant
+GET http://localhost:3000/api/teams/tenant/{{tenant_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### MEMBROS DA EQUIPE
+### ========================================
+
+### 7. Listar membros da equipe
+GET http://localhost:3000/api/teams/{{team_id}}/members
+Authorization: Bearer {{auth_token}}
+
+### 8. Adicionar membro à equipe
+POST http://localhost:3000/api/teams/{{team_id}}/members/{{user_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "role": "developer"
+}
+
+### 9. Atualizar role do membro
+PUT http://localhost:3000/api/teams/{{team_id}}/members/{{user_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "role": "senior_developer"
+}
+
+### 10. Remover membro da equipe
+DELETE http://localhost:3000/api/teams/{{team_id}}/members/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### PROJETOS DA EQUIPE
+### ========================================
+
+### 11. Listar projetos da equipe
+GET http://localhost:3000/api/teams/{{team_id}}/projects
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @team_id = 123e4567-e89b-12d3-a456-426614174000
+# @tenant_id = 456e7890-e89b-12d3-a456-426614174001
+# @user_id = 789e0123-e89b-12d3-a456-426614174002
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

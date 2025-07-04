@@ -1,21 +1,11 @@
-import { db } from "./connection";
 import { sql } from "drizzle-orm";
+import { db } from "./connection";
 import { Config } from "../config";
-import { createTables } from "./../scripts/createTables";
 
-/**
- * Inicializa o banco de dados
- */
 export async function initializeDatabase() {
   try {
     console.log("🔄 Inicializando conexão com o banco de dados...");
-
-    // Testa a conexão com uma query simples
     await db.execute(sql`SELECT 1 as test`);
-    /* await createTables(); */
-
-    console.log("✅ Conexão com o banco de dados estabelecida com sucesso!");
-    console.log("📊 Banco de dados pronto para uso");
 
     return true;
   } catch (error) {
@@ -29,9 +19,7 @@ export async function initializeDatabase() {
   }
 }
 
-/**
- * Verifica a saúde da conexão com o banco
- */
+
 export async function checkDatabaseHealth(): Promise<{
   status: "healthy" | "unhealthy";
   message: string;

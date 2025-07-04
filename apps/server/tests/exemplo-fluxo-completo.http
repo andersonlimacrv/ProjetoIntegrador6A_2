@@ -1,0 +1,232 @@
+### Exemplo de Fluxo Completo de Testes
+### Este arquivo demonstra um fluxo completo de uso da API
+
+### ========================================
+### 1. CONFIGURAÇÃO INICIAL
+### ========================================
+
+### 1.1 Criar tenant
+POST http://localhost:3000/api/tenants
+Content-Type: application/json
+
+{
+  "name": "Empresa Teste Ltda",
+  "slug": "empresa-teste",
+  "description": "Empresa para testes da API"
+}
+
+### 1.2 Criar usuário
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao.silva@empresa-teste.com",
+  "password": "senha123456"
+}
+
+### 1.3 Fazer login
+POST http://localhost:3000/api/users/login
+Content-Type: application/json
+
+{
+  "email": "joao.silva@empresa-teste.com",
+  "password": "senha123456"
+}
+
+### ========================================
+### 2. GESTÃO DE PROJETOS
+### ========================================
+
+### 2.1 Criar projeto
+POST http://localhost:3000/api/projects
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Sistema de Gestão",
+  "slug": "sistema-gestao",
+  "description": "Sistema completo de gestão empresarial",
+  "tenant_id": "{{tenant_id}}",
+  "owner_id": "{{user_id}}"
+}
+
+### 2.2 Configurar projeto
+POST http://localhost:3000/api/projects/{{project_id}}/settings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sprint_duration": 14,
+  "story_point_scale": "fibonacci",
+  "workflow_steps": ["backlog", "todo", "in_progress", "review", "done"]
+}
+
+### ========================================
+### 3. GESTÃO DE EQUIPES
+### ========================================
+
+### 3.1 Criar equipe
+POST http://localhost:3000/api/teams
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Equipe de Desenvolvimento",
+  "description": "Equipe responsável pelo desenvolvimento",
+  "tenant_id": "{{tenant_id}}"
+}
+
+### 3.2 Adicionar usuário à equipe
+POST http://localhost:3000/api/teams/{{team_id}}/members/{{user_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "role": "developer"
+}
+
+### 3.3 Adicionar equipe ao projeto
+POST http://localhost:3000/api/projects/{{project_id}}/teams/{{team_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### 4. GESTÃO DE ÉPICOS
+### ========================================
+
+### 4.1 Criar épico
+POST http://localhost:3000/api/epics
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Sistema de Autenticação",
+  "description": "Implementar sistema completo de autenticação",
+  "project_id": "{{project_id}}",
+  "priority": 1
+}
+
+### ========================================
+### 5. GESTÃO DE HISTÓRIAS DE USUÁRIO
+### ========================================
+
+### 5.1 Criar história de usuário
+POST http://localhost:3000/api/user-stories
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Como usuário, quero fazer login no sistema",
+  "description": "Implementar funcionalidade de login",
+  "acceptance_criteria": "1. Usuário insere email\n2. Usuário insere senha\n3. Sistema valida credenciais\n4. Sistema redireciona para dashboard",
+  "project_id": "{{project_id}}",
+  "epic_id": "{{epic_id}}",
+  "priority": 1,
+  "story_points": 3
+}
+
+### ========================================
+### 6. GESTÃO DE SPRINTS
+### ========================================
+
+### 6.1 Criar sprint
+POST http://localhost:3000/api/sprints
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Sprint 1 - Autenticação",
+  "project_id": "{{project_id}}",
+  "start_date": "2024-01-01T00:00:00Z",
+  "end_date": "2024-01-14T23:59:59Z",
+  "goal": "Implementar sistema de autenticação"
+}
+
+### 6.2 Adicionar história ao sprint
+POST http://localhost:3000/api/user-stories/{{story_id}}/sprint/{{sprint_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### 7. GESTÃO DE TAREFAS
+### ========================================
+
+### 7.1 Criar tarefa
+POST http://localhost:3000/api/tasks
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Implementar tela de login",
+  "description": "Criar interface de usuário para autenticação",
+  "project_id": "{{project_id}}",
+  "user_story_id": "{{story_id}}",
+  "assignee_id": "{{user_id}}",
+  "reporter_id": "{{user_id}}",
+  "priority": "high",
+  "estimated_hours": 8.0,
+  "due_date": "2024-01-10T23:59:59Z"
+}
+
+### 7.2 Adicionar comentário à tarefa
+POST http://localhost:3000/api/tasks/{{task_id}}/comments
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "Iniciando implementação da tela de login"
+}
+
+### 7.3 Atualizar tempo da tarefa
+PATCH http://localhost:3000/api/tasks/{{task_id}}/time
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "actual_hours": 6.5
+}
+
+### ========================================
+### 8. CONSULTAS E RELATÓRIOS
+### ========================================
+
+### 8.1 Ver tarefas do projeto
+GET http://localhost:3000/api/tasks/project/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### 8.2 Ver atividades do usuário
+GET http://localhost:3000/api/users/{{user_id}}/activities
+Authorization: Bearer {{auth_token}}
+
+### 8.3 Ver feed do usuário
+GET http://localhost:3000/api/activities/feed/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### 8.4 Ver backlog do sprint
+GET http://localhost:3000/api/sprints/{{sprint_id}}/backlog
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### 9. FINALIZAÇÃO
+### ========================================
+
+### 9.1 Completar sprint
+PATCH http://localhost:3000/api/sprints/{{sprint_id}}/complete
+Authorization: Bearer {{auth_token}}
+
+### 9.2 Logout
+POST http://localhost:3000/api/users/logout
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE
+### ========================================
+
+# @tenant_id = 123e4567-e89b-12d3-a456-426614174000
+# @user_id = 456e7890-e89b-12d3-a456-426614174001
+# @project_id = 789e0123-e89b-12d3-a456-426614174002
+# @team_id = abc-def-ghi-jkl
+# @epic_id = mno-pqr-stu-vwx
+# @story_id = yz1-234-567-890
+# @sprint_id = 111-222-333-444
+# @task_id = 555-666-777-888
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

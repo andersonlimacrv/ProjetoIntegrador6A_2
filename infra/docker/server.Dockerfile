@@ -1,4 +1,4 @@
-FROM oven/bun:1-slim as base
+FROM oven/bun:1-slim AS base
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN cd packages/shared && bun run build
 RUN cd apps/server && bun run build
 
 # Stage de produção
-FROM oven/bun:1-slim as production
+FROM oven/bun:1-slim AS production
 
 WORKDIR /app
 

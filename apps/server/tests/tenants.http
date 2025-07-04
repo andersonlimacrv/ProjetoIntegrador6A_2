@@ -1,0 +1,120 @@
+### Testes para Tenants API
+### Base URL: http://localhost:3000/api/tenants
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar novo tenant
+POST http://localhost:3000/api/tenants
+Content-Type: application/json
+
+{
+  "name": "Empresa ABC Ltda",
+  "slug": "empresa-abc",
+  "description": "Empresa de tecnologia focada em desenvolvimento de software"
+}
+
+### 2. Listar todos os tenants
+GET http://localhost:3000/api/tenants
+
+### 3. Buscar tenant por ID
+GET http://localhost:3000/api/tenants/{{tenant_id}}
+
+### 4. Buscar tenant por slug
+GET http://localhost:3000/api/tenants/slug/empresa-abc
+
+### 5. Atualizar tenant
+PUT http://localhost:3000/api/tenants/{{tenant_id}}
+Content-Type: application/json
+
+{
+  "name": "Empresa ABC Ltda - Atualizada",
+  "description": "Empresa de tecnologia focada em desenvolvimento de software e consultoria"
+}
+
+### 6. Deletar tenant
+DELETE http://localhost:3000/api/tenants/{{tenant_id}}
+
+### ========================================
+### ROLES
+### ========================================
+
+### 7. Listar roles do tenant
+GET http://localhost:3000/api/tenants/{{tenant_id}}/roles
+
+### 8. Criar novo role
+POST http://localhost:3000/api/tenants/{{tenant_id}}/roles
+Content-Type: application/json
+
+{
+  "name": "admin",
+  "permissions": ["read", "write", "delete", "manage_users"]
+}
+
+### 9. Atualizar role
+PUT http://localhost:3000/api/tenants/{{tenant_id}}/roles/{{role_id}}
+Content-Type: application/json
+
+{
+  "name": "admin",
+  "permissions": ["read", "write", "delete", "manage_users", "manage_projects"]
+}
+
+### 10. Deletar role
+DELETE http://localhost:3000/api/tenants/{{tenant_id}}/roles/{{role_id}}
+
+### ========================================
+### CONVITES
+### ========================================
+
+### 11. Listar convites do tenant
+GET http://localhost:3000/api/tenants/{{tenant_id}}/invitations
+
+### 12. Criar convite
+POST http://localhost:3000/api/tenants/{{tenant_id}}/invitations
+Content-Type: application/json
+
+{
+  "email": "usuario@exemplo.com",
+  "role_id": "{{role_id}}"
+}
+
+### 13. Aceitar convite
+POST http://localhost:3000/api/tenants/invitations/{{invitation_token}}/accept
+Content-Type: application/json
+
+{
+  "user_id": "{{user_id}}"
+}
+
+### 14. Cancelar convite
+DELETE http://localhost:3000/api/tenants/{{tenant_id}}/invitations/{{invitation_id}}
+
+### ========================================
+### USUÁRIOS DO TENANT
+### ========================================
+
+### 15. Listar usuários do tenant
+GET http://localhost:3000/api/tenants/{{tenant_id}}/users
+
+### 16. Atribuir role ao usuário
+POST http://localhost:3000/api/tenants/{{tenant_id}}/users/{{user_id}}/roles
+Content-Type: application/json
+
+{
+  "role_id": "{{role_id}}"
+}
+
+### 17. Remover role do usuário
+DELETE http://localhost:3000/api/tenants/{{tenant_id}}/users/{{user_id}}/roles/{{role_id}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @tenant_id = 123e4567-e89b-12d3-a456-426614174000
+# @role_id = 456e7890-e89b-12d3-a456-426614174001
+# @user_id = 789e0123-e89b-12d3-a456-426614174002
+# @invitation_id = abc-def-ghi-jkl
+# @invitation_token = token123456789 

@@ -1,0 +1,172 @@
+### Testes para Projects API
+### Base URL: http://localhost:3000/api/projects
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar novo projeto
+POST http://localhost:3000/api/projects
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Sistema de Gestão",
+  "slug": "sistema-gestao",
+  "description": "Sistema completo de gestão empresarial",
+  "tenant_id": "{{tenant_id}}",
+  "owner_id": "{{user_id}}"
+}
+
+### 2. Listar todos os projetos
+GET http://localhost:3000/api/projects
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar projeto por ID
+GET http://localhost:3000/api/projects/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Buscar projeto por slug
+GET http://localhost:3000/api/projects/slug/sistema-gestao
+Authorization: Bearer {{auth_token}}
+
+### 5. Atualizar projeto
+PUT http://localhost:3000/api/projects/{{project_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Sistema de Gestão - Versão 2.0",
+  "description": "Sistema completo de gestão empresarial com novas funcionalidades"
+}
+
+### 6. Deletar projeto
+DELETE http://localhost:3000/api/projects/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### PROJETOS POR TENANT
+### ========================================
+
+### 7. Listar projetos por tenant
+GET http://localhost:3000/api/projects/tenant/{{tenant_id}}
+Authorization: Bearer {{auth_token}}
+
+### 8. Listar projetos por proprietário
+GET http://localhost:3000/api/projects/owner/{{user_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### EQUIPES DO PROJETO
+### ========================================
+
+### 9. Listar equipes do projeto
+GET http://localhost:3000/api/projects/{{project_id}}/teams
+Authorization: Bearer {{auth_token}}
+
+### 10. Adicionar equipe ao projeto
+POST http://localhost:3000/api/projects/{{project_id}}/teams/{{team_id}}
+Authorization: Bearer {{auth_token}}
+
+### 11. Remover equipe do projeto
+DELETE http://localhost:3000/api/projects/{{project_id}}/teams/{{team_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### CONFIGURAÇÕES DO PROJETO
+### ========================================
+
+### 12. Buscar configurações do projeto
+GET http://localhost:3000/api/projects/{{project_id}}/settings
+Authorization: Bearer {{auth_token}}
+
+### 13. Criar configurações do projeto
+POST http://localhost:3000/api/projects/{{project_id}}/settings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sprint_duration": 14,
+  "story_point_scale": "fibonacci",
+  "workflow_steps": ["todo", "in_progress", "review", "done"]
+}
+
+### 14. Atualizar configurações do projeto
+PUT http://localhost:3000/api/projects/{{project_id}}/settings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sprint_duration": 21,
+  "story_point_scale": "t_shirt",
+  "workflow_steps": ["backlog", "todo", "in_progress", "review", "testing", "done"]
+}
+
+### ========================================
+### ETIQUETAS DO PROJETO
+### ========================================
+
+### 15. Listar etiquetas do projeto
+GET http://localhost:3000/api/projects/{{project_id}}/labels
+Authorization: Bearer {{auth_token}}
+
+### 16. Criar etiqueta do projeto
+POST http://localhost:3000/api/projects/{{project_id}}/labels
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "bug",
+  "color": "#ff0000",
+  "description": "Problemas e erros"
+}
+
+### 17. Atualizar etiqueta do projeto
+PUT http://localhost:3000/api/projects/{{project_id}}/labels/{{label_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "bug",
+  "color": "#ff4444",
+  "description": "Problemas e erros críticos"
+}
+
+### 18. Deletar etiqueta do projeto
+DELETE http://localhost:3000/api/projects/{{project_id}}/labels/{{label_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### FLUXOS DE STATUS
+### ========================================
+
+### 19. Listar fluxos de status do projeto
+GET http://localhost:3000/api/projects/{{project_id}}/status-flows
+Authorization: Bearer {{auth_token}}
+
+### 20. Criar fluxo de status
+POST http://localhost:3000/api/projects/{{project_id}}/status-flows
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "Fluxo Padrão",
+  "steps": [
+    {"name": "Backlog", "order": 1},
+    {"name": "To Do", "order": 2},
+    {"name": "In Progress", "order": 3},
+    {"name": "Review", "order": 4},
+    {"name": "Done", "order": 5}
+  ]
+}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @project_id = 123e4567-e89b-12d3-a456-426614174000
+# @tenant_id = 456e7890-e89b-12d3-a456-426614174001
+# @user_id = 789e0123-e89b-12d3-a456-426614174002
+# @team_id = abc-def-ghi-jkl
+# @label_id = mno-pqr-stu-vwx
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 

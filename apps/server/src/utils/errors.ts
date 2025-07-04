@@ -69,7 +69,7 @@ export class ForbiddenError extends AppError {
 export function handleError(error: unknown): {
   success: false;
   error: string;
-  message?: string;
+  message?: string | undefined;
 } {
   if (error instanceof AppError) {
     return {

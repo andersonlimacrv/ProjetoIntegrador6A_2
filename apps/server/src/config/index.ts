@@ -5,14 +5,14 @@ dotenv.config();
 
 export class Config {
   // Database
-  static readonly DATABASE_URL =
-    process.env["DATABASE_URL"] ||
-    "postgresql://postgres:password@localhost:5432/projetointegrador";
   static readonly DB_HOST = process.env["DB_HOST"] || "localhost";
   static readonly DB_PORT = parseInt(process.env["DB_PORT"] || "5432");
   static readonly DB_NAME = process.env["DB_NAME"] || "projetointegrador";
   static readonly DB_USER = process.env["DB_USER"] || "postgres";
   static readonly DB_PASSWORD = process.env["DB_PASSWORD"] || "password";
+  static readonly DATABASE_URL =
+    process.env["DATABASE_URL"] ||
+    `postgresql://${this.DB_USER}:${this.DB_PASSWORD}@${this.DB_HOST}:${this.DB_PORT}/${this.DB_NAME}`;
 
   // Server
   static readonly SERVER_PORT = parseInt(process.env["SERVER_PORT"] || "3000");
@@ -46,6 +46,7 @@ export class Config {
 
   static getCorsOrigins(): string[] {
     return [
+      "*",
       this.CORS_ORIGIN,
       "http://localhost:5173",
       "http://127.0.0.1:5173",

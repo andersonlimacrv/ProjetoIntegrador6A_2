@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { CreateUserInput, UpdateUserInput, UserIdInput } from "../models/User";
+import { CreateUserInput, UpdateUserInput, UserIdInput } from "@shared";
 
 /**
  * Extensão do contexto do Hono com dados validados

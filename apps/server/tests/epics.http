@@ -1,0 +1,74 @@
+### Testes para Epics API
+### Base URL: http://localhost:3000/api/epics
+
+### ========================================
+### CRUD BÁSICO
+### ========================================
+
+### 1. Criar novo épico
+POST http://localhost:3000/api/epics
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Sistema de Autenticação",
+  "description": "Implementar sistema completo de autenticação e autorização",
+  "project_id": "{{project_id}}",
+  "priority": 1
+}
+
+### 2. Listar todos os épicos
+GET http://localhost:3000/api/epics
+Authorization: Bearer {{auth_token}}
+
+### 3. Buscar épico por ID
+GET http://localhost:3000/api/epics/{{epic_id}}
+Authorization: Bearer {{auth_token}}
+
+### 4. Atualizar épico
+PUT http://localhost:3000/api/epics/{{epic_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "title": "Sistema de Autenticação e Autorização",
+  "description": "Implementar sistema completo de autenticação, autorização e controle de acesso",
+  "priority": 2
+}
+
+### 5. Deletar épico
+DELETE http://localhost:3000/api/epics/{{epic_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### ÉPICOS POR PROJETO
+### ========================================
+
+### 6. Listar épicos por projeto
+GET http://localhost:3000/api/epics/project/{{project_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### HISTÓRIAS DE USUÁRIO DO ÉPICO
+### ========================================
+
+### 7. Listar histórias de usuário do épico
+GET http://localhost:3000/api/epics/{{epic_id}}/stories
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### STATUS DO ÉPICO
+### ========================================
+
+### 8. Atualizar status do épico
+PATCH http://localhost:3000/api/epics/{{epic_id}}/status/{{status_id}}
+Authorization: Bearer {{auth_token}}
+
+### ========================================
+### VARIÁVEIS DE AMBIENTE PARA TESTES
+### ========================================
+
+# @epic_id = 123e4567-e89b-12d3-a456-426614174000
+# @project_id = 456e7890-e89b-12d3-a456-426614174001
+# @status_id = 789e0123-e89b-12d3-a456-426614174002
+# @auth_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... 
