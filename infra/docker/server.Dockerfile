@@ -46,8 +46,6 @@ ENV SERVER_PORT=${SERVER_PORT}
 
 EXPOSE ${CLIENT_PORT}
 
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:${SERVER_PORT}/health || exit 1
 
