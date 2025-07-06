@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { Navbar } from "@/components/landing/Navbar";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { MetricsSection } from "@/components/landing/MetricsSection";
-import { DashboardPreview } from "@/components/landing/DashboardPreview";
-import { CTASection } from "@/components/landing/CTASection";
-import { Footer } from "@/components/landing/Footer";
+import { Navbar } from "@/components/pages/landing/Navbar";
+import { HeroSection } from "@/components/pages/landing/HeroSection";
+import { FeaturesSection } from "@/components/pages/landing/FeaturesSection";
+import { MetricsSection } from "@/components/pages/landing/MetricsSection";
+import { DashboardPreview } from "@/components/pages/landing/DashboardPreview";
+import { CTASection } from "@/components/pages/landing/CTASection";
+import { Footer } from "@/components/pages/landing/Footer";
 
 export function LandingPage() {
   return (

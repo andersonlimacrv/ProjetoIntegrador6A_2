@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { AnimatedCircularProgressBar } from "../ui/animated-circular-progress-bar";
+import { AnimatedCircularProgressBar } from "../../ui/animated-circular-progress-bar";
 import { Calendar, Clock, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -161,7 +161,9 @@ export function DashboardPreview() {
               <p className="text-gray-300">Sprint 5 - Semana 2</p>
             </div>
             <div className="flex items-center space-x-4">
-              <p className="text-lg text-gray-300">Progresso geral <span className="text-white/20">( % )</span></p>
+              <p className="text-lg text-gray-300">
+                Progresso geral <span className="text-white/20">( % )</span>
+              </p>
               <AnimatedCircularProgressBar
                 max={100}
                 min={0}

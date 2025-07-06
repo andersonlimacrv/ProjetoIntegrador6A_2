@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import { ToastProvider } from "@/contexts/toast-context";
 
 import App from "./App";
-import "./index.css";
+import "./globals.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

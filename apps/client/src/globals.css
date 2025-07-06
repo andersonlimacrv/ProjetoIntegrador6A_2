@@ -39,9 +39,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: Inter;
-  --font-mono: Raleway;
-  --font-serif: Source Serif Pro, serif;
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
   --radius: 0.5rem;
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
@@ -125,7 +125,7 @@
   --sidebar-border: oklch(0.8390 0 0);
   --sidebar-ring: oklch(0.8045 0.1451 176.7996);
   --destructive-foreground: oklch(1.0000 0 0);
-  --font-sans: Inter;
+  --font-sans: Roboto Mono, monospace;
   --font-serif: Source Serif Pro, serif;
   --font-mono: Raleway;
   --shadow-color: #0A0A0A;
@@ -181,7 +181,7 @@
   --sidebar-ring: oklch(0.9060 0.1512 192.7390);
   --destructive-foreground: oklch(0.2178 0 0);
   --radius: 0.5rem;
-  --font-sans: Inter;
+  --font-sans: Roboto Mono, monospace;
   --font-serif: Source Serif Pro, serif;
   --font-mono: Raleway;
   --shadow-color: #0A0A0A;

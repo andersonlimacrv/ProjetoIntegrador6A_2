@@ -17,7 +17,7 @@ src/
 │   └── utils.ts   # Funções helper
 ├── App.tsx        # Componente principal
 ├── main.tsx       # Ponto de entrada
-└── index.css      # Estilos globais
+└── globals.css      # Estilos globais
 ```
 
 ### Integração com API
