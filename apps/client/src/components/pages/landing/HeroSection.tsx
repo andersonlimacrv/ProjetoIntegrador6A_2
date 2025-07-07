@@ -29,10 +29,12 @@ export function HeroSection() {
                   delay={150}
                   animateBy="words"
                   direction="top"
-                  className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold leading-tight mb-4 mx-auto"
+                  className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold leading-tight mb-4 mx-auto text-white/80"
                 />
                 <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold leading-tight mb-6">
-                  <p className="inline-flex px-2 lg:px-4 2xl:px-6">do</p>
+                  <p className="inline-flex px-2 lg:px-4 2xl:px-6 text-white/80">
+                    do
+                  </p>
                   <AuroraText> jeito certo ⏱</AuroraText>
                 </h1>
               </div>
@@ -62,7 +64,7 @@ export function HeroSection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg xl:text-xl xl:px-12 xl:py-6 backdrop-blur-sm"
+                className="border-white/20 text-white hover:bg-white/10 px-8 py-4 text-lg xl:text-xl xl:px-12 xl:py-6 backdrop-blur-sm bg-accent/20"
               >
                 <Play className="mr-2 h-5 w-5 xl:h-6 xl:w-6" />
                 Ver demonstração
@@ -73,7 +75,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto mt-20"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto mt-20"
             >
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 xl:p-8 border border-white/10">
                 <div className="flex items-center justify-center w-12 h-12 xl:w-16 xl:h-16 bg-purple-600/20 rounded-lg mb-4 mx-auto">

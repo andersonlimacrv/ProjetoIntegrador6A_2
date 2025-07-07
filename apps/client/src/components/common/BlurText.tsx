@@ -1,4 +1,4 @@
-import { motion, Transition } from "framer-motion";
+import { motion, Transition, AnimationDefinition } from "framer-motion";
 import { useEffect, useRef, useState, useMemo } from "react";
 
 type BlurTextProps = {
@@ -27,7 +27,11 @@ const buildKeyframes = (
 
   const keyframes: Record<string, Array<string | number>> = {};
   keys.forEach((k) => {
-    keyframes[k] = [from[k], ...steps.map((s) => s[k])];
+    const values = [
+      from[k] ?? 0, 
+      ...steps.map((s) => s[k] ?? from[k] ?? 0), 
+    ];
+    keyframes[k] = values;
   });
   return keyframes;
 };
@@ -52,15 +56,19 @@ const BlurText: React.FC<BlurTextProps> = ({
 
   useEffect(() => {
     if (!ref.current) return;
+
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
+      (entries) => {
+        const entry = entries[0];
+        // Corrigido: verifica se entry existe
+        if (entry?.isIntersecting) {
           setInView(true);
           observer.unobserve(ref.current as Element);
         }
       },
       { threshold, rootMargin }
     );
+
     observer.observe(ref.current);
     return () => observer.disconnect();
   }, [threshold, rootMargin]);
@@ -103,8 +111,8 @@ const BlurText: React.FC<BlurTextProps> = ({
           duration: totalDuration,
           times,
           delay: (index * delay) / 1000,
+          ease: easing, 
         };
-        (spanTransition as any).ease = easing;
 
         return (
           <motion.span
@@ -113,7 +121,11 @@ const BlurText: React.FC<BlurTextProps> = ({
             animate={inView ? animateKeyframes : fromSnapshot}
             transition={spanTransition}
             onAnimationComplete={
-              index === elements.length - 1 ? onAnimationComplete : undefined
+              index === elements.length - 1 && onAnimationComplete
+                ? (definition: AnimationDefinition) => {
+                    onAnimationComplete();
+                  }
+                : undefined
             }
             style={{
               display: "inline-block",

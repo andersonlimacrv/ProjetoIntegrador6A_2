@@ -103,7 +103,7 @@ export function Footer() {
           </p>
         </motion.div>
 
-        <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-6">
           {Object.entries(footerLinks).map(([key, section], index) => (
             <motion.div
               key={key}

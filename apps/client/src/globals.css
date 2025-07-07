@@ -91,8 +91,7 @@
   }
 }
 
-  :root {
-  --radius: 0.5rem;
+:root {
   --background: oklch(0.9581 0 0);
   --foreground: oklch(0.1448 0 0);
   --card: oklch(1.0000 0 0);
@@ -108,6 +107,7 @@
   --accent: oklch(0.6165 0.2249 309.4199);
   --accent-foreground: oklch(0.1448 0 0);
   --destructive: oklch(0.8708 0.2888 141.3623);
+  --destructive-foreground: oklch(1.0000 0 0);
   --border: oklch(0.8390 0 0);
   --input: oklch(1.0000 0 0);
   --ring: oklch(0.8045 0.1451 176.7996);
@@ -124,18 +124,10 @@
   --sidebar-accent-foreground: oklch(0.1448 0 0);
   --sidebar-border: oklch(0.8390 0 0);
   --sidebar-ring: oklch(0.8045 0.1451 176.7996);
-  --destructive-foreground: oklch(1.0000 0 0);
-  --font-sans: Roboto Mono, monospace;
+  --font-sans: Plus Jakarta Sans, sans-serif;
   --font-serif: Source Serif Pro, serif;
   --font-mono: Raleway;
-  --shadow-color: #0A0A0A;
-  --shadow-opacity: 0.1;
-  --shadow-blur: 8px;
-  --shadow-spread: -1px;
-  --shadow-offset-x: 0px;
-  --shadow-offset-y: 4px;
-  --letter-spacing: 0em;
-  --spacing: 0.25rem;
+  --radius: 0.5rem;
   --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 3.9216% / 0.05);
   --shadow-xs: 0px 4px 8px -1px hsl(0 0% 3.9216% / 0.05);
   --shadow-sm: 0px 4px 8px -1px hsl(0 0% 3.9216% / 0.10), 0px 1px 2px -2px hsl(0 0% 3.9216% / 0.10);
@@ -145,6 +137,7 @@
   --shadow-xl: 0px 4px 8px -1px hsl(0 0% 3.9216% / 0.10), 0px 8px 10px -2px hsl(0 0% 3.9216% / 0.10);
   --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 3.9216% / 0.25);
   --tracking-normal: 0em;
+  --spacing: 0.25rem;
 }
 
 .dark {
@@ -177,11 +170,11 @@
   --sidebar-primary-foreground: oklch(0.1448 0 0);
   --sidebar-accent: oklch(0.9060 0.1512 192.7390);
   --sidebar-accent-foreground: oklch(0.1448 0 0);
-  --sidebar-border: oklch(0.7572 0 0);
+  --sidebar-border: oklch(75.721% 0.00009 271.152 / 0.114);
   --sidebar-ring: oklch(0.9060 0.1512 192.7390);
   --destructive-foreground: oklch(0.2178 0 0);
   --radius: 0.5rem;
-  --font-sans: Roboto Mono, monospace;
+  --font-sans: Plus Jakarta Sans, sans-serif;
   --font-serif: Source Serif Pro, serif;
   --font-mono: Raleway;
   --shadow-color: #0A0A0A;
@@ -210,4 +203,90 @@
     @apply bg-background text-foreground;
     letter-spacing: var(--tracking-normal);
   }
+}
+
+
+/* Sonner Toast Custom Styling */
+[data-sonner-toaster] {
+  --normal-bg: rgba(255, 255, 255, 0.1) !important;
+  --normal-border: rgba(255, 255, 255, 0.2) !important;
+  --normal-text: hsl(var(--foreground)) !important;
+}
+
+[data-sonner-toaster][data-theme='dark'] {
+  --normal-bg: rgba(0, 0, 0, 0.2) !important;
+  --normal-border: rgba(255, 255, 255, 0.1) !important;
+  --normal-text: hsl(var(--foreground)) !important;
+}
+
+[data-sonner-toast] {
+  background: var(--normal-bg) !important;
+  border: 1px solid var(--normal-border) !important;
+  color: var(--normal-text) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  font-weight: 500 !important;
+  padding: 16px !important;
+}
+
+[data-sonner-toast][data-type='success'] {
+  border-color: rgba(34, 197, 94, 0.3) !important;
+}
+
+[data-sonner-toast][data-type='error'] {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+[data-sonner-toast][data-type='warning'] {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-sonner-toast][data-type='info'] {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  margin-right: 8px !important;
+}
+
+[data-sonner-toast] [data-content] {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+[data-sonner-toast] [data-description] {
+  font-size: 13px !important;
+  opacity: 0.8 !important;
+  margin-top: 2px !important;
+}
+
+[data-sonner-toast] [data-button] {
+  background: transparent !important;
+  border: none !important;
+  color: var(--normal-text) !important;
+  opacity: 0.6 !important;
+  transition: opacity 0.2s ease !important;
+  padding: 4px !important;
+  border-radius: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+[data-sonner-toast] [data-button]:hover {
+  opacity: 1 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-sonner-toaster][data-theme='dark'] [data-sonner-toast] [data-button]:hover {
+  background: rgba(0, 0, 0, 0.2) !important;
 }

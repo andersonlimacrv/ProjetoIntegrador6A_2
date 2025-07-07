@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/components/ui/icons";
-import { toast } from "sonner";
+import { useToast } from "@/contexts/toast-context";
+
 
 interface LoginDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,11 +42,19 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
 
     try {
       await login(email, password);
-      toast.success("Login realizado com sucesso!");
+     addToast({
+        type: "success",
+        title: "Login realizado com sucesso!",
+        description: "Bem-vindo de volta!",
+      })
       onOpenChange(false);
       navigate("/dashboard");
     } catch (error) {
-      toast.error("Erro ao fazer login. Tente novamente.");
+      addToast({
+        type: "error",
+        title: "Erro ao fazer login",
+        description: "Verifique suas credenciais",
+      })
     } finally {
       setIsLoading(false);
     }

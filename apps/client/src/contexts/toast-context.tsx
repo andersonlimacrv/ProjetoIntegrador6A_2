@@ -1,6 +1,5 @@
 import React, { createContext, useContext } from "react";
 import { toast, Toaster } from "sonner";
-import { CheckCircle, AlertCircle, Info, AlertTriangle, X } from "lucide-react";
 
 interface ToastContextType {
   addToast: (options: {
@@ -18,7 +17,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     type,
     title,
     description,
-    duration = 5000,
+    duration = 3000,
   }: {
     type: "success" | "error" | "info" | "warning";
     title: string;
@@ -146,7 +145,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             color: "hsl(var(--foreground))",
             fontSize: "14px",
             fontWeight: "500",
-            padding: "16px",
+            padding: "4px",
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
           },
         }}

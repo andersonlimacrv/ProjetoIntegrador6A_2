@@ -44,7 +44,7 @@ export function Navbar() {
         {/* Desktop Navigation - Dock Style */}
         <div className="hidden lg:block">
           <div className="flex justify-center w-full px-4">
-            <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl max-w-fit">
+            <div className="bg-black/50 backdrop-blur-2xl border border-white/10 rounded-2xl px-6 py-3 shadow-2xl max-w-fit">
               <div className="flex items-center space-x-6 xl:space-x-8">
                 {/* Logo */}
                 <div className="flex items-center space-x-2 flex-shrink-0">

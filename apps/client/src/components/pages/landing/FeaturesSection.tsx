@@ -113,7 +113,7 @@ export function FeaturesSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
@@ -128,7 +128,7 @@ export function FeaturesSection() {
                   <div
                     className={`w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-r ${feature.color} p-0.5 group-hover:scale-110 transition-transform duration-300`}
                   >
-                    <div className="w-full h-full bg-background rounded-2xl flex items-center justify-center">
+                    <div className="w-full h-full bg-gray-900/70 rounded-2xl flex items-center justify-center">
                       <feature.icon className="w-8 h-8 text-white" />
                     </div>
                   </div>
