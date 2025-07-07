@@ -1,6 +1,5 @@
-import { Activity } from "@shared";
+import { Activity, ApiResponse } from "../../../packages/shared/src";
 import { ActivityRepository } from "../repositories/ActivityRepository";
-import { ApiResponse } from "@shared";
 
 export class ActivityService {
   private activityRepository = new ActivityRepository();

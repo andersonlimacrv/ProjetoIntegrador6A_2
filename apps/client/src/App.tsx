@@ -39,7 +39,7 @@ import { AdminPage } from "@/pages/admin";
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route

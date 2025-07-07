@@ -2,18 +2,34 @@ import { ProjectRepository } from "../repositories/ProjectRepository";
 import { TenantRepository } from "../repositories/TenantRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import {
+  Project,
+  Team,
+  UserTeam,
+  TeamProject,
+  ProjectSetting,
+  ProjectLabel,
+  CreateProjectDTO,
+  UpdateProjectDTO,
+  CreateTeamDTO,
+  UpdateTeamDTO,
+  CreateProjectSettingDTO,
+  UpdateProjectSettingDTO,
+  CreateProjectLabelDTO,
+  UpdateProjectLabelDTO,
+  ApiResponse,
   CreateProjectInput,
   UpdateProjectInput,
+  ProjectIdInput,
+  ProjectSlugInput,
   CreateTeamInput,
   UpdateTeamInput,
-  CreateEpicInput,
-  UpdateEpicInput,
-  CreateUserStoryInput,
-  UpdateUserStoryInput,
-  CreateSprintInput,
-  UpdateSprintInput,
-  ApiResponse,
-} from "@shared";
+  TeamIdInput,
+  CreateProjectSettingInput,
+  UpdateProjectSettingInput,
+  CreateProjectLabelInput,
+  UpdateProjectLabelInput,
+  ProjectLabelIdInput,
+} from "../../../packages/shared/src";
 import { randomUUID } from "crypto";
 
 export class ProjectService {

@@ -9,7 +9,15 @@ export class EpicController {
   static async getAllEpics(c: Context) {
     try {
       const epics = await EpicController.epicService.getAllEpics();
-      return c.json({ success: true, data: epics });
+      return c.json(
+        {
+          ...epics,
+          message: epics.success
+            ? "Épicos listados com sucesso"
+            : epics.error || "Erro ao buscar épicos",
+        },
+        epics.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar épicos" }, 500);
     }
@@ -19,12 +27,15 @@ export class EpicController {
     try {
       const id = c.req.param("id");
       const epic = await EpicController.epicService.getEpicById(id);
-
-      if (!epic) {
-        return c.json({ success: false, error: "Épico não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: epic });
+      return c.json(
+        {
+          ...epic,
+          message: epic.success
+            ? "Épico encontrado com sucesso"
+            : epic.error || "Épico não encontrado",
+        },
+        epic.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar épico" }, 500);
     }
@@ -34,7 +45,15 @@ export class EpicController {
     try {
       const data = await c.req.json();
       const epic = await EpicController.epicService.createEpic(data);
-      return c.json({ success: true, data: epic }, 201);
+      return c.json(
+        {
+          ...epic,
+          message: epic.success
+            ? "Épico criado com sucesso"
+            : epic.error || "Erro ao criar épico",
+        },
+        epic.success ? 201 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao criar épico" }, 500);
     }
@@ -45,12 +64,15 @@ export class EpicController {
       const id = c.req.param("id");
       const data = await c.req.json();
       const epic = await EpicController.epicService.updateEpic(id, data);
-
-      if (!epic) {
-        return c.json({ success: false, error: "Épico não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: epic });
+      return c.json(
+        {
+          ...epic,
+          message: epic.success
+            ? "Épico atualizado com sucesso"
+            : epic.error || "Épico não encontrado",
+        },
+        epic.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao atualizar épico" }, 500);
     }
@@ -59,13 +81,16 @@ export class EpicController {
   static async deleteEpic(c: Context) {
     try {
       const id = c.req.param("id");
-      const success = await EpicController.epicService.deleteEpic(id);
-
-      if (!success) {
-        return c.json({ success: false, error: "Épico não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, message: "Épico deletado com sucesso" });
+      const deleted = await EpicController.epicService.deleteEpic(id);
+      return c.json(
+        {
+          ...deleted,
+          message: deleted.success
+            ? "Épico deletado com sucesso"
+            : deleted.error || "Épico não encontrado",
+        },
+        deleted.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao deletar épico" }, 500);
     }
@@ -78,7 +103,15 @@ export class EpicController {
       const epics = await EpicController.epicService.getEpicsByProject(
         projectId
       );
-      return c.json({ success: true, data: epics });
+      return c.json(
+        {
+          ...epics,
+          message: epics.success
+            ? "Épicos do projeto listados com sucesso"
+            : epics.error || "Erro ao buscar épicos",
+        },
+        epics.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar épicos" }, 500);
     }
@@ -89,7 +122,15 @@ export class EpicController {
     try {
       const epicId = c.req.param("id");
       const stories = await EpicController.epicService.getEpicStories(epicId);
-      return c.json({ success: true, data: stories });
+      return c.json(
+        {
+          ...stories,
+          message: stories.success
+            ? "Histórias listadas com sucesso"
+            : stories.error || "Erro ao buscar histórias",
+        },
+        stories.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar histórias" }, 500);
     }
@@ -104,12 +145,15 @@ export class EpicController {
         epicId,
         statusId
       );
-
-      if (!epic) {
-        return c.json({ success: false, error: "Épico não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: epic });
+      return c.json(
+        {
+          ...epic,
+          message: epic.success
+            ? "Status do épico atualizado com sucesso"
+            : epic.error || "Épico não encontrado",
+        },
+        epic.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao atualizar status" }, 500);
     }

@@ -46,17 +46,8 @@ export const CreateEpicSchema = z.object({
   statusId: z.string().uuid("ID do status deve ser um UUID válido"),
   name: z.string().min(1, "Nome é obrigatório").max(255, "Nome muito longo"),
   description: z.string().optional(),
-  priority: z
-    .number()
-    .int()
-    .min(1, "Prioridade deve ser pelo menos 1")
-    .max(5, "Prioridade deve ser no máximo 5")
-    .default(3),
-  storyPoints: z
-    .number()
-    .int()
-    .min(0, "Pontos de história devem ser não negativos")
-    .optional(),
+  priority: z.number().int().min(1).max(5).default(3),
+  storyPoints: z.number().int().min(0).optional(),
   assigneeId: z
     .string()
     .uuid("ID do responsável deve ser um UUID válido")
@@ -73,17 +64,8 @@ export const UpdateEpicSchema = z.object({
     .max(255, "Nome muito longo")
     .optional(),
   description: z.string().optional(),
-  priority: z
-    .number()
-    .int()
-    .min(1, "Prioridade deve ser pelo menos 1")
-    .max(5, "Prioridade deve ser no máximo 5")
-    .optional(),
-  storyPoints: z
-    .number()
-    .int()
-    .min(0, "Pontos de história devem ser não negativos")
-    .optional(),
+  priority: z.number().int().min(1).max(5).optional(),
+  storyPoints: z.number().int().min(0).optional(),
   assigneeId: z
     .string()
     .uuid("ID do responsável deve ser um UUID válido")

@@ -9,7 +9,15 @@ export class ProjectController {
   static async getAllProjects(c: Context) {
     try {
       const projects = await ProjectController.projectService.getAllProjects();
-      return c.json({ success: true, data: projects });
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
     }
@@ -19,12 +27,15 @@ export class ProjectController {
     try {
       const id = c.req.param("id");
       const project = await ProjectController.projectService.getProjectById(id);
-
-      if (!project) {
-        return c.json({ success: false, error: "Projeto não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: project });
+      return c.json(
+        {
+          ...project,
+          message: project.success
+            ? "Projeto encontrado com sucesso"
+            : project.error || "Projeto não encontrado",
+        },
+        project.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projeto" }, 500);
     }
@@ -36,12 +47,15 @@ export class ProjectController {
       const project = await ProjectController.projectService.getProjectBySlug(
         slug
       );
-
-      if (!project) {
-        return c.json({ success: false, error: "Projeto não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: project });
+      return c.json(
+        {
+          ...project,
+          message: project.success
+            ? "Projeto encontrado com sucesso"
+            : project.error || "Projeto não encontrado",
+        },
+        project.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projeto" }, 500);
     }
@@ -53,7 +67,15 @@ export class ProjectController {
       const project = await ProjectController.projectService.createProject(
         data
       );
-      return c.json({ success: true, data: project }, 201);
+      return c.json(
+        {
+          ...project,
+          message: project.success
+            ? "Projeto criado com sucesso"
+            : project.error || "Erro ao criar projeto",
+        },
+        project.success ? 201 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao criar projeto" }, 500);
     }
@@ -67,12 +89,15 @@ export class ProjectController {
         id,
         data
       );
-
-      if (!project) {
-        return c.json({ success: false, error: "Projeto não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: project });
+      return c.json(
+        {
+          ...project,
+          message: project.success
+            ? "Projeto atualizado com sucesso"
+            : project.error || "Projeto não encontrado",
+        },
+        project.success ? 200 : 404
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao atualizar projeto" },
@@ -84,13 +109,16 @@ export class ProjectController {
   static async deleteProject(c: Context) {
     try {
       const id = c.req.param("id");
-      const success = await ProjectController.projectService.deleteProject(id);
-
-      if (!success) {
-        return c.json({ success: false, error: "Projeto não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, message: "Projeto deletado com sucesso" });
+      const deleted = await ProjectController.projectService.deleteProject(id);
+      return c.json(
+        {
+          ...deleted,
+          message: deleted.success
+            ? "Projeto deletado com sucesso"
+            : deleted.error || "Projeto não encontrado",
+        },
+        deleted.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao deletar projeto" }, 500);
     }
@@ -102,7 +130,15 @@ export class ProjectController {
       const tenantId = c.req.param("tenantId");
       const projects =
         await ProjectController.projectService.getProjectsByTenant(tenantId);
-      return c.json({ success: true, data: projects });
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos do tenant listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
     }
@@ -113,7 +149,15 @@ export class ProjectController {
       const ownerId = c.req.param("ownerId");
       const projects =
         await ProjectController.projectService.getProjectsByOwner(ownerId);
-      return c.json({ success: true, data: projects });
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos do proprietário listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
     }
@@ -126,7 +170,15 @@ export class ProjectController {
       const teams = await ProjectController.projectService.getProjectTeams(
         projectId
       );
-      return c.json({ success: true, data: teams });
+      return c.json(
+        {
+          ...teams,
+          message: teams.success
+            ? "Equipes do projeto listadas com sucesso"
+            : teams.error || "Erro ao buscar equipes",
+        },
+        teams.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar equipes" }, 500);
     }
@@ -140,7 +192,15 @@ export class ProjectController {
         projectId,
         teamId
       );
-      return c.json({ success: true, data: result });
+      return c.json(
+        {
+          ...result,
+          message: result.success
+            ? "Equipe adicionada ao projeto com sucesso"
+            : result.error || "Erro ao adicionar equipe",
+        },
+        result.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao adicionar equipe" }, 500);
     }
@@ -150,17 +210,20 @@ export class ProjectController {
     try {
       const projectId = c.req.param("id");
       const teamId = c.req.param("teamId");
-      const success =
+      const removed =
         await ProjectController.projectService.removeTeamFromProject(
           projectId,
           teamId
         );
-
-      if (!success) {
-        return c.json({ success: false, error: "Equipe não encontrada" }, 404);
-      }
-
-      return c.json({ success: true, message: "Equipe removida com sucesso" });
+      return c.json(
+        {
+          ...removed,
+          message: removed.success
+            ? "Equipe removida do projeto com sucesso"
+            : removed.error || "Equipe não encontrada",
+        },
+        removed.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao remover equipe" }, 500);
     }

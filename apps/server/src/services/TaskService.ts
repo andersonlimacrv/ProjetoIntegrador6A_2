@@ -1,4 +1,9 @@
-import { Task, CreateTaskDTO, UpdateTaskDTO, ApiResponse } from "@shared";
+import {
+  Task,
+  CreateTaskDTO,
+  UpdateTaskDTO,
+  ApiResponse,
+} from "../../../packages/shared/src";
 import { TaskRepository } from "../repositories/TaskRepository";
 import { userRepository } from "../repositories/UserRepository";
 import { projectRepository } from "../repositories/ProjectRepository";

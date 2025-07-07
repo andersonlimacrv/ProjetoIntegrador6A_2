@@ -205,11 +205,9 @@ export type CreateTenantInput = z.infer<typeof CreateTenantSchema>;
 export type UpdateTenantInput = z.infer<typeof UpdateTenantSchema>;
 export type TenantIdInput = z.infer<typeof TenantIdSchema>;
 export type TenantSlugInput = z.infer<typeof TenantSlugSchema>;
-
 export type CreateRoleInput = z.infer<typeof CreateRoleSchema>;
 export type UpdateRoleInput = z.infer<typeof UpdateRoleSchema>;
 export type RoleIdInput = z.infer<typeof RoleIdSchema>;
-
 export type CreateInvitationInput = z.infer<typeof CreateInvitationSchema>;
 export type AcceptInvitationInput = z.infer<typeof AcceptInvitationSchema>;
 export type InvitationTokenInput = z.infer<typeof InvitationTokenSchema>;

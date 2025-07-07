@@ -10,7 +10,15 @@ export class ActivityController {
     try {
       const activities =
         await ActivityController.activityService.getAllActivities();
-      return c.json({ success: true, data: activities });
+      return c.json(
+        {
+          ...activities,
+          message: activities.success
+            ? "Atividades listadas com sucesso"
+            : activities.error || "Erro ao buscar atividades",
+        },
+        activities.success ? 200 : 400
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao buscar atividades" },
@@ -25,15 +33,15 @@ export class ActivityController {
       const activity = await ActivityController.activityService.getActivityById(
         id
       );
-
-      if (!activity) {
-        return c.json(
-          { success: false, error: "Atividade não encontrada" },
-          404
-        );
-      }
-
-      return c.json({ success: true, data: activity });
+      return c.json(
+        {
+          ...activity,
+          message: activity.success
+            ? "Atividade encontrada com sucesso"
+            : activity.error || "Atividade não encontrada",
+        },
+        activity.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar atividade" }, 500);
     }
@@ -45,7 +53,15 @@ export class ActivityController {
       const activity = await ActivityController.activityService.createActivity(
         data
       );
-      return c.json({ success: true, data: activity }, 201);
+      return c.json(
+        {
+          ...activity,
+          message: activity.success
+            ? "Atividade criada com sucesso"
+            : activity.error || "Erro ao criar atividade",
+        },
+        activity.success ? 201 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao criar atividade" }, 500);
     }
@@ -59,15 +75,15 @@ export class ActivityController {
         id,
         data
       );
-
-      if (!activity) {
-        return c.json(
-          { success: false, error: "Atividade não encontrada" },
-          404
-        );
-      }
-
-      return c.json({ success: true, data: activity });
+      return c.json(
+        {
+          ...activity,
+          message: activity.success
+            ? "Atividade atualizada com sucesso"
+            : activity.error || "Atividade não encontrada",
+        },
+        activity.success ? 200 : 404
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao atualizar atividade" },
@@ -79,21 +95,18 @@ export class ActivityController {
   static async deleteActivity(c: Context) {
     try {
       const id = c.req.param("id");
-      const success = await ActivityController.activityService.deleteActivity(
+      const deleted = await ActivityController.activityService.deleteActivity(
         id
       );
-
-      if (!success) {
-        return c.json(
-          { success: false, error: "Atividade não encontrada" },
-          404
-        );
-      }
-
-      return c.json({
-        success: true,
-        message: "Atividade deletada com sucesso",
-      });
+      return c.json(
+        {
+          ...deleted,
+          message: deleted.success
+            ? "Atividade deletada com sucesso"
+            : deleted.error || "Atividade não encontrada",
+        },
+        deleted.success ? 200 : 404
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao deletar atividade" },
@@ -108,7 +121,15 @@ export class ActivityController {
       const userId = c.req.param("userId");
       const activities =
         await ActivityController.activityService.getActivitiesByUser(userId);
-      return c.json({ success: true, data: activities });
+      return c.json(
+        {
+          ...activities,
+          message: activities.success
+            ? "Atividades do usuário listadas com sucesso"
+            : activities.error || "Erro ao buscar atividades",
+        },
+        activities.success ? 200 : 400
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao buscar atividades" },
@@ -125,7 +146,15 @@ export class ActivityController {
         await ActivityController.activityService.getActivitiesByProject(
           projectId
         );
-      return c.json({ success: true, data: activities });
+      return c.json(
+        {
+          ...activities,
+          message: activities.success
+            ? "Atividades do projeto listadas com sucesso"
+            : activities.error || "Erro ao buscar atividades",
+        },
+        activities.success ? 200 : 400
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao buscar atividades" },
@@ -140,7 +169,15 @@ export class ActivityController {
       const taskId = c.req.param("taskId");
       const activities =
         await ActivityController.activityService.getActivitiesByTask(taskId);
-      return c.json({ success: true, data: activities });
+      return c.json(
+        {
+          ...activities,
+          message: activities.success
+            ? "Atividades da tarefa listadas com sucesso"
+            : activities.error || "Erro ao buscar atividades",
+        },
+        activities.success ? 200 : 400
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao buscar atividades" },
@@ -155,7 +192,15 @@ export class ActivityController {
       const type = c.req.param("type");
       const activities =
         await ActivityController.activityService.getActivitiesByType(type);
-      return c.json({ success: true, data: activities });
+      return c.json(
+        {
+          ...activities,
+          message: activities.success
+            ? "Atividades do tipo listadas com sucesso"
+            : activities.error || "Erro ao buscar atividades",
+        },
+        activities.success ? 200 : 400
+      );
     } catch (error) {
       return c.json(
         { success: false, error: "Erro ao buscar atividades" },
@@ -169,7 +214,15 @@ export class ActivityController {
     try {
       const userId = c.req.param("userId");
       const feed = await ActivityController.activityService.getUserFeed(userId);
-      return c.json({ success: true, data: feed });
+      return c.json(
+        {
+          ...feed,
+          message: feed.success
+            ? "Feed do usuário listado com sucesso"
+            : feed.error || "Erro ao buscar feed",
+        },
+        feed.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar feed" }, 500);
     }

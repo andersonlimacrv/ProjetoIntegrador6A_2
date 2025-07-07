@@ -1,6 +1,5 @@
-import { Team } from "@shared";
+import { Team, ApiResponse } from "../../../packages/shared/src";
 import { TeamRepository } from "../repositories/TeamRepository";
-import { ApiResponse } from "@shared";
 
 export class TeamService {
   private teamRepository = new TeamRepository();

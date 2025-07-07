@@ -9,7 +9,15 @@ export class TeamController {
   static async getAllTeams(c: Context) {
     try {
       const teams = await TeamController.teamService.getAllTeams();
-      return c.json({ success: true, data: teams });
+      return c.json(
+        {
+          ...teams,
+          message: teams.success
+            ? "Equipes listadas com sucesso"
+            : teams.error || "Erro ao buscar equipes",
+        },
+        teams.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar equipes" }, 500);
     }
@@ -19,12 +27,15 @@ export class TeamController {
     try {
       const id = c.req.param("id");
       const team = await TeamController.teamService.getTeamById(id);
-
-      if (!team) {
-        return c.json({ success: false, error: "Equipe não encontrada" }, 404);
-      }
-
-      return c.json({ success: true, data: team });
+      return c.json(
+        {
+          ...team,
+          message: team.success
+            ? "Equipe encontrada com sucesso"
+            : team.error || "Equipe não encontrada",
+        },
+        team.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar equipe" }, 500);
     }
@@ -34,7 +45,15 @@ export class TeamController {
     try {
       const data = await c.req.json();
       const team = await TeamController.teamService.createTeam(data);
-      return c.json({ success: true, data: team }, 201);
+      return c.json(
+        {
+          ...team,
+          message: team.success
+            ? "Equipe criada com sucesso"
+            : team.error || "Erro ao criar equipe",
+        },
+        team.success ? 201 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao criar equipe" }, 500);
     }
@@ -45,12 +64,15 @@ export class TeamController {
       const id = c.req.param("id");
       const data = await c.req.json();
       const team = await TeamController.teamService.updateTeam(id, data);
-
-      if (!team) {
-        return c.json({ success: false, error: "Equipe não encontrada" }, 404);
-      }
-
-      return c.json({ success: true, data: team });
+      return c.json(
+        {
+          ...team,
+          message: team.success
+            ? "Equipe atualizada com sucesso"
+            : team.error || "Equipe não encontrada",
+        },
+        team.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao atualizar equipe" }, 500);
     }
@@ -59,13 +81,16 @@ export class TeamController {
   static async deleteTeam(c: Context) {
     try {
       const id = c.req.param("id");
-      const success = await TeamController.teamService.deleteTeam(id);
-
-      if (!success) {
-        return c.json({ success: false, error: "Equipe não encontrada" }, 404);
-      }
-
-      return c.json({ success: true, message: "Equipe deletada com sucesso" });
+      const deleted = await TeamController.teamService.deleteTeam(id);
+      return c.json(
+        {
+          ...deleted,
+          message: deleted.success
+            ? "Equipe deletada com sucesso"
+            : deleted.error || "Equipe não encontrada",
+        },
+        deleted.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao deletar equipe" }, 500);
     }
@@ -76,7 +101,15 @@ export class TeamController {
     try {
       const tenantId = c.req.param("tenantId");
       const teams = await TeamController.teamService.getTeamsByTenant(tenantId);
-      return c.json({ success: true, data: teams });
+      return c.json(
+        {
+          ...teams,
+          message: teams.success
+            ? "Equipes do tenant listadas com sucesso"
+            : teams.error || "Erro ao buscar equipes",
+        },
+        teams.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar equipes" }, 500);
     }
@@ -87,7 +120,15 @@ export class TeamController {
     try {
       const teamId = c.req.param("id");
       const members = await TeamController.teamService.getTeamMembers(teamId);
-      return c.json({ success: true, data: members });
+      return c.json(
+        {
+          ...members,
+          message: members.success
+            ? "Membros da equipe listados com sucesso"
+            : members.error || "Erro ao buscar membros",
+        },
+        members.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar membros" }, 500);
     }
@@ -103,7 +144,15 @@ export class TeamController {
         userId,
         data
       );
-      return c.json({ success: true, data: result });
+      return c.json(
+        {
+          ...result,
+          message: result.success
+            ? "Membro adicionado com sucesso"
+            : result.error || "Erro ao adicionar membro",
+        },
+        result.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao adicionar membro" }, 500);
     }
@@ -119,12 +168,15 @@ export class TeamController {
         userId,
         data
       );
-
-      if (!result) {
-        return c.json({ success: false, error: "Membro não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, data: result });
+      return c.json(
+        {
+          ...result,
+          message: result.success
+            ? "Role do membro atualizada com sucesso"
+            : result.error || "Membro não encontrado",
+        },
+        result.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao atualizar role" }, 500);
     }
@@ -134,16 +186,19 @@ export class TeamController {
     try {
       const teamId = c.req.param("id");
       const userId = c.req.param("userId");
-      const success = await TeamController.teamService.removeMemberFromTeam(
+      const removed = await TeamController.teamService.removeMemberFromTeam(
         teamId,
         userId
       );
-
-      if (!success) {
-        return c.json({ success: false, error: "Membro não encontrado" }, 404);
-      }
-
-      return c.json({ success: true, message: "Membro removido com sucesso" });
+      return c.json(
+        {
+          ...removed,
+          message: removed.success
+            ? "Membro removido com sucesso"
+            : removed.error || "Membro não encontrado",
+        },
+        removed.success ? 200 : 404
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao remover membro" }, 500);
     }
@@ -154,7 +209,15 @@ export class TeamController {
     try {
       const teamId = c.req.param("id");
       const projects = await TeamController.teamService.getTeamProjects(teamId);
-      return c.json({ success: true, data: projects });
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos da equipe listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
     }

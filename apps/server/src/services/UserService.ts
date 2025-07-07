@@ -1,12 +1,12 @@
 import { userRepository } from "../repositories/UserRepository";
 import {
-  User,
-  CreateUserInput,
-  UpdateUserInput,
-  LoginUserInput,
+  /* User, */
+  CreateUserDTO,
+  UpdateUserDTO,
+  LoginUserDTO,
   ApiResponse,
-} from "@shared";
-import { randomUUID } from "crypto";
+} from "../../../packages/shared/src";
+/* import { randomUUID } from "crypto"; */
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env["JWT_SECRET"] || "your-secret-key";
@@ -41,7 +41,7 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: "Usuário não encontrado",
+          error: "Usuário não encontrado SERVER",
         };
       }
 
@@ -88,7 +88,7 @@ export class UserService {
   /**
    * Cria um novo usuário
    */
-  async createUser(data: CreateUserInput): Promise<ApiResponse<any>> {
+  async createUser(data: CreateUserDTO): Promise<ApiResponse<any>> {
     try {
       // Verifica se o email já existe
       const emailExists = await userRepository.emailExists(data.email);
@@ -118,10 +118,7 @@ export class UserService {
   /**
    * Atualiza um usuário existente
    */
-  async updateUser(
-    id: string,
-    data: UpdateUserInput
-  ): Promise<ApiResponse<any>> {
+  async updateUser(id: string, data: UpdateUserDTO): Promise<ApiResponse<any>> {
     try {
       // Verifica se o usuário existe
       const existingUser = await userRepository.findById(id);
@@ -205,7 +202,7 @@ export class UserService {
   /**
    * Autentica um usuário
    */
-  async login(data: LoginUserInput): Promise<ApiResponse<any>> {
+  async login(data: LoginUserDTO): Promise<ApiResponse<any>> {
     try {
       const user = await userRepository.authenticate(data);
 

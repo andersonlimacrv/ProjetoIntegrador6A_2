@@ -19,21 +19,24 @@ export class UserController {
     try {
       const input: CreateUserInput = await c.req.json();
       const user = await this.userService.createUser(input);
-
-      return c.json<ApiResponse<User>>({
-        success: true,
-        data: user,
-        message: "Usuário criado com sucesso",
-      });
+      return c.json(
+        {
+          ...user,
+          message: user.success
+            ? "Usuário criado com sucesso"
+            : user.error || "Erro ao criar usuário",
+        },
+        user.success ? 201 : 400
+      );
     } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
           success: false,
           data: null,
           message:
             error instanceof Error ? error.message : "Erro ao criar usuário",
         },
-        400
+        500
       );
     }
   }
@@ -41,33 +44,25 @@ export class UserController {
   async getUserById(c: Context): Promise<Response> {
     try {
       const { id } = c.req.param() as UserIdInput;
-      const user = await this.userService.getUserById(parseInt(id));
-
-      if (!user) {
-        return c.json<ApiResponse<null>>(
-          {
-            success: false,
-            data: null,
-            message: "Usuário não encontrado",
-          },
-          404
-        );
-      }
-
-      return c.json<ApiResponse<User>>({
-        success: true,
-        data: user,
-        message: "Usuário encontrado com sucesso",
-      });
+      const user = await this.userService.getUserById(id);
+      return c.json(
+        {
+          ...user,
+          message: user.success
+            ? "Usuário encontrado com sucesso"
+            : "Usuário não encontrado",
+        },
+        user.success ? 200 : 404
+      );
     } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
           success: false,
           data: null,
           message:
             error instanceof Error ? error.message : "Erro ao buscar usuário",
         },
-        400
+        500
       );
     }
   }
@@ -75,21 +70,19 @@ export class UserController {
   async getAllUsers(c: Context): Promise<Response> {
     try {
       const users = await this.userService.getAllUsers();
-
-      return c.json<ApiResponse<User[]>>({
-        success: true,
-        data: users,
-        message: "Usuários listados com sucesso",
-      });
+      return c.json(
+        { ...users, message: "Usuários listados com sucesso" },
+        users.success ? 200 : 400
+      );
     } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
           success: false,
           data: null,
           message:
             error instanceof Error ? error.message : "Erro ao listar usuários",
         },
-        400
+        500
       );
     }
   }
@@ -98,26 +91,18 @@ export class UserController {
     try {
       const { id } = c.req.param() as UserIdInput;
       const input: UpdateUserInput = await c.req.json();
-      const user = await this.userService.updateUser(parseInt(id), input);
-
-      if (!user) {
-        return c.json<ApiResponse<null>>(
-          {
-            success: false,
-            data: null,
-            message: "Usuário não encontrado",
-          },
-          404
-        );
-      }
-
-      return c.json<ApiResponse<User>>({
-        success: true,
-        data: user,
-        message: "Usuário atualizado com sucesso",
-      });
+      const user = await this.userService.updateUser(id, input);
+      return c.json(
+        {
+          ...user,
+          message: user.success
+            ? "Usuário atualizado com sucesso"
+            : user.error || "Usuário não encontrado",
+        },
+        user.success ? 200 : 404
+      );
     } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
           success: false,
           data: null,
@@ -126,7 +111,7 @@ export class UserController {
               ? error.message
               : "Erro ao atualizar usuário",
         },
-        400
+        500
       );
     }
   }
@@ -134,33 +119,25 @@ export class UserController {
   async deleteUser(c: Context): Promise<Response> {
     try {
       const { id } = c.req.param() as UserIdInput;
-      const success = await this.userService.deleteUser(parseInt(id));
-
-      if (!success) {
-        return c.json<ApiResponse<null>>(
-          {
-            success: false,
-            data: null,
-            message: "Usuário não encontrado",
-          },
-          404
-        );
-      }
-
-      return c.json<ApiResponse<null>>({
-        success: true,
-        data: null,
-        message: "Usuário deletado com sucesso",
-      });
+      const deleted = await this.userService.deleteUser(id);
+      return c.json(
+        {
+          ...deleted,
+          message: deleted.success
+            ? "Usuário deletado com sucesso"
+            : deleted.error || "Usuário não encontrado",
+        },
+        deleted.success ? 200 : 404
+      );
     } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
           success: false,
           data: null,
           message:
             error instanceof Error ? error.message : "Erro ao deletar usuário",
         },
-        400
+        500
       );
     }
   }
@@ -169,33 +146,17 @@ export class UserController {
     try {
       const { email } = c.req.param();
       const user = await this.userService.getUserByEmail(email);
-
-      if (!user) {
-        return c.json<ApiResponse<null>>(
-          {
-            success: false,
-            data: null,
-            message: "Usuário não encontrado",
-          },
-          404
-        );
-      }
-
-      return c.json<ApiResponse<User>>({
-        success: true,
-        data: user,
-        message: "Usuário encontrado com sucesso",
-      });
-    } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
-          success: false,
-          data: null,
-          message:
-            error instanceof Error ? error.message : "Erro ao buscar usuário",
+          ...user,
+          message: user.success
+            ? "Usuário encontrado com sucesso"
+            : user.error || "Usuário não encontrado",
         },
-        400
+        user.success ? 200 : 404
       );
+    } catch (error) {
+      return c.json({ success: false, error: "Erro ao buscar usuário" }, 500);
     }
   }
 
@@ -203,23 +164,19 @@ export class UserController {
     try {
       const { teamId } = c.req.param();
       const users = await this.userService.getUsersByTeam(parseInt(teamId));
-
-      return c.json<ApiResponse<User[]>>({
-        success: true,
-        data: users,
-        message: "Usuários da equipe listados com sucesso",
-      });
-    } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
-          success: false,
-          data: null,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Erro ao listar usuários da equipe",
+          ...users,
+          message: users.success
+            ? "Usuários da equipe listados com sucesso"
+            : users.error || "Erro ao listar usuários da equipe",
         },
-        400
+        users.success ? 200 : 400
+      );
+    } catch (error) {
+      return c.json(
+        { success: false, error: "Erro ao listar usuários da equipe" },
+        500
       );
     }
   }
@@ -228,23 +185,19 @@ export class UserController {
     try {
       const { tenantId } = c.req.param();
       const users = await this.userService.getUsersByTenant(parseInt(tenantId));
-
-      return c.json<ApiResponse<User[]>>({
-        success: true,
-        data: users,
-        message: "Usuários do tenant listados com sucesso",
-      });
-    } catch (error) {
-      return c.json<ApiResponse<null>>(
+      return c.json(
         {
-          success: false,
-          data: null,
-          message:
-            error instanceof Error
-              ? error.message
-              : "Erro ao listar usuários do tenant",
+          ...users,
+          message: users.success
+            ? "Usuários do tenant listados com sucesso"
+            : users.error || "Erro ao listar usuários do tenant",
         },
-        400
+        users.success ? 200 : 400
+      );
+    } catch (error) {
+      return c.json(
+        { success: false, error: "Erro ao listar usuários do tenant" },
+        500
       );
     }
   }

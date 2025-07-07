@@ -54,17 +54,8 @@ export const CreateUserStorySchema = z.object({
     .max(255, "Título muito longo"),
   description: z.string().optional(),
   acceptanceCriteria: z.string().optional(),
-  storyPoints: z
-    .number()
-    .int()
-    .min(0, "Pontos de história devem ser não negativos")
-    .optional(),
-  priority: z
-    .number()
-    .int()
-    .min(1, "Prioridade deve ser pelo menos 1")
-    .max(5, "Prioridade deve ser no máximo 5")
-    .default(3),
+  storyPoints: z.number().int().min(0).optional(),
+  priority: z.number().int().min(1).max(5).default(3),
   assigneeId: z
     .string()
     .uuid("ID do responsável deve ser um UUID válido")
@@ -82,17 +73,8 @@ export const UpdateUserStorySchema = z.object({
     .optional(),
   description: z.string().optional(),
   acceptanceCriteria: z.string().optional(),
-  storyPoints: z
-    .number()
-    .int()
-    .min(0, "Pontos de história devem ser não negativos")
-    .optional(),
-  priority: z
-    .number()
-    .int()
-    .min(1, "Prioridade deve ser pelo menos 1")
-    .max(5, "Prioridade deve ser no máximo 5")
-    .optional(),
+  storyPoints: z.number().int().min(0).optional(),
+  priority: z.number().int().min(1).max(5).optional(),
   assigneeId: z
     .string()
     .uuid("ID do responsável deve ser um UUID válido")

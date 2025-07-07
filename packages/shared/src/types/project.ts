@@ -173,7 +173,7 @@ export const UpdateProjectSchema = z.object({
     .max(10, "Chave do projeto muito longa")
     .regex(
       /^[A-Z0-9]+$/,
-      "Chave deve conter apenas letras maiúsculas e números"
+      "Chave do projeto deve conter apenas letras maiúsculas e números"
     )
     .optional(),
   status: z.enum(["active", "archived", "completed"]).optional(),
@@ -212,21 +212,14 @@ export const TeamIdSchema = z.object({
 // Schemas de validação para configurações
 export const CreateProjectSettingSchema = z.object({
   projectId: z.string().uuid("ID do projeto deve ser um UUID válido"),
-  sprintLengthDays: z
-    .number()
-    .int()
-    .min(1, "Duração deve ser pelo menos 1 dia"),
+  sprintLengthDays: z.number().int().min(1),
   enableTimeTracking: z.boolean(),
   defaultStoryPoints: z.string(),
   notificationSettings: z.record(z.any()).optional(),
 });
 
 export const UpdateProjectSettingSchema = z.object({
-  sprintLengthDays: z
-    .number()
-    .int()
-    .min(1, "Duração deve ser pelo menos 1 dia")
-    .optional(),
+  sprintLengthDays: z.number().int().min(1).optional(),
   enableTimeTracking: z.boolean().optional(),
   defaultStoryPoints: z.string().optional(),
   notificationSettings: z.record(z.any()).optional(),
@@ -235,10 +228,8 @@ export const UpdateProjectSettingSchema = z.object({
 // Schemas de validação para etiquetas
 export const CreateProjectLabelSchema = z.object({
   projectId: z.string().uuid("ID do projeto deve ser um UUID válido"),
-  name: z.string().min(1, "Nome é obrigatório").max(100, "Nome muito longo"),
-  color: z
-    .string()
-    .regex(/^#[0-9A-F]{6}$/i, "Cor deve ser um código hexadecimal válido"),
+  name: z.string().min(1, "Nome é obrigatório").max(255, "Nome muito longo"),
+  color: z.string().min(1, "Cor é obrigatória").max(20, "Cor muito longa"),
   description: z.string().optional(),
 });
 
@@ -246,17 +237,18 @@ export const UpdateProjectLabelSchema = z.object({
   name: z
     .string()
     .min(1, "Nome é obrigatório")
-    .max(100, "Nome muito longo")
+    .max(255, "Nome muito longo")
     .optional(),
   color: z
     .string()
-    .regex(/^#[0-9A-F]{6}$/i, "Cor deve ser um código hexadecimal válido")
+    .min(1, "Cor é obrigatória")
+    .max(20, "Cor muito longa")
     .optional(),
   description: z.string().optional(),
 });
 
 export const ProjectLabelIdSchema = z.object({
-  id: z.string().uuid("ID deve ser um UUID válido"),
+  id: z.string().uuid("ID da etiqueta deve ser um UUID válido"),
 });
 
 // Tipos derivados dos schemas
@@ -264,18 +256,15 @@ export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof UpdateProjectSchema>;
 export type ProjectIdInput = z.infer<typeof ProjectIdSchema>;
 export type ProjectSlugInput = z.infer<typeof ProjectSlugSchema>;
-
 export type CreateTeamInput = z.infer<typeof CreateTeamSchema>;
 export type UpdateTeamInput = z.infer<typeof UpdateTeamSchema>;
 export type TeamIdInput = z.infer<typeof TeamIdSchema>;
-
 export type CreateProjectSettingInput = z.infer<
   typeof CreateProjectSettingSchema
 >;
 export type UpdateProjectSettingInput = z.infer<
   typeof UpdateProjectSettingSchema
 >;
-
 export type CreateProjectLabelInput = z.infer<typeof CreateProjectLabelSchema>;
 export type UpdateProjectLabelInput = z.infer<typeof UpdateProjectLabelSchema>;
 export type ProjectLabelIdInput = z.infer<typeof ProjectLabelIdSchema>;

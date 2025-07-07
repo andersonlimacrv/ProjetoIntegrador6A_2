@@ -1,6 +1,5 @@
-import { UserStory } from "@shared";
+import { UserStory, ApiResponse } from "../../../packages/shared/src";
 import { UserStoryRepository } from "../repositories/UserStoryRepository";
-import { ApiResponse } from "@shared";
 
 export class UserStoryService {
   private userStoryRepository = new UserStoryRepository();

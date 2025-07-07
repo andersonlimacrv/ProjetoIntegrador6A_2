@@ -1,5 +1,5 @@
 import { EpicRepository } from "../repositories/EpicRepository";
-import { Epic } from "@shared";
+import { Epic } from "../../../packages/shared/src";
 
 export class EpicService {
   private epicRepository = new EpicRepository();

@@ -1,6 +1,5 @@
-import { Sprint } from "@shared";
+import { Sprint, ApiResponse } from "../../../packages/shared/src";
 import { SprintRepository } from "../repositories/SprintRepository";
-import { ApiResponse } from "@shared";
 
 export class SprintService {
   private sprintRepository = new SprintRepository();

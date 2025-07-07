@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Plus,
@@ -62,129 +62,68 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "manager" | "developer" | "designer" | "viewer";
-  status: "active" | "inactive" | "pending";
-  lastLogin: string;
-  createdAt: string;
-  avatar?: string;
-  team: string;
-}
-
-const initialUsers: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@company.com",
-    role: "admin",
-    status: "active",
-    lastLogin: "2024-01-15T10:30:00Z",
-    createdAt: "2023-06-01T09:00:00Z",
-    team: "Engineering",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@company.com",
-    role: "manager",
-    status: "active",
-    lastLogin: "2024-01-14T16:45:00Z",
-    createdAt: "2023-07-15T14:20:00Z",
-    team: "Product",
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    email: "bob.johnson@company.com",
-    role: "developer",
-    status: "active",
-    lastLogin: "2024-01-15T08:15:00Z",
-    createdAt: "2023-08-10T11:30:00Z",
-    team: "Engineering",
-  },
-  {
-    id: "4",
-    name: "Alice Brown",
-    email: "alice.brown@company.com",
-    role: "designer",
-    status: "inactive",
-    lastLogin: "2024-01-10T12:00:00Z",
-    createdAt: "2023-09-05T10:15:00Z",
-    team: "Design",
-  },
-  {
-    id: "5",
-    name: "Charlie Wilson",
-    email: "charlie.wilson@company.com",
-    role: "viewer",
-    status: "pending",
-    lastLogin: "Never",
-    createdAt: "2024-01-14T16:30:00Z",
-    team: "Marketing",
-  },
-];
+import { usersApi } from "@/services/domains/usersApi";
+import type {
+  User as ApiUser,
+  CreateUserDTO,
+  UpdateUserDTO,
+} from "@packages/shared";
 
 export function AdminPage() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<ApiUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [newUser, setNewUser] = useState({
+  const [editingUser, setEditingUser] = useState<ApiUser | null>(null);
+  const [newUser, setNewUser] = useState<CreateUserDTO>({
     name: "",
     email: "",
-    role: "viewer" as User["role"],
-    team: "",
+    password: "12345678",
+    avatarUrl: "",
   });
 
   const { addToast } = useToast();
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  async function fetchUsers() {
+    try {
+      const fetchRes = await usersApi.getAll();
+      if (fetchRes.success && Array.isArray(fetchRes.data)) {
+        setUsers(fetchRes.data);
+      } else {
+        setUsers([]);
+        addToast({
+          type: "error",
+          title: "Erro",
+          description: fetchRes.error || "Erro ao buscar usuários CLIENT",
+        });
+      }
+    } catch (e: any) {
+      setUsers([]);
+      addToast({ type: "error", title: "Erro", description: e.message });
+    }
+  }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = selectedRole === "all" || user.role === selectedRole;
     const matchesStatus =
-      selectedStatus === "all" || user.status === selectedStatus;
-
-    return matchesSearch && matchesRole && matchesStatus;
+      selectedStatus === "all" ||
+      (selectedStatus === "active" && user.isActive) ||
+      (selectedStatus === "inactive" && !user.isActive) ||
+      (selectedStatus === "pending" && user.isActive === undefined);
+    return matchesSearch && matchesStatus;
   });
 
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case "admin":
-        return <Crown className="w-4 h-4 text-yellow-500" />;
-      case "manager":
-        return <Shield className="w-4 h-4 text-blue-500" />;
-      case "developer":
-        return <Settings className="w-4 h-4 text-green-500" />;
-      case "designer":
-        return <Edit className="w-4 h-4 text-purple-500" />;
-      default:
-        return <User className="w-4 h-4 text-gray-500" />;
-    }
-  };
+  const getRoleIcon = () => <User className="w-4 h-4 text-gray-500" />;
 
-  const getRoleBadgeColor = (role: string) => {
-    switch (role) {
-      case "admin":
-        return "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400";
-      case "manager":
-        return "bg-blue-500/20 text-blue-700 dark:text-blue-400";
-      case "developer":
-        return "bg-green-500/20 text-green-700 dark:text-green-400";
-      case "designer":
-        return "bg-purple-500/20 text-purple-700 dark:text-purple-400";
-      default:
-        return "bg-gray-500/20 text-gray-700 dark:text-gray-400";
-    }
-  };
+  const getRoleBadgeColor = () =>
+    "bg-gray-500/20 text-gray-700 dark:text-gray-400";
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -208,88 +147,152 @@ export function AdminPage() {
       .slice(0, 2);
   };
 
-  const formatDate = (dateString: string) => {
-    if (dateString === "Never") return "Never";
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (date: string | Date | undefined) => {
+    if (!date) return "-";
+    if (typeof date === "string") {
+      if (date === "Never") return "Nunca";
+      return new Date(date).toLocaleDateString("pt-BR", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    }
+    return date.toLocaleDateString("pt-BR", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
 
-  const handleCreateUser = () => {
-    if (!newUser.name || !newUser.email || !newUser.team) {
+  const handleCreateUser = async () => {
+    if (!newUser.name || !newUser.email) {
       addToast({
         type: "error",
-        title: "Validation Error",
-        description: "Please fill in all required fields",
+        title: "Erro de validação",
+        description: "Preencha todos os campos obrigatórios",
       });
       return;
     }
-
-    const user: User = {
-      id: Date.now().toString(),
-      ...newUser,
-      status: "pending",
-      lastLogin: "Never",
-      createdAt: new Date().toISOString(),
-    };
-
-    setUsers((prev) => [...prev, user]);
-    setNewUser({ name: "", email: "", role: "viewer", team: "" });
-    setIsCreateDialogOpen(false);
-
-    addToast({
-      type: "success",
-      title: "User Created",
-      description: `${user.name} has been successfully created`,
-    });
+    try {
+      const createRes = await usersApi.create(newUser);
+      if (createRes.success && createRes.data) {
+        setUsers((prev) => [...prev, createRes.data as ApiUser]);
+        setNewUser({
+          name: "",
+          email: "",
+          password: "12345678",
+          avatarUrl: "",
+        });
+        setIsCreateDialogOpen(false);
+        addToast({
+          type: "success",
+          title: "Usuário criado",
+          description: `${createRes.data.name} foi criado com sucesso`,
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro",
+          description: createRes.error || "Erro ao criar usuário",
+        });
+      }
+    } catch (e: any) {
+      addToast({ type: "error", title: "Erro", description: e.message });
+    }
   };
 
-  const handleEditUser = (user: User) => {
+  const handleEditUser = (user: ApiUser) => {
     setEditingUser(user);
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!editingUser) return;
-
-    setUsers((prev) =>
-      prev.map((user) => (user.id === editingUser.id ? editingUser : user))
-    );
-
-    setIsEditDialogOpen(false);
-    setEditingUser(null);
-
-    addToast({
-      type: "success",
-      title: "User Updated",
-      description: `${editingUser.name} has been successfully updated`,
-    });
+    const updateData: UpdateUserDTO = {
+      name: editingUser.name,
+      email: editingUser.email,
+      avatarUrl: editingUser.avatarUrl || "",
+      isActive: editingUser.isActive,
+    };
+    try {
+      const updateRes = await usersApi.update(
+        Number(editingUser.id),
+        updateData
+      );
+      if (updateRes.success && updateRes.data) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingUser.id && updateRes.data ? updateRes.data : u
+          )
+        );
+        setIsEditDialogOpen(false);
+        setEditingUser(null);
+        addToast({
+          type: "success",
+          title: "Usuário atualizado",
+          description: `${updateRes.data.name} foi atualizado com sucesso`,
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro",
+          description: updateRes.error || "Erro ao atualizar usuário",
+        });
+      }
+    } catch (e: any) {
+      addToast({ type: "error", title: "Erro", description: e.message });
+    }
   };
 
-  const handleDeleteUser = (user: User) => {
-    setUsers((prev) => prev.filter((u) => u.id !== user.id));
-
-    addToast({
-      type: "warning",
-      title: "User Deleted",
-      description: `${user.name} has been removed from the system`,
-    });
+  const handleDeleteUser = async (user: ApiUser) => {
+    try {
+      const deleteRes = await usersApi.delete(user.id);
+      if (deleteRes.success) {
+        setUsers((prev) => prev.filter((u) => u.id !== user.id));
+        addToast({
+          type: "warning",
+          title: "Usuário deletado",
+          description: `${user.name} foi removido do sistema`,
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro",
+          description: deleteRes.error || "Erro ao deletar usuário",
+        });
+      }
+    } catch (e: any) {
+      addToast({ type: "error", title: "Erro", description: e.message });
+    }
   };
 
-  const handleToggleStatus = (user: User) => {
-    const newStatus = user.status === "active" ? "inactive" : "active";
-
-    setUsers((prev) =>
-      prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
-    );
-
-    addToast({
-      type: "info",
-      title: "Status Updated",
-      description: `${user.name} is now ${newStatus}`,
-    });
+  const handleToggleStatus = async (user: ApiUser) => {
+    const updateData: UpdateUserDTO = { isActive: !user.isActive };
+    try {
+      const toggleRes = await usersApi.update(Number(user.id), updateData);
+      if (toggleRes.success && toggleRes.data) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === user.id && toggleRes.data ? toggleRes.data : u
+          )
+        );
+        addToast({
+          type: "info",
+          title: "Status atualizado",
+          description: `${user.name} agora está ${
+            toggleRes.data.isActive ? "ativo" : "inativo"
+          }`,
+        });
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro",
+          description: toggleRes.error || "Erro ao atualizar status",
+        });
+      }
+    } catch (e: any) {
+      addToast({ type: "error", title: "Erro", description: e.message });
+    }
   };
 
   return (
@@ -347,40 +350,6 @@ export function AdminPage() {
                   placeholder="Enter email address"
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="role">Role</Label>
-                <Select
-                  value={newUser.role}
-                  onValueChange={(value: User["role"]) =>
-                    setNewUser((prev) => ({ ...prev, role: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                    <SelectItem value="designer">Designer</SelectItem>
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="Team">Team</Label>
-                <Input
-                  id="Team"
-                  value={newUser.team}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({
-                      ...prev,
-                      team: e.target.value,
-                    }))
-                  }
-                  placeholder="Enter Team"
-                />
-              </div>
             </div>
             <DialogFooter>
               <Button
@@ -406,19 +375,19 @@ export function AdminPage() {
           },
           {
             title: "Active Users",
-            value: users.filter((u) => u.status === "active").length,
+            value: users.filter((u) => u.isActive).length,
             icon: UserCheck,
             color: "text-green-500",
           },
           {
             title: "Pending Users",
-            value: users.filter((u) => u.status === "pending").length,
+            value: users.filter((u) => u.isActive === undefined).length,
             icon: Calendar,
             color: "text-yellow-500",
           },
           {
             title: "Inactive Users",
-            value: users.filter((u) => u.status === "inactive").length,
+            value: users.filter((u) => !u.isActive).length,
             icon: UserX,
             color: "text-red-500",
           },
@@ -462,20 +431,6 @@ export function AdminPage() {
           />
         </div>
 
-        <Select value={selectedRole} onValueChange={setSelectedRole}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="All Roles" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="developer">Developer</SelectItem>
-            <SelectItem value="designer">Designer</SelectItem>
-            <SelectItem value="viewer">Viewer</SelectItem>
-          </SelectContent>
-        </Select>
-
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-[150px]">
             <SelectValue placeholder="All Status" />
@@ -500,8 +455,6 @@ export function AdminPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="pl-6">User</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Team</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Login</TableHead>
               <TableHead>Created</TableHead>
@@ -514,9 +467,9 @@ export function AdminPage() {
                 <TableCell className="px-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                      {user.avatar ? (
+                      {user.avatarUrl ? (
                         <img
-                          src={user.avatar}
+                          src={user.avatarUrl}
                           alt={user.name}
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -533,23 +486,24 @@ export function AdminPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge className={`${getRoleBadgeColor(user.role)} border-0`}>
-                    <div className="flex items-center gap-1">
-                      {getRoleIcon(user.role)}
-                      {user.role}
-                    </div>
-                  </Badge>
-                </TableCell>
-                <TableCell>{user.team}</TableCell>
-                <TableCell>
                   <Badge
-                    className={`${getStatusBadgeColor(user.status)} border-0`}
+                    className={`${getStatusBadgeColor(
+                      user.isActive ? "active" : "inactive"
+                    )} border-0`}
                   >
-                    {user.status}
+                    {user.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </TableCell>
-                <TableCell>{formatDate(user.lastLogin)}</TableCell>
-                <TableCell>{formatDate(user.createdAt)}</TableCell>
+                <TableCell>
+                  {formatDate(
+                    user.lastLogin ? user.lastLogin.toString() : undefined
+                  )}
+                </TableCell>
+                <TableCell>
+                  {formatDate(
+                    user.createdAt ? user.createdAt.toString() : undefined
+                  )}
+                </TableCell>
                 <TableCell className="text-right pr-6">
                   <DropdownMenu>
                     <DropdownMenuTrigger>
@@ -566,7 +520,7 @@ export function AdminPage() {
                       <DropdownMenuItem
                         onClick={() => handleToggleStatus(user)}
                       >
-                        {user.status === "active" ? (
+                        {user.isActive ? (
                           <>
                             <UserX className="mr-2 h-4 w-4" />
                             Deactivate
@@ -594,7 +548,7 @@ export function AdminPage() {
                             <AlertDialogTitle>
                               Are you absolutely sure?
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogDescription className="text-destructive">
                               This action cannot be undone. This will
                               permanently delete {user.name}'s account and
                               remove all associated data from our servers.
@@ -652,40 +606,6 @@ export function AdminPage() {
                   onChange={(e) =>
                     setEditingUser((prev) =>
                       prev ? { ...prev, email: e.target.value } : null
-                    )
-                  }
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-role">Role</Label>
-                <Select
-                  value={editingUser.role}
-                  onValueChange={(value: User["role"]) =>
-                    setEditingUser((prev) =>
-                      prev ? { ...prev, role: value } : null
-                    )
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="viewer">Viewer</SelectItem>
-                    <SelectItem value="designer">Designer</SelectItem>
-                    <SelectItem value="developer">Developer</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-team">Team</Label>
-                <Input
-                  id="edit-team"
-                  value={editingUser.team}
-                  onChange={(e) =>
-                    setEditingUser((prev) =>
-                      prev ? { ...prev, team: e.target.value } : null
                     )
                   }
                 />

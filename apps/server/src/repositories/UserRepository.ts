@@ -1,13 +1,17 @@
 import {
-  User as UserModel,
-  CreateUserInput,
-  UpdateUserInput,
-  LoginUserInput,
-} from "@shared";
+  User,
+  CreateUserDTO,
+  UpdateUserDTO,
+  LoginUserDTO,
+  UserTenant,
+  Session,
+  Activity,
+  ApiResponse,
+} from "../../../packages/shared/src";
 import { db } from "../db/connection";
 import { users, user_tenants, sessions, activities } from "../db/schema";
 import { eq, and, desc } from "drizzle-orm";
-import type { NewUser, User as DbUser, Session, Activity } from "../db/schema";
+import type { NewUser, User as DbUser } from "../db/schema";
 import bcrypt from "bcryptjs";
 
 export class UserRepository {
@@ -37,7 +41,7 @@ export class UserRepository {
   /**
    * Cria um novo usuário
    */
-  async create(data: CreateUserInput): Promise<DbUser> {
+  async create(data: CreateUserDTO): Promise<DbUser> {
     const hashedPassword = await bcrypt.hash(data.password, 12);
 
     const [newUser] = await db
@@ -63,7 +67,7 @@ export class UserRepository {
   /**
    * Atualiza um usuário existente
    */
-  async update(id: string, data: UpdateUserInput): Promise<DbUser | null> {
+  async update(id: string, data: UpdateUserDTO): Promise<DbUser | null> {
     const updateData: any = {
       updatedAt: new Date(),
     };
@@ -127,7 +131,7 @@ export class UserRepository {
   /**
    * Autentica um usuário
    */
-  async authenticate(data: LoginUserInput): Promise<DbUser | null> {
+  async authenticate(data: LoginUserDTO): Promise<DbUser | null> {
     const user = await this.findByEmail(data.email);
 
     if (!user || !user.isActive) {

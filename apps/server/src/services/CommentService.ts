@@ -1,6 +1,5 @@
-import { Comment } from "@shared";
+import { Comment, ApiResponse } from "../../../packages/shared/src";
 import { CommentRepository } from "../repositories/CommentRepository";
-import { ApiResponse } from "@shared";
 
 export class CommentService {
   private commentRepository = new CommentRepository();

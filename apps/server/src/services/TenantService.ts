@@ -1,14 +1,30 @@
 import { TenantRepository } from "../repositories/TenantRepository";
 import { UserRepository } from "../repositories/UserRepository";
 import {
+  Tenant,
+  UserTenant,
+  Role,
+  Permission,
+  UserRole,
+  Invitation,
+  CreateTenantDTO,
+  UpdateTenantDTO,
+  CreateRoleDTO,
+  UpdateRoleDTO,
+  CreateInvitationDTO,
+  AcceptInvitationDTO,
+  ApiResponse,
   CreateTenantInput,
   UpdateTenantInput,
+  TenantIdInput,
+  TenantSlugInput,
   CreateRoleInput,
   UpdateRoleInput,
+  RoleIdInput,
   CreateInvitationInput,
   AcceptInvitationInput,
-  ApiResponse,
-} from "@shared";
+  InvitationTokenInput,
+} from "../../../packages/shared/src";
 import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 
@@ -511,6 +527,142 @@ export class TenantService {
         success: false,
         error: "Erro ao listar convites do tenant",
       };
+    }
+  }
+
+  /**
+   * Atualiza um role do tenant
+   */
+  async updateRole(
+    tenantId: string,
+    roleId: string,
+    data: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      const tenant = await this.tenantRepository.findById(tenantId);
+      if (!tenant) {
+        return { success: false, error: "Tenant não encontrado" };
+      }
+      const role = await this.tenantRepository.updateRole(
+        tenantId,
+        roleId,
+        data
+      );
+      if (!role) {
+        return { success: false, error: "Role não encontrada" };
+      }
+      return {
+        success: true,
+        data: role,
+        message: "Role atualizada com sucesso",
+      };
+    } catch (error) {
+      return { success: false, error: "Erro ao atualizar role" };
+    }
+  }
+
+  /**
+   * Remove um role do tenant
+   */
+  async deleteRole(
+    tenantId: string,
+    roleId: string
+  ): Promise<ApiResponse<any>> {
+    try {
+      const tenant = await this.tenantRepository.findById(tenantId);
+      if (!tenant) {
+        return { success: false, error: "Tenant não encontrado" };
+      }
+      const deleted = await this.tenantRepository.deleteRole(tenantId, roleId);
+      if (!deleted) {
+        return { success: false, error: "Role não encontrada" };
+      }
+      return { success: true, message: "Role removida com sucesso" };
+    } catch (error) {
+      return { success: false, error: "Erro ao remover role" };
+    }
+  }
+
+  /**
+   * Cancela um convite
+   */
+  async cancelInvitation(
+    tenantId: string,
+    invitationId: string
+  ): Promise<ApiResponse<any>> {
+    try {
+      const tenant = await this.tenantRepository.findById(tenantId);
+      if (!tenant) {
+        return { success: false, error: "Tenant não encontrado" };
+      }
+      const cancelled = await this.tenantRepository.cancelInvitation(
+        tenantId,
+        invitationId
+      );
+      if (!cancelled) {
+        return { success: false, error: "Convite não encontrado" };
+      }
+      return { success: true, message: "Convite cancelado com sucesso" };
+    } catch (error) {
+      return { success: false, error: "Erro ao cancelar convite" };
+    }
+  }
+
+  /**
+   * Atribui um role a um usuário do tenant
+   */
+  async assignUserRole(
+    tenantId: string,
+    userId: string,
+    data: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      const tenant = await this.tenantRepository.findById(tenantId);
+      if (!tenant) {
+        return { success: false, error: "Tenant não encontrado" };
+      }
+      const assigned = await this.tenantRepository.assignUserRole(
+        tenantId,
+        userId,
+        data.roleId
+      );
+      if (!assigned) {
+        return { success: false, error: "Erro ao atribuir role" };
+      }
+      return {
+        success: true,
+        data: assigned,
+        message: "Role atribuída com sucesso",
+      };
+    } catch (error) {
+      return { success: false, error: "Erro ao atribuir role" };
+    }
+  }
+
+  /**
+   * Remove um role de um usuário do tenant
+   */
+  async removeUserRole(
+    tenantId: string,
+    userId: string,
+    roleId: string
+  ): Promise<ApiResponse<any>> {
+    try {
+      const tenant = await this.tenantRepository.findById(tenantId);
+      if (!tenant) {
+        return { success: false, error: "Tenant não encontrado" };
+      }
+      const removed = await this.tenantRepository.removeUserRole(
+        tenantId,
+        userId,
+        roleId
+      );
+      if (!removed) {
+        return { success: false, error: "Role não encontrada" };
+      }
+      return { success: true, message: "Role removida com sucesso" };
+    } catch (error) {
+      return { success: false, error: "Erro ao remover role" };
     }
   }
 }
