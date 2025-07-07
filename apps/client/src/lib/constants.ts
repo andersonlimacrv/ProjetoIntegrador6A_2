@@ -1,108 +1,172 @@
-
-
 import {
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
+  LayoutDashboard,
+  FolderKanban,
+  Users,
+  Rocket,
+  Layers,
+  BookText,
+  LineChart,
   Settings2,
-  SquareTerminal,
+  LifeBuoy,
+  Send,
+  Map,
+  PlusCircle,
+  FileStack,
+  GraduationCap,
+  ListChecks,
+  GanttChartSquare,
+  CalendarCheck,
+  Presentation,
+  WalletCards,
+  Sliders,
 } from "lucide-react";
-
-
 
 export const navbarItems = {
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
+      title: "Dashboard",
+      url: "/dashboard/",
+      icon: LayoutDashboard,
+      isActive: false,
+    },
+    {
+      title: "Projects",
+      url: "/dashboard/projects",
+      icon: FolderKanban,
+      isActive: false,
       items: [
         {
-          title: "History",
-          url: "#",
-          icon: Frame,
+          title: "All Projects",
+          url: "/dashboard/projects/all",
+          icon: Map,
         },
         {
-          title: "Starred",
-          url: "#",
-          icon: PieChart,
-
-        },
-        {
-          title: "Settings",
-          url: "#",
-          icon: Settings2,
+          title: "Create Project",
+          url: "/dashboard/projects/create",
+          icon: PlusCircle,
         },
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
+      title: "Teams",
+      url: "/dashboard/teams",
+      icon: Users,
+      isActive: false,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "Members",
+          url: "/dashboard/teams/members",
+          icon: Users,
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "Roles",
+          url: "/dashboard/teams/roles",
+          icon: FileStack,
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "Permissions",
+          url: "/dashboard/teams/permissions",
+          icon: WalletCards,
         },
       ],
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
+      title: "Sprints",
+      url: "/dashboard/sprints",
+      icon: Rocket,
+      isActive: false,
       items: [
         {
-          title: "Introduction",
-          url: "#",
+          title: "Current Sprint",
+          url: "/dashboard/sprints/current",
+          icon: CalendarCheck,
         },
         {
-          title: "Get Started",
-          url: "#",
+          title: "Sprint Planning",
+          url: "/dashboard/sprints/planning",
+          icon: GanttChartSquare,
+        },
+      ],
+    },
+    {
+      title: "Epics",
+      url: "/dashboard/epics",
+      icon: Layers,
+      isActive: false,
+      items: [
+        {
+          title: "Epic Board",
+          url: "/dashboard/epics/board",
+          icon: Presentation,
         },
         {
-          title: "Tutorials",
-          url: "#",
+          title: "Epic Timeline",
+          url: "/dashboard/epics/timeline",
+          icon: ListChecks,
+        },
+      ],
+    },
+    {
+      title: "UserStories",
+      url: "/dashboard/user-stories",
+      icon: BookText,
+      isActive: false,
+      items: [
+        {
+          title: "Backlog",
+          url: "/dashboard/user-stories/backlog",
+          icon: FileStack,
         },
         {
-          title: "Changelog",
-          url: "#",
+          title: "Templates",
+          url: "/dashboard/user-stories/templates",
+          icon: GraduationCap,
+        },
+      ],
+    },
+    {
+      title: "Analytics",
+      url: "/dashboard/analytics",
+      icon: LineChart,
+      isActive: false,
+      items: [
+        {
+          title: "Reports",
+          url: "/dashboard/analytics/reports",
+          icon: LineChart,
+        },
+        {
+          title: "Metrics",
+          url: "/dashboard/analytics/metrics",
+          icon: Sliders,
         },
       ],
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: Settings2,
+      isActive: false,
       items: [
         {
           title: "General",
-          url: "#",
+          url: "/dashboard/settings/general",
+          icon: Settings2,
         },
         {
           title: "Team",
-          url: "#",
+          url: "/dashboard/settings/team",
+          icon: Users,
         },
         {
           title: "Billing",
-          url: "#",
+          url: "/dashboard/settings/billing",
+          icon: WalletCards,
         },
         {
           title: "Limits",
-          url: "#",
+          url: "/dashboard/settings/limits",
+          icon: Sliders,
         },
       ],
     },
@@ -110,13 +174,15 @@ export const navbarItems = {
   navSecondary: [
     {
       title: "Support",
-      url: "#",
+      url: "/dashboard/support",
       icon: LifeBuoy,
+      isActive: false,
     },
     {
       title: "Feedback",
-      url: "#",
+      url: "/dashboard/feedback",
       icon: Send,
+      isActive: false,
     },
   ],
 };

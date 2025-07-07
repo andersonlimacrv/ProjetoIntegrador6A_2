@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/auth-context";
+/* import { useAuth } from "@/contexts/auth-context"; */
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -9,9 +9,10 @@ import {
 import DynamicBreadcrumb from "@/components/layout/DynamicBreadcrumb";
 import { ThemeSwitcher } from "@/components/layout/theme-switcher";
 import { UserButton } from "@/components/auth/UserButton";
+import { Outlet } from "react-router-dom";
 
 function DashboardPage() {
-  const { user, logout } = useAuth();
+  /* const { user, logout } = useAuth(); */
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,10 +27,12 @@ function DashboardPage() {
             <DynamicBreadcrumb />
           </div>
           <ThemeSwitcher />
-          <UserButton/>
+          <UserButton />
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className=" border border-red-500 min-h-[100vh] flex-1 rounded-xl md:min-h-min"></div>
+          <div className="flex-1 rounded-xl">
+            <Outlet />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

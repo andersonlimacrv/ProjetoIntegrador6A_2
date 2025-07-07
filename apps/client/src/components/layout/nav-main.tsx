@@ -1,4 +1,5 @@
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,39 +17,82 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import { AuroraText } from "../ui/aurora-text";
+
 interface NavSubItem {
   title: string;
   url: string;
-  icon?: LucideIcon; 
+  icon?: LucideIcon;
 }
 
 interface NavItem {
   title: string;
   url: string;
-  icon?: LucideIcon; // Ícone opcional
+  icon?: LucideIcon;
   isActive?: boolean;
   items?: NavSubItem[];
 }
 
 export function NavMain({ items }: { items: NavItem[] }) {
+  const location = useLocation();
+
+  const isItemActive = (itemUrl: string) => {
+    const currentPath = location.pathname;
+
+    if (currentPath === itemUrl) {
+      return true;
+    }
+
+    if (itemUrl !== "/" && currentPath.startsWith(itemUrl + "/")) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const isSubItemActive = (subItemUrl: string) => {
+    return location.pathname === subItemUrl;
+  };
+
+  const shouldBeOpen = (item: NavItem) => {
+    if (isItemActive(item.url)) {
+      return true;
+    }
+
+    if (item.isActive) {
+      return true;
+    }
+
+    if (item.items) {
+      return item.items.some((subItem) => isSubItemActive(subItem.url));
+    }
+
+    return false;
+  };
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel><AuroraText> All Sync</AuroraText></SidebarGroupLabel>
+      <SidebarGroupLabel>
+        <AuroraText>All Sync</AuroraText>
+      </SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
             key={item.title}
             asChild
-            defaultOpen={item.isActive ?? false}
+            defaultOpen={shouldBeOpen(item)}
           >
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title}>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                isActive={isItemActive(item.url)}
+                className="data-[active=true]:bg-accent/60"
+              >
                 <a href={item.url}>
-                  {item.icon && <item.icon className="mr-2 h-4 w-4" />}{" "}
+                  {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                   <span>{item.title}</span>
                 </a>
-              </SidebarMenuButton>
-
+              </SidebarMenuButton >
               {item.items && item.items.length > 0 && (
                 <>
                   <CollapsibleTrigger asChild>
@@ -61,11 +105,17 @@ export function NavMain({ items }: { items: NavItem[] }) {
                     <SidebarMenuSub>
                       {item.items.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={isSubItemActive(subItem.url)}
+                            className="data-[active=true]:bg-muted-foreground/10 my-1"
+                          >
                             <a href={subItem.url}>
                               {subItem.icon && (
-                                <div className="text-primary/30"><subItem.icon className="mr-2 h-4 w-4" /></div>
-                              )}{" "}
+                                <div className="text-primary/30">
+                                  <subItem.icon className="mr-2 h-4 w-4" />
+                                </div>
+                              )}
                               <span>{subItem.title}</span>
                             </a>
                           </SidebarMenuSubButton>

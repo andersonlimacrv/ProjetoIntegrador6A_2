@@ -7,7 +7,7 @@ import { DashboardPreview } from "@/components/pages/landing/DashboardPreview";
 import { CTASection } from "@/components/pages/landing/CTASection";
 import { Footer } from "@/components/pages/landing/Footer";
 
-export function LandingPage() {
+export default function LandingPage() {
   return (
     <div className="bg-[#1C1C1C]">
       <div className="min-h-screen bg-gradient-to-br from-slate-900/10 via-purple-900/30 to-slate-900 overflow-x-hidden">
@@ -32,4 +32,4 @@ export function LandingPage() {
   );
 }
 
-export default LandingPage;
+

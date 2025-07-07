@@ -30,8 +30,8 @@ interface LoginDialogProps {
 
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("UsuarioExemplo@email.com");
+  const [password, setPassword] = useState("Senha_Exemplo");
   const { login } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToast();
