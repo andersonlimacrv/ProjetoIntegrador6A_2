@@ -11,7 +11,8 @@ interface User {
   email: string;
   name: string;
   password: string;
-  avatar?: string;
+  role: string;
+  avatarUrl?: string;
 }
 
 interface AuthContextType {
@@ -39,12 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const mockUser : User = {
+    const mockUser: User = {
       id: "1",
       email,
       name: email.split("@")[0] || "",
       password: password,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      role: "admin",
     };
 
     setUser(mockUser);

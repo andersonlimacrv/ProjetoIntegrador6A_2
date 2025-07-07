@@ -34,6 +34,7 @@ import { BillingSettingsPage } from "@/pages/settings/billing";
 import { LimitsSettingsPage } from "@/pages/settings/limits";
 import { SupportPage } from "@/pages/support";
 import { FeedbackPage } from "@/pages/feedback";
+import { AdminPage } from "@/pages/admin";
 
 function App() {
   return (
@@ -100,6 +101,9 @@ function App() {
             {/* Secondary Routes */}
             <Route path="support" element={<SupportPage />} />
             <Route path="feedback" element={<FeedbackPage />} />
+
+            {/* Admin */}
+            <Route path="admin" element={<AdminPage />} />
 
             {/* 404 Route */}
             <Route path="*" element={<NotFoundPage />} />

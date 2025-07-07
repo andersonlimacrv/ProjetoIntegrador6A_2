@@ -10,16 +10,23 @@ import { User, LogOut, Settings, Shield, HelpCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { useToast } from "@/contexts/toast-context";
+import { useAuth } from "@/contexts/auth-context";
+import { useNavigate } from "react-router-dom";
 
 const userData = {
   name: "John Doe",
-  avatar: null,
+  avatarUrl: null,
   email: "9dH0w@example.com",
   role: "admin",
 };
 
 export function UserButton() {
   const { addToast } = useToast();
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const navigate = useNavigate();
+
+  console.log(user);
 
   const handleUserMenuAction = (action: string) => {
     switch (action) {
@@ -38,11 +45,7 @@ export function UserButton() {
         });
         break;
       case "admin":
-        addToast({
-          type: "info",
-          title: "Admin Panel",
-          description: "Opening admin dashboard...",
-        });
+        navigate("/dashboard/admin");
         break;
       case "help":
         addToast({
@@ -52,25 +55,25 @@ export function UserButton() {
         });
         break;
       case "logout":
-        addToast({
-          type: "warning",
-          title: "Logging out",
-          description: "You have been logged out successfully",
-        });
+        logout();
         break;
       default:
         break;
     }
   };
+
+  if (!user) {
+    return null;
+  }
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center gap-2 p-1 hover:bg-accent/20 rounded-full transition-colors cursor-pointer">
-            <Avatar>
-              <AvatarImage src={userData.avatar || ""} />
+            <Avatar className="shadow">
+              <AvatarImage src={user.avatarUrl || ""} />
               <AvatarFallback>
-                {userData.name.slice(0, 2).toUpperCase()}
+                {user.name?.[0]?.toUpperCase() || ""}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -81,14 +84,12 @@ export function UserButton() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {userData.name}
-              </p>
+              <p className="text-sm font-medium leading-none">{user.name}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                {userData.email}
+                {user.email}
               </p>
               <p className="text-xs leading-none text-primary font-medium">
-                {userData.role}
+                {user.role}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -109,17 +110,16 @@ export function UserButton() {
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => handleUserMenuAction("admin")}
-            className="cursor-pointer"
-          >
-            <Shield className="mr-2 h-4 w-4" />
-            <span>Admin Panel</span>
-          </DropdownMenuItem>
-
+          {isAdmin && (
+            <DropdownMenuItem
+              onClick={() => handleUserMenuAction("admin")}
+              className="cursor-pointer"
+            >
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Admin Panel</span>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
-
           <DropdownMenuItem
             onClick={() => handleUserMenuAction("help")}
             className="cursor-pointer"
@@ -135,7 +135,7 @@ export function UserButton() {
             className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950"
           >
             <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
+            <button>Logout</button>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
