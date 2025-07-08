@@ -65,8 +65,15 @@ export class UserStoryRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(user_stories).where(eq(user_stories.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(user_stories)
+        .where(eq(user_stories.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getUserStoriesByProject(projectId: string): Promise<UserStoryModel[]> {

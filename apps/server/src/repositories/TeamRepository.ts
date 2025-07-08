@@ -51,8 +51,15 @@ export class TeamRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(teams).where(eq(teams.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(teams)
+        .where(eq(teams.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getTeamsByTenant(tenantId: string): Promise<TeamModel[]> {
@@ -129,4 +136,4 @@ export class TeamRepository {
       .where(eq(team_projects.teamId, teamId))
       .orderBy(asc(projects.name));
   }
-} 
+}

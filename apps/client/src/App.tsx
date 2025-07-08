@@ -13,8 +13,9 @@ import { AllProjectsPage } from "@/pages/projects/all-project";
 import { CreateProjectPage } from "@/pages/projects/create-project";
 import { TeamsPage } from "@/pages/teams";
 import { AllTeamsPage } from "@/pages/teams/all-teams";
-import { MembersPage } from "@/pages/teams/members";
-import { RolesPage } from "@/pages/teams/roles";
+import { TeamMembersPage } from "@/pages/teams/members";
+import { AllUsersPage } from "@/pages/teams/all-users";
+import { TeamRolesPage } from "@/pages/teams/roles";
 import { PermissionsPage } from "@/pages/teams/permissions";
 import { SprintsPage } from "@/pages/sprints";
 import { AllSprintsPage } from "@/pages/sprints/all-sprints";
@@ -41,6 +42,7 @@ import { LimitsSettingsPage } from "@/pages/settings/limits";
 import { SupportPage } from "@/pages/support";
 import { FeedbackPage } from "@/pages/feedback";
 import { AdminPage } from "@/pages/admin";
+import CreateTeamPage from "@/pages/teams/create-team";
 
 function App() {
   return (
@@ -69,8 +71,10 @@ function App() {
             <Route path="teams" element={<TeamsPage />}>
               <Route index element={<AllTeamsPage />} />
               <Route path="all" element={<AllTeamsPage />} />
-              <Route path="members" element={<MembersPage />} />
-              <Route path="roles" element={<RolesPage />} />
+              <Route path="create" element={<CreateTeamPage />} />
+              <Route path="members" element={<AllUsersPage />} />
+              <Route path=":id/members" element={<TeamMembersPage />} />
+              <Route path="roles" element={<TeamRolesPage />} />
               <Route path="permissions" element={<PermissionsPage />} />
             </Route>
 

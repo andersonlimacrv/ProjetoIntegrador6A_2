@@ -54,36 +54,42 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
 
     try {
       const response = await authApi.login({ email, password });
-      
-      if (response.ok && response.data.success) {
+
+      if (response.ok && response.data.success && response.data.data) {
         // Armazenar dados de autenticação
         localStorage.setItem("token", response.data.data.token || "");
         localStorage.setItem("sessionId", response.data.data.sessionId || "");
         localStorage.setItem("user", JSON.stringify(response.data.data.user));
         if (response.data.data.tenant) {
-          localStorage.setItem("tenant", JSON.stringify(response.data.data.tenant));
+          localStorage.setItem(
+            "tenant",
+            JSON.stringify(response.data.data.tenant)
+          );
         }
-        
+
         // Atualizar contexto de autenticação
         login(response.data.data.user, response.data.data.tenant);
-        
+
         addToast({
           type: "success",
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta!",
         });
-        
+
         console.log("Login bem-sucedido, redirecionando para /dashboard");
         onOpenChange(false);
         navigate("/dashboard");
       } else {
         // Tratar erro de credenciais inválidas (401) como warning
         const isInvalidCredentials = response.status === 401;
-        const message = response.data.message || response.data.error || "Erro ao fazer login";
-        
+        const message =
+          response.data.message || response.data.error || "Erro ao fazer login";
+
         addToast({
           type: isInvalidCredentials ? "warning" : "error",
-          title: isInvalidCredentials ? "Credenciais inválidas" : "Erro ao fazer login",
+          title: isInvalidCredentials
+            ? "Credenciais inválidas"
+            : "Erro ao fazer login",
           description: message,
         });
       }
@@ -105,32 +111,38 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
 
     try {
       const response = await authApi.register(registerData);
-      
-      if (response.ok && response.data.success) {
+
+      if (response.ok && response.data.success && response.data.data) {
         // Armazenar dados de autenticação
         localStorage.setItem("token", response.data.data.token || "");
         localStorage.setItem("sessionId", response.data.data.sessionId || "");
         localStorage.setItem("user", JSON.stringify(response.data.data.user));
         if (response.data.data.tenant) {
-          localStorage.setItem("tenant", JSON.stringify(response.data.data.tenant));
+          localStorage.setItem(
+            "tenant",
+            JSON.stringify(response.data.data.tenant)
+          );
         }
-        
+
         // Atualizar contexto de autenticação
         login(response.data.data.user, response.data.data.tenant);
-        
+
         addToast({
           type: "success",
           title: "Conta criada com sucesso!",
           description: "Bem-vindo ao sistema!",
         });
-        
+
         onOpenChange(false);
         navigate("/dashboard");
       } else {
         addToast({
           type: "error",
           title: "Erro ao criar conta",
-          description: response.data.message || response.data.error || "Verifique os dados informados",
+          description:
+            response.data.message ||
+            response.data.error ||
+            "Verifique os dados informados",
         });
       }
     } catch (error) {
@@ -163,7 +175,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
           transition={{ duration: 0.1 }}
         >
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-white/10 border">
+            <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-white/10 border">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Cadastro</TabsTrigger>
             </TabsList>
@@ -172,7 +184,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <Card className=" bg-white/5 min-h-[420px]">
+                <Card className=" bg-white/50 dark:bg-white/5 min-h-[420px]">
                   <CardHeader className="space-y-1">
                     <CardTitle className="text-xl">
                       Entre na sua conta
@@ -192,7 +204,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
                       <div className="space-y-2">
@@ -204,7 +216,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
                       <Button
@@ -232,17 +244,11 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <Button
-                        variant="outline"
-                        className="border-white/10 bg-white/5 hover:bg-white/10"
-                      >
+                      <Button variant="outline">
                         <Icons.gitHub className="mr-2 h-4 w-4" />
                         GitHub
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="border-white/10 bg-white/5 hover:bg-white/10"
-                      >
+                      <Button variant="outline">
                         <Icons.google className="mr-2 h-4 w-4" />
                         Google
                       </Button>
@@ -257,15 +263,15 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <Card className="min-h-[520px] bg-white/5">
-                  <CardHeader className="space-y-1">
+                <Card className="min-h-[425px] bg-white/50 dark:bg-white/5">
+                  <CardHeader>
                     <CardTitle className="text-xl">Crie sua conta</CardTitle>
-                    <CardDescription>
+                    <CardDescription className="text-xs">
                       Comece grátis e organize sua equipe
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <form onSubmit={handleRegister} className="space-y-4">
+                    <form onSubmit={handleRegister} className="space-y-1">
                       <div className="space-y-2">
                         <Label htmlFor="name">Nome completo</Label>
                         <Input
@@ -276,7 +282,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                             handleRegisterInputChange("name", e.target.value)
                           }
                           required
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
                       <div className="space-y-2">
@@ -290,7 +296,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                             handleRegisterInputChange("email", e.target.value)
                           }
                           required
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
                       <div className="space-y-2">
@@ -306,10 +312,10 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                             )
                           }
                           required
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
-                      <div className="space-y-2 pb-4">
+                      <div className="space-y-2 pb-2">
                         <Label htmlFor="password-register">Senha</Label>
                         <Input
                           id="password-register"
@@ -324,7 +330,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                           }
                           required
                           minLength={6}
-                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                          className=""
                         />
                       </div>
                       <Button

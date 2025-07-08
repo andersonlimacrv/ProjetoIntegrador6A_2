@@ -49,8 +49,15 @@ export class TenantRepository {
 
   // Deletar tenant
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(tenants).where(eq(tenants.id, id));
-    return result.rowCount > 0;
+    try {
+      const [deleted] = await db
+        .delete(tenants)
+        .where(eq(tenants.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   // Adicionar usuário ao tenant
@@ -76,7 +83,10 @@ export class TenantRepository {
     const result = await db
       .delete(user_tenants)
       .where(
-        and(eq(user_tenants.tenantId, tenantId), eq(user_tenants.userId, userId))
+        and(
+          eq(user_tenants.tenantId, tenantId),
+          eq(user_tenants.userId, userId)
+        )
       );
     return result.rowCount > 0;
   }

@@ -107,12 +107,15 @@ export class UserRepository {
    * Deleta um usuário
    */
   async delete(id: string): Promise<boolean> {
-    const [deletedUser] = await db
-      .delete(users)
-      .where(eq(users.id, id))
-      .returning();
-
-    return !!deletedUser;
+    try {
+      const [deleted] = await db
+        .delete(users)
+        .where(eq(users.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

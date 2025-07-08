@@ -127,10 +127,18 @@ export class TeamService {
     data: any
   ): Promise<ApiResponse<any>> {
     try {
-      // TODO: Implementar adição de membro
+      // Verifica se já existe
+      const members = await this.teamRepository.getTeamMembers(teamId);
+      if (members.some((m) => m.user.id === userId)) {
+        return {
+          success: false,
+          error: "Usuário já é membro do time",
+        };
+      }
+      const member = await this.teamRepository.addMemberToTeam(teamId, userId, data);
       return {
         success: true,
-        data: {},
+        data: member,
       };
     } catch (error) {
       return {

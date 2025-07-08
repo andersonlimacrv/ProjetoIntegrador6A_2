@@ -96,8 +96,30 @@ export class ProjectRepository {
 
   // Deletar projeto
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(projects).where(eq(projects.id, id));
-    return result.rowCount > 0;
+    try {
+      console.log(
+        "🗑️ ProjectRepository.delete - Iniciando exclusão do projeto:",
+        id
+      );
+
+      // Tenta deletar e retorna o objeto deletado, se suportado pelo ORM
+      const [deleted] = await db
+        .delete(projects)
+        .where(eq(projects.id, id))
+        .returning();
+
+      const success = !!deleted;
+      console.log("🗑️ ProjectRepository.delete - Resultado da exclusão:", {
+        deleted,
+        projectId: id,
+        success,
+      });
+
+      return success;
+    } catch (error) {
+      console.error("💥 ProjectRepository.delete - Erro na exclusão:", error);
+      throw error;
+    }
   }
 
   // Buscar projeto com detalhes completos

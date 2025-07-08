@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { FileStack } from "lucide-react";
 
-export function RolesPage() {
+export function TeamRolesPage() {
   return (
     <div className="space-y-6">
       <div>

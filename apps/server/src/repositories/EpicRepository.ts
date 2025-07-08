@@ -48,8 +48,15 @@ export class EpicRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(epics).where(eq(epics.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(epics)
+        .where(eq(epics.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getEpicsByProject(projectId: string): Promise<EpicModel[]> {

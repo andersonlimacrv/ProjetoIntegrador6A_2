@@ -205,12 +205,15 @@ export class TaskRepository {
    * Deleta uma task
    */
   async delete(id: string): Promise<boolean> {
-    const [deletedTask] = await db
-      .delete(tasks)
-      .where(eq(tasks.id, id))
-      .returning();
-
-    return !!deletedTask;
+    try {
+      const [deleted] = await db
+        .delete(tasks)
+        .where(eq(tasks.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**

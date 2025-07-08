@@ -1,5 +1,7 @@
 import { Status } from "@shared";
 import { db } from "../db/connection";
+import { statuses } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export class StatusRepository {
   async getAll(): Promise<Status[]> {
@@ -19,7 +21,11 @@ export class StatusRepository {
     return null;
   }
   async delete(id: string): Promise<boolean> {
-    // TODO: Implementar remoção
-    return false;
+    try {
+      const [deleted] = await db.delete(statuses).where(eq(statuses.id, id)).returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 }

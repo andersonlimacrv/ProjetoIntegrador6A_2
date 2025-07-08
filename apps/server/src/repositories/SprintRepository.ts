@@ -54,8 +54,15 @@ export class SprintRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(sprints).where(eq(sprints.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(sprints)
+        .where(eq(sprints.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getSprintsByProject(projectId: string): Promise<SprintModel[]> {
@@ -74,7 +81,10 @@ export class SprintRepository {
         sprintStory: sprint_backlog_items,
       })
       .from(sprint_backlog_items)
-      .innerJoin(user_stories, eq(sprint_backlog_items.storyId, user_stories.id))
+      .innerJoin(
+        user_stories,
+        eq(sprint_backlog_items.storyId, user_stories.id)
+      )
       .where(eq(sprint_backlog_items.sprintId, sprintId))
       .orderBy(asc(user_stories.priority));
   }

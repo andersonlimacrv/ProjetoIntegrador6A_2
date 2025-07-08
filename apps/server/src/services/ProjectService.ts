@@ -275,27 +275,44 @@ export class ProjectService {
    */
   async deleteProject(id: string): Promise<ApiResponse<any>> {
     try {
+      console.log("🔍 ProjectService.deleteProject - Iniciando exclusão do projeto:", id);
+      
       const project = await this.projectRepository.findById(id);
       if (!project) {
+        console.log("❌ ProjectService.deleteProject - Projeto não encontrado:", id);
         return {
           success: false,
           error: "Projeto não encontrado",
         };
       }
+      
+      console.log("✅ ProjectService.deleteProject - Projeto encontrado:", {
+        id: project.id,
+        name: project.name,
+        slug: project.slug
+      });
 
       const deleted = await this.projectRepository.delete(id);
+      console.log("🗑️ ProjectService.deleteProject - Resultado da exclusão:", {
+        deleted,
+        projectId: id
+      });
+      
       if (!deleted) {
+        console.error("❌ ProjectService.deleteProject - Falha na exclusão do projeto:", id);
         return {
           success: false,
           error: "Erro ao deletar projeto",
         };
       }
 
+      console.log("✅ ProjectService.deleteProject - Projeto deletado com sucesso:", id);
       return {
         success: true,
         message: "Projeto deletado com sucesso",
       };
     } catch (error) {
+      console.error("💥 ProjectService.deleteProject - Erro:", error);
       return {
         success: false,
         error: "Erro ao deletar projeto",

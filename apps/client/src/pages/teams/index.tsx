@@ -9,7 +9,6 @@ export function TeamsPage() {
           Gerencie suas equipes e membros.
         </p>
       </div>
-
       <Outlet />
     </div>
   );

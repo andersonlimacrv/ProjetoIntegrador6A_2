@@ -50,8 +50,15 @@ export class ActivityRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(activities).where(eq(activities.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(activities)
+        .where(eq(activities.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getActivitiesByUser(userId: string): Promise<ActivityModel[]> {

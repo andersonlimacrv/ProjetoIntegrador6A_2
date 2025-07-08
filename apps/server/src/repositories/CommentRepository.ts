@@ -51,8 +51,15 @@ export class CommentRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(comments).where(eq(comments.id, id));
-    return result.length > 0;
+    try {
+      const [deleted] = await db
+        .delete(comments)
+        .where(eq(comments.id, id))
+        .returning();
+      return !!deleted;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getCommentsByTask(taskId: string): Promise<CommentModel[]> {

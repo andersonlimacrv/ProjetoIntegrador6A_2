@@ -176,12 +176,20 @@ export class TeamController {
     try {
       const teamId = c.req.param("id");
       const userId = c.req.param("userId");
-      const data = await c.req.json();
-      const result = await TeamController.teamService.addMemberToTeam(
-        teamId,
-        userId,
-        data
-      );
+      let data = {};
+      try {
+        data = await c.req.json();
+      } catch (e) {
+        // Body pode ser vazio
+        data = {};
+      }
+      console.log("📥 TeamController.addMemberToTeam - teamId:", teamId, "userId:", userId, "payload:", data);
+      const result = await TeamController.teamService.addMemberToTeam(teamId, userId, data);
+      console.log("📤 TeamController.addMemberToTeam - Resposta do service:", {
+        success: result.success,
+        error: result.error,
+        data: result.data,
+      });
       return c.json(
         {
           ...result,
@@ -192,6 +200,7 @@ export class TeamController {
         result.success ? 200 : 400
       );
     } catch (error) {
+      console.error("💥 TeamController.addMemberToTeam - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao adicionar membro" }, 500);
     }
   }

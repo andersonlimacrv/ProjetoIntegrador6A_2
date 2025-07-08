@@ -137,17 +137,43 @@ export class ProjectController {
   static async deleteProject(c: Context) {
     try {
       const id = c.req.param("id");
-      const deleted = await ProjectController.projectService.deleteProject(id);
-      return c.json(
-        {
-          ...deleted,
-          message: deleted.success
-            ? "Projeto deletado com sucesso"
-            : deleted.error || "Projeto não encontrado",
-        },
-        deleted.success ? 200 : 404
+
+      // Log do início da operação
+      console.log(
+        "🗑️ ProjectController.deleteProject - Iniciando exclusão do projeto:",
+        id
       );
+
+      const deleted = await ProjectController.projectService.deleteProject(id);
+
+      // Log da resposta do service
+      console.log("📤 ProjectController.deleteProject - Resposta do service:", {
+        success: deleted.success,
+        error: deleted.error,
+        message: deleted.message,
+      });
+
+      const response = {
+        ...deleted,
+        message: deleted.success
+          ? "Projeto deletado com sucesso"
+          : deleted.error || "Projeto não encontrado",
+      };
+
+      const statusCode = deleted.success ? 200 : 404;
+
+      // Log da resposta final
+      console.log("📤 ProjectController.deleteProject - Resposta final:", {
+        statusCode,
+        response,
+      });
+
+      return c.json(response, statusCode);
     } catch (error) {
+      console.error(
+        "💥 ProjectController.deleteProject - Erro capturado:",
+        error
+      );
       return c.json({ success: false, error: "Erro ao deletar projeto" }, 500);
     }
   }

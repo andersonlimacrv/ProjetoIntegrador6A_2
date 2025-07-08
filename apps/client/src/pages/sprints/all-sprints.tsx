@@ -12,12 +12,16 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Plus, Eye, Pencil, Trash, Clock } from "lucide-react";
 import { sprintsApi } from "@/services/domains/sprintsApi";
 import { useToast } from "@/contexts/toast-context";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { Sprint } from "@packages/shared";
 
 export function AllSprintsPage() {
   const navigate = useNavigate();
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [sprintToDelete, setSprintToDelete] = useState<Sprint | null>(null);
   const { addToast } = useToast();
 
   const fetchSprints = async () => {
@@ -30,12 +34,14 @@ export function AllSprintsPage() {
       } else {
         addToast({
           title: "Erro ao carregar sprints",
-          description: response.data.message || response.data.error || "Ocorreu um erro ao buscar os sprints.",
+          description:
+            response.data.message ||
+            response.data.error ||
+            "Ocorreu um erro ao buscar os sprints.",
           type: "error",
         });
       }
     } catch (error) {
-      console.error("Erro ao buscar sprints:", error);
       addToast({
         title: "Erro de conexão",
         description:
@@ -51,80 +57,58 @@ export function AllSprintsPage() {
     fetchSprints();
   }, []);
 
-  const handleDeleteSprint = async (sprintId: string) => {
-    if (confirm("Tem certeza que deseja deletar este sprint?")) {
-      try {
-        const res = await sprintsApi.delete(sprintId);
-        if (res.success) {
-          setSprints((prev) => prev.filter((sprint) => sprint.id !== sprintId));
-          addToast({
-            title: "Sprint deletado",
-            description: "O sprint foi removido com sucesso.",
-            type: "success",
-          });
-        } else {
-          addToast({
-            title: "Erro ao deletar sprint",
-            description: res.error || "Ocorreu um erro ao deletar o sprint.",
-            type: "error",
-          });
-        }
-      } catch (error) {
-        console.error("Erro ao deletar sprint:", error);
+  const handleDeleteSprint = async () => {
+    if (!sprintToDelete) return;
+
+    try {
+      setDeleteLoading(true);
+      const response = await sprintsApi.delete(sprintToDelete.id);
+
+      if (response.ok && response.data.success) {
+        setSprints((prev) =>
+          prev.filter((sprint) => sprint.id !== sprintToDelete.id)
+        );
         addToast({
-          title: "Erro de conexão",
-          description: "Não foi possível conectar ao servidor.",
+          title: "Sprint deletado",
+          description: "O sprint foi removido com sucesso.",
+          type: "success",
+        });
+      } else {
+        addToast({
+          title: "Erro ao deletar sprint",
+          description:
+            response.data.message ||
+            response.data.error ||
+            "Ocorreu um erro ao deletar o sprint.",
           type: "error",
         });
       }
+    } catch (error) {
+      addToast({
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao servidor.",
+        type: "error",
+      });
+    } finally {
+      setDeleteLoading(false);
+      setSprintToDelete(null);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
+  const formatDate = (date: Date | string) => {
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString("pt-BR");
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "PLANNING":
-        return "bg-blue-100 text-blue-800";
-      case "ACTIVE":
-        return "bg-green-100 text-green-800";
-      case "COMPLETED":
-        return "bg-purple-100 text-purple-800";
-      case "CANCELLED":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "PLANNING":
-        return "Planejamento";
-      case "ACTIVE":
-        return "Ativo";
-      case "COMPLETED":
-        return "Concluído";
-      case "CANCELLED":
-        return "Cancelado";
-      default:
-        return status;
-    }
-  };
-
-  const getDaysRemaining = (sprint: Sprint) => {
-    if (!sprint.endDate) return "Sem data de fim";
-
+  const getSprintStatus = (sprint: Sprint) => {
+    const now = new Date();
+    const startDate = new Date(sprint.startDate);
     const endDate = new Date(sprint.endDate);
-    const today = new Date();
-    const diffTime = endDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return "Encerrado";
-    if (diffDays === 0) return "Último dia";
-    return `${diffDays} dias restantes`;
+    if (now < startDate) return "pending";
+    if (now >= startDate && now <= endDate) return "running";
+    if (now > endDate) return "completed";
+    return sprint.status;
   };
 
   return (
@@ -175,9 +159,7 @@ export function AllSprintsPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">{sprint.name}</CardTitle>
-                      <Badge className={getStatusColor(sprint.status)}>
-                        {getStatusLabel(sprint.status)}
-                      </Badge>
+                      <StatusBadge status={getSprintStatus(sprint)} />
                     </div>
                     <CardDescription>
                       {sprint.description || "Sem descrição"}
@@ -186,38 +168,33 @@ export function AllSprintsPage() {
                   <CardContent>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>Início: {formatDate(sprint.startDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="w-4 h-4" />
+                        <span>Fim: {formatDate(sprint.endDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="w-4 h-4" />
                         <span>Criado em {formatDate(sprint.createdAt)}</span>
                       </div>
-
-                      {sprint.startDate && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>Início: {formatDate(sprint.startDate)}</span>
-                        </div>
-                      )}
-
-                      {sprint.endDate && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>{getDaysRemaining(sprint)}</span>
-                        </div>
-                      )}
                     </div>
 
-                    <div className="flex items-center gap-2 mt-4">
-                      <Button size="sm" variant="outline">
+                    <div className="grid grid-cols-3 gap-2 mt-4">
+                      <Button size="sm" variant="outline" className="w-full">
                         <Eye className="w-4 h-4 mr-1" />
                         Ver
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" className="w-full">
                         <Pencil className="w-4 h-4 mr-1" />
                         Editar
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDeleteSprint(sprint.id)}
+                        className="w-full"
+                        onClick={() => setSprintToDelete(sprint)}
                       >
                         <Trash className="w-4 h-4 mr-1" />
                         Deletar
@@ -230,6 +207,19 @@ export function AllSprintsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <ConfirmDialog
+        open={!!sprintToDelete}
+        onOpenChange={(open) => !open && setSprintToDelete(null)}
+        title="Deletar Sprint"
+        description={`Tem certeza que deseja deletar o sprint "${sprintToDelete?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleDeleteSprint}
+        loading={deleteLoading}
+      />
     </div>
   );
 }
