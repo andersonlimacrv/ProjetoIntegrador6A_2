@@ -8,12 +8,14 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectTrigger,
   SelectContent,
+  SelectGroup,
+  SelectLabel,
   SelectItem,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Dialog,
@@ -269,13 +271,18 @@ export function TeamMembersPage() {
                   setSelectedUserId(value);
                 }}
               >
-                <SelectTrigger>Selecione um usuário</SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um usuário:" />
+                </SelectTrigger>
                 <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Usuários</SelectLabel>
                   {users.map((u) => (
                     <SelectItem key={u.id} value={String(u.id)}>
                       {u.name} ({u.email})
-                    </SelectItem>
-                  ))}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
@@ -320,13 +327,18 @@ export function TeamMembersPage() {
           </DialogHeader>
           <div className="space-y-4">
             <Select value={editRole} onValueChange={setEditRole}>
-              <SelectTrigger>Selecione um papel</SelectTrigger>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um papel" />
+              </SelectTrigger>
               <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Papéis</SelectLabel>
                 {DEFAULT_ROLES.map((r) => (
                   <SelectItem key={r.name} value={r.name}>
                     {r.displayName}
                   </SelectItem>
-                ))}
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
             <div className="flex justify-end gap-2">

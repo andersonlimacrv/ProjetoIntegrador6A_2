@@ -1,3 +1,4 @@
+// Badge component: faz merge de classes Tailwind usando 'cn' para garantir estilos dinâmicos e evitar conflitos.
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -9,12 +10,12 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-primary text-slate-600 hover:bg-primary/80",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border bg-muted/20 text-muted-foreground hover:bg-secondary/80",
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+        outline: "text-foreground shadow-sm",
       },
     },
     defaultVariants: {
@@ -28,6 +29,7 @@ export interface BadgeProps
     VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
+  // Faz o merge das classes base do badge com classes externas usando cn (clsx + tailwind-merge)
   return (
     <div className={cn(badgeVariants({ variant }), className)} {...props} />
   );

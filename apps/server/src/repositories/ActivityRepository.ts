@@ -2,7 +2,6 @@ import { Activity as ActivityModel } from "@shared";
 import { db } from "../db/connection";
 import { activities, users, projects, tasks } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { Activity, NewActivity } from "../db/schema";
 
 export class ActivityRepository {
   async getAll(): Promise<ActivityModel[]> {

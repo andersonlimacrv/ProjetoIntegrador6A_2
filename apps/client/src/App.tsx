@@ -43,6 +43,7 @@ import { SupportPage } from "@/pages/support";
 import { FeedbackPage } from "@/pages/feedback";
 import { AdminPage } from "@/pages/admin";
 import CreateTeamPage from "@/pages/teams/create-team";
+import ProjectDetailsPage from "@/pages/projects/[id]";
 
 function App() {
   return (
@@ -65,6 +66,7 @@ function App() {
               <Route index element={<AllProjectsPage />} />
               <Route path="all" element={<AllProjectsPage />} />
               <Route path="create" element={<CreateProjectPage />} />
+              <Route path=":id" element={<ProjectDetailsPage />} />
             </Route>
 
             {/* Teams Routes */}

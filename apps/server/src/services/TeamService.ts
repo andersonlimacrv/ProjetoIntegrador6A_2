@@ -1,4 +1,5 @@
-import { Team, ApiResponse } from "../../../packages/shared/src";
+import type { Team } from "@shared/types/project";
+import type { ApiResponse } from "@shared/types/user";
 import { TeamRepository } from "../repositories/TeamRepository";
 
 export class TeamService {
@@ -14,7 +15,8 @@ export class TeamService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao buscar equipes",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar equipes",
       };
     }
   }
@@ -55,7 +57,10 @@ export class TeamService {
     }
   }
 
-  async updateTeam(id: string, data: Partial<Team>): Promise<ApiResponse<Team>> {
+  async updateTeam(
+    id: string,
+    data: Partial<Team>
+  ): Promise<ApiResponse<Team>> {
     try {
       const team = await this.teamRepository.update(id, data);
       if (!team) {
@@ -71,7 +76,8 @@ export class TeamService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao atualizar equipe",
+        error:
+          error instanceof Error ? error.message : "Erro ao atualizar equipe",
       };
     }
   }
@@ -86,37 +92,40 @@ export class TeamService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao deletar equipe",
+        error:
+          error instanceof Error ? error.message : "Erro ao deletar equipe",
       };
     }
   }
 
   async getTeamsByTenant(tenantId: string): Promise<ApiResponse<Team[]>> {
     try {
-      // TODO: Implementar busca por tenant
+      const teams = await this.teamRepository.getTeamsByTenant(tenantId);
       return {
         success: true,
-        data: [],
+        data: teams,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao buscar equipes",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar equipes",
       };
     }
   }
 
   async getTeamMembers(teamId: string): Promise<ApiResponse<any[]>> {
     try {
-      // TODO: Implementar busca de membros
+      const members = await this.teamRepository.getTeamMembers(teamId);
       return {
         success: true,
-        data: [],
+        data: members,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao buscar membros",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar membros",
       };
     }
   }
@@ -135,7 +144,11 @@ export class TeamService {
           error: "Usuário já é membro do time",
         };
       }
-      const member = await this.teamRepository.addMemberToTeam(teamId, userId, data);
+      const member = await this.teamRepository.addMemberToTeam(
+        teamId,
+        userId,
+        data
+      );
       return {
         success: true,
         data: member,
@@ -143,7 +156,8 @@ export class TeamService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao adicionar membro",
+        error:
+          error instanceof Error ? error.message : "Erro ao adicionar membro",
       };
     }
   }
@@ -154,22 +168,36 @@ export class TeamService {
     data: any
   ): Promise<ApiResponse<any>> {
     try {
-      // TODO: Implementar atualização de role
+      const member = await this.teamRepository.updateMemberRole(
+        teamId,
+        userId,
+        data
+      );
+      if (!member) {
+        return {
+          success: false,
+          error: "Membro não encontrado",
+        };
+      }
       return {
         success: true,
-        data: {},
+        data: member,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao atualizar role",
+        error:
+          error instanceof Error ? error.message : "Erro ao atualizar role",
       };
     }
   }
 
-  async removeMemberFromTeam(teamId: string, userId: string): Promise<ApiResponse<boolean>> {
+  async removeMemberFromTeam(
+    teamId: string,
+    userId: string
+  ): Promise<ApiResponse<boolean>> {
     try {
-      // TODO: Implementar remoção de membro
+      await this.teamRepository.removeMemberFromTeam(teamId, userId);
       return {
         success: true,
         data: true,
@@ -177,22 +205,24 @@ export class TeamService {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao remover membro",
+        error:
+          error instanceof Error ? error.message : "Erro ao remover membro",
       };
     }
   }
 
   async getTeamProjects(teamId: string): Promise<ApiResponse<any[]>> {
     try {
-      // TODO: Implementar busca de projetos
+      const projects = await this.teamRepository.getTeamProjects(teamId);
       return {
         success: true,
-        data: [],
+        data: projects,
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Erro ao buscar projetos",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar projetos",
       };
     }
   }

@@ -67,7 +67,7 @@ export class ProjectService {
   async createProject(data: CreateProjectInput): Promise<ApiResponse<any>> {
     try {
       console.log("🔍 ProjectService.createProject - Iniciando criação:", data);
-      
+
       // Verifica se o tenant existe
       console.log("🔍 Verificando tenant:", data.tenantId);
       const tenant = await this.tenantRepository.findById(data.tenantId);
@@ -126,7 +126,7 @@ export class ProjectService {
         id: project.id,
         name: project.name,
         slug: project.slug,
-        projectKey: project.projectKey
+        projectKey: project.projectKey,
       });
 
       return {
@@ -275,38 +275,50 @@ export class ProjectService {
    */
   async deleteProject(id: string): Promise<ApiResponse<any>> {
     try {
-      console.log("🔍 ProjectService.deleteProject - Iniciando exclusão do projeto:", id);
-      
+      console.log(
+        "🔍 ProjectService.deleteProject - Iniciando exclusão do projeto:",
+        id
+      );
+
       const project = await this.projectRepository.findById(id);
       if (!project) {
-        console.log("❌ ProjectService.deleteProject - Projeto não encontrado:", id);
+        console.log(
+          "❌ ProjectService.deleteProject - Projeto não encontrado:",
+          id
+        );
         return {
           success: false,
           error: "Projeto não encontrado",
         };
       }
-      
+
       console.log("✅ ProjectService.deleteProject - Projeto encontrado:", {
         id: project.id,
         name: project.name,
-        slug: project.slug
+        slug: project.slug,
       });
 
       const deleted = await this.projectRepository.delete(id);
       console.log("🗑️ ProjectService.deleteProject - Resultado da exclusão:", {
         deleted,
-        projectId: id
+        projectId: id,
       });
-      
+
       if (!deleted) {
-        console.error("❌ ProjectService.deleteProject - Falha na exclusão do projeto:", id);
+        console.error(
+          "❌ ProjectService.deleteProject - Falha na exclusão do projeto:",
+          id
+        );
         return {
           success: false,
           error: "Erro ao deletar projeto",
         };
       }
 
-      console.log("✅ ProjectService.deleteProject - Projeto deletado com sucesso:", id);
+      console.log(
+        "✅ ProjectService.deleteProject - Projeto deletado com sucesso:",
+        id
+      );
       return {
         success: true,
         message: "Projeto deletado com sucesso",
@@ -774,17 +786,8 @@ export class ProjectService {
         };
       }
 
-      const success = await this.projectRepository.removeTeamFromProject(
-        projectId,
-        teamId
-      );
-      if (!success) {
-        return {
-          success: false,
-          error: "Equipe não encontrada no projeto",
-        };
-      }
-
+      await this.projectRepository.removeTeamFromProject(teamId, projectId);
+      // Sempre retorna sucesso, mesmo se não existia
       return {
         success: true,
         message: "Equipe removida do projeto com sucesso",

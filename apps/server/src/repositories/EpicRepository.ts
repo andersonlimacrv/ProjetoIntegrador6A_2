@@ -2,7 +2,6 @@ import { Epic as EpicModel } from "@shared";
 import { db } from "../db/connection";
 import { epics, projects, user_stories } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { Epic, NewEpic } from "../db/schema";
 
 export class EpicRepository {
   async getAll(): Promise<EpicModel[]> {

@@ -185,15 +185,16 @@ export class ProjectRepository {
     teamId: string,
     projectId: string
   ): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(team_projects)
       .where(
         and(
           eq(team_projects.teamId, teamId),
           eq(team_projects.projectId, projectId)
         )
-      );
-    return result.rowCount > 0;
+      )
+      .returning();
+    return !!deleted;
   }
 
   // Buscar equipes do projeto

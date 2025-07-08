@@ -2,7 +2,6 @@ import { Comment as CommentModel } from "@shared";
 import { db } from "../db/connection";
 import { comments, tasks, users } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { Comment, NewComment } from "../db/schema";
 
 export class CommentRepository {
   async getAll(): Promise<CommentModel[]> {

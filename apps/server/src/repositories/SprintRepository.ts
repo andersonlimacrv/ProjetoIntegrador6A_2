@@ -8,7 +8,6 @@ import {
   sprint_metrics,
 } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { Sprint, NewSprint } from "../db/schema";
 
 export class SprintRepository {
   async getAll(): Promise<SprintModel[]> {
@@ -111,15 +110,16 @@ export class SprintRepository {
     sprintId: string,
     storyId: string
   ): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(sprint_backlog_items)
       .where(
         and(
           eq(sprint_backlog_items.sprintId, sprintId),
           eq(sprint_backlog_items.storyId, storyId)
         )
-      );
-    return result.length > 0;
+      )
+      .returning();
+    return !!deleted;
   }
 
   async getSprintMetrics(sprintId: string): Promise<any> {

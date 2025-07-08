@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, UserPlus2 } from "lucide-react";
 import type { User, Team } from "@packages/shared";
 
@@ -29,12 +30,6 @@ export function AllUsersPage() {
   const [addLoading, setAddLoading] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterTeam, setFilterTeam] = useState<string>("");
-
-  // Exemplo de Select funcional para teste
-  const [practices, setPractices] = useState(1);
-  const handleStringToInt = (value: string) => {
-    setPractices(parseInt(value));
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,20 +120,6 @@ export function AllUsersPage() {
                 ))}
               </SelectContent>
             </Select>
-            {/* Exemplo de Select funcional para teste */}
-            <Select value={String(practices)} onValueChange={handleStringToInt}>
-              <SelectTrigger className="w-[60px]">
-                <SelectValue placeholder="0" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="6">6</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardHeader>
         <CardContent>
@@ -152,33 +133,37 @@ export function AllUsersPage() {
             </div>
           ) : (
             <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 px-4 text-left">Nome</th>
-                  <th className="py-2 px-4 text-left">Email</th>
-                  <th className="py-2 px-4 text-left">Adicionar ao Time</th>
+              <thead className="text-primary/60 text-2xl font-bold">
+                <tr className="border-b text-center">
+                  <th className="py-2 px-4 text-center w-1/4">Nome</th>
+                  <th className="py-2 px-4 text-center w-1/4">Time(s)</th>
+                  <th className="py-2 px-4 text-center w-1/4">Email</th>
+                  <th className="py-2 px-4 text-center w-1/4">
+                    Adicionar ao Time
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map((u) => (
                   <tr key={u.id} className="border-b hover:bg-muted/50">
-                    <td className="py-2 px-4 flex items-center gap-2">
+                    <td className="py-auto px-4 flex items-center gap-2">
                       {u.name}
+                    </td>
+                    <td className="py-2 px-4">
                       {teams.map((t) =>
                         (membersByTeam[t.id] || []).includes(u.id) ? (
                           <span
                             key={t.id}
                             title={`Já é membro de ${t.name}`}
-                            className="text-green-600 flex items-center gap-1 text-xs"
+                            className="text-green-600 flex items-center justify-start ml-auto gap-1 py-0.5 text-xs"
                           >
-                            <CheckCircle2 className="w-4 h-4" />
-                            {t.name}
+                            <Badge variant="outline">{t.name}</Badge>
                           </span>
                         ) : null
                       )}
                     </td>
                     <td className="py-2 px-4">{u.email}</td>
-                    <td className="py-2 px-4 flex gap-2 items-center">
+                    <td className="py-2 px-4 flex gap-2 items-center w-full justify-end">
                       <Select
                         value={selectedTeams[u.id] ?? ""}
                         onValueChange={(teamId) =>
@@ -201,6 +186,7 @@ export function AllUsersPage() {
                       </Select>
                       <Button
                         size="sm"
+                        className="ml-6"
                         onClick={() => {
                           if (selectedTeams[u.id])
                             handleAddToTeam(u.id, selectedTeams[u.id]!);
@@ -229,8 +215,9 @@ export function AllUsersPage() {
                         (membersByTeam[selectedTeams[u.id]!] || []).includes(
                           u.id
                         ) ? (
-                          <span className="flex items-center gap-1 text-green-600">
-                            <CheckCircle2 className="w-4 h-4" /> Adicionado
+                          <span className="flex items-center gap-1 text-muted py-1">
+                            <CheckCircle2 className="text-destructive w-4 h-4" />
+                            Adicionado
                           </span>
                         ) : addLoading === u.id + selectedTeams[u.id] ? (
                           "Adicionando..."

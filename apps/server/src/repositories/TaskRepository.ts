@@ -280,12 +280,13 @@ export class TaskRepository {
    * Remove etiqueta da task
    */
   async removeLabel(taskId: string, labelId: string): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(task_labels)
       .where(
         and(eq(task_labels.taskId, taskId), eq(task_labels.labelId, labelId))
-      );
-    return result.rowCount > 0;
+      )
+      .returning();
+    return !!deleted;
   }
 
   /**
@@ -334,10 +335,11 @@ export class TaskRepository {
    * Remove anexo da task
    */
   async removeAttachment(attachmentId: string): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(task_attachments)
-      .where(eq(task_attachments.id, attachmentId));
-    return result.rowCount > 0;
+      .where(eq(task_attachments.id, attachmentId))
+      .returning();
+    return !!deleted;
   }
 
   /**
@@ -371,10 +373,11 @@ export class TaskRepository {
    * Remove dependência da task
    */
   async removeDependency(dependencyId: string): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(task_dependencies)
-      .where(eq(task_dependencies.id, dependencyId));
-    return result.rowCount > 0;
+      .where(eq(task_dependencies.id, dependencyId))
+      .returning();
+    return !!deleted;
   }
 
   /**

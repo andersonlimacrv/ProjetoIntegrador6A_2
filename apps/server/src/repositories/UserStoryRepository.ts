@@ -9,7 +9,6 @@ import {
   sprint_backlog_items,
 } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { UserStory as DbUserStory, NewUserStory } from "../db/schema";
 
 export class UserStoryRepository {
   async getAll(): Promise<UserStoryModel[]> {

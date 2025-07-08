@@ -3,11 +3,9 @@ import {
   CreateUserDTO,
   UpdateUserDTO,
   LoginUserDTO,
-  UserTenant,
   Session,
   Activity,
-  ApiResponse,
-} from "../../../packages/shared/src";
+} from "@shared/types";
 import { db } from "../db/connection";
 import {
   users,
@@ -17,37 +15,66 @@ import {
   tenants,
 } from "../db/schema";
 import { eq, and, desc, lt } from "drizzle-orm";
-import type { NewUser, User as DbUser } from "../db/schema";
 import bcrypt from "bcryptjs";
 
 export class UserRepository {
+  // Função utilitária para adaptar User
+  private adaptUser(u: any): User {
+    return {
+      ...u,
+      avatarUrl: u.avatarUrl === null ? undefined : u.avatarUrl,
+    };
+  }
+
+  // Função utilitária para adaptar Session
+  private adaptSession(s: any): Session {
+    return {
+      ...s,
+      ipAddress: s.ipAddress === null ? undefined : s.ipAddress,
+      userAgent: s.userAgent === null ? undefined : s.userAgent,
+    };
+  }
+
+  // Função utilitária para adaptar Activity
+  private adaptActivity(a: any): Activity {
+    return {
+      ...a,
+      // entityType já é string, mas pode precisar de cast
+      entityType: a.entityType as Activity["entityType"],
+    };
+  }
+
   /**
    * Busca todos os usuários
    */
-  async findAll(): Promise<DbUser[]> {
-    return await db.select().from(users).orderBy(desc(users.createdAt));
+  async findAll(): Promise<User[]> {
+    const results = await db
+      .select()
+      .from(users)
+      .orderBy(desc(users.createdAt));
+    return results.map(this.adaptUser);
   }
 
   /**
    * Busca um usuário por ID
    */
-  async findById(id: string): Promise<DbUser | null> {
+  async findById(id: string): Promise<User | null> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || null;
+    return user ? this.adaptUser(user) : null;
   }
 
   /**
    * Busca um usuário por email
    */
-  async findByEmail(email: string): Promise<DbUser | null> {
+  async findByEmail(email: string): Promise<User | null> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || null;
+    return user ? this.adaptUser(user) : null;
   }
 
   /**
    * Cria um novo usuário
    */
-  async create(data: CreateUserDTO): Promise<DbUser> {
+  async create(data: CreateUserDTO): Promise<User> {
     const hashedPassword = await bcrypt.hash(data.password, 12);
 
     const [newUser] = await db
@@ -56,7 +83,7 @@ export class UserRepository {
         email: data.email,
         passwordHash: hashedPassword,
         name: data.name,
-        avatarUrl: data.avatarUrl,
+        avatarUrl: data.avatarUrl ?? null,
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -67,13 +94,13 @@ export class UserRepository {
       throw new Error("Falha ao criar usuário");
     }
 
-    return newUser;
+    return this.adaptUser(newUser);
   }
 
   /**
    * Atualiza um usuário existente
    */
-  async update(id: string, data: UpdateUserDTO): Promise<DbUser | null> {
+  async update(id: string, data: UpdateUserDTO): Promise<User | null> {
     const updateData: any = {
       updatedAt: new Date(),
     };
@@ -87,7 +114,7 @@ export class UserRepository {
     }
 
     if (data.avatarUrl !== undefined) {
-      updateData.avatarUrl = data.avatarUrl;
+      updateData.avatarUrl = data.avatarUrl ?? null;
     }
 
     if (data.isActive !== undefined) {
@@ -100,7 +127,7 @@ export class UserRepository {
       .where(eq(users.id, id))
       .returning();
 
-    return updatedUser || null;
+    return updatedUser ? this.adaptUser(updatedUser) : null;
   }
 
   /**
@@ -140,7 +167,7 @@ export class UserRepository {
   /**
    * Autentica um usuário
    */
-  async authenticate(data: LoginUserDTO): Promise<DbUser | null> {
+  async authenticate(data: LoginUserDTO): Promise<User | null> {
     const user = await this.findByEmail(data.email);
 
     if (!user || !user.isActive) {
@@ -192,6 +219,8 @@ export class UserRepository {
       .insert(sessions)
       .values({
         ...sessionData,
+        ipAddress: sessionData.ipAddress ?? null,
+        userAgent: sessionData.userAgent ?? null,
         createdAt: new Date(),
       })
       .returning();
@@ -200,7 +229,7 @@ export class UserRepository {
       throw new Error("Falha ao criar sessão");
     }
 
-    return session;
+    return this.adaptSession(session);
   }
 
   /**
@@ -211,7 +240,7 @@ export class UserRepository {
       .select()
       .from(sessions)
       .where(eq(sessions.tokenHash, tokenHash));
-    return session || null;
+    return session ? this.adaptSession(session) : null;
   }
 
   /**
@@ -254,7 +283,7 @@ export class UserRepository {
       throw new Error("Falha ao registrar atividade");
     }
 
-    return activity;
+    return this.adaptActivity(activity);
   }
 
   /**
@@ -264,12 +293,13 @@ export class UserRepository {
     userId: string,
     limit: number = 50
   ): Promise<Activity[]> {
-    return await db
+    const results = await db
       .select()
       .from(activities)
       .where(eq(activities.userId, userId))
       .orderBy(desc(activities.createdAt))
       .limit(limit);
+    return results.map(this.adaptActivity);
   }
 
   /**
@@ -279,12 +309,13 @@ export class UserRepository {
     tenantId: string,
     limit: number = 50
   ): Promise<Activity[]> {
-    return await db
+    const results = await db
       .select()
       .from(activities)
       .where(eq(activities.tenantId, tenantId))
       .orderBy(desc(activities.createdAt))
       .limit(limit);
+    return results.map(this.adaptActivity);
   }
 }
 

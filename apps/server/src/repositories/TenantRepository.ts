@@ -80,15 +80,16 @@ export class TenantRepository {
 
   // Remover usuário do tenant
   async removeUser(tenantId: string, userId: string): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(user_tenants)
       .where(
         and(
           eq(user_tenants.tenantId, tenantId),
           eq(user_tenants.userId, userId)
         )
-      );
-    return result.rowCount > 0;
+      )
+      .returning();
+    return !!deleted;
   }
 
   // Buscar usuários do tenant

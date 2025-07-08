@@ -243,8 +243,8 @@ export class ProjectController {
       const projectId = c.req.param("id");
       const teamId = c.req.param("teamId");
       const result = await ProjectController.projectService.addTeamToProject(
-        projectId,
-        teamId
+        teamId, // corrigido: teamId primeiro
+        projectId // corrigido: projectId segundo
       );
       return c.json(
         {

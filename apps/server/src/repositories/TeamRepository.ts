@@ -8,7 +8,6 @@ import {
   users,
 } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
-import type { Team, NewTeam } from "../db/schema";
 
 export class TeamRepository {
   async getAll(): Promise<TeamModel[]> {
@@ -22,14 +21,17 @@ export class TeamRepository {
   }
 
   async create(data: Partial<TeamModel>): Promise<TeamModel> {
-    const [team] = await db
-      .insert(teams)
-      .values({
-        ...data,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .returning();
+    // Garantir campos obrigatórios
+    if (!data.tenantId || !data.name) {
+      throw new Error("tenantId e name são obrigatórios");
+    }
+    const insertData = {
+      tenantId: data.tenantId,
+      name: data.name,
+      ...(data.description ? { description: data.description } : {}),
+      // Não passar createdAt/updatedAt, pois o schema já define defaultNow()
+    };
+    const [team] = await db.insert(teams).values(insertData).returning();
 
     if (!team) {
       throw new Error("Falha ao criar equipe");
@@ -119,10 +121,11 @@ export class TeamRepository {
   }
 
   async removeMemberFromTeam(teamId: string, userId: string): Promise<boolean> {
-    const result = await db
+    const [deleted] = await db
       .delete(user_teams)
-      .where(and(eq(user_teams.teamId, teamId), eq(user_teams.userId, userId)));
-    return result.length > 0;
+      .where(and(eq(user_teams.teamId, teamId), eq(user_teams.userId, userId)))
+      .returning();
+    return !!deleted;
   }
 
   async getTeamProjects(teamId: string): Promise<any[]> {
