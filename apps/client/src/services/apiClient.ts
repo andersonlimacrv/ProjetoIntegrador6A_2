@@ -1,6 +1,6 @@
 // Wrapper base para requisições HTTP
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 const API_PREFIX = "/api";
 
 export class ApiClient {
@@ -21,7 +21,10 @@ export class ApiClient {
     this.authToken = token;
   }
 
-  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<{ data: T; status: number; ok: boolean }> {
     const url = `${this.baseUrl}${this.apiPrefix}${endpoint}`;
     const headers = {
       ...this.defaultHeaders,
@@ -29,19 +32,35 @@ export class ApiClient {
       // Exemplo: incluir Authorization se authToken estiver setado
       ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
     };
+
+    // Log da requisição
+    console.log("🌐 apiClient.request - Enviando requisição:", {
+      method: options.method || "GET",
+      url,
+      headers,
+      body: options.body ? JSON.parse(options.body as string) : undefined,
+    });
+
     const response = await fetch(url, {
       headers,
       ...options,
     });
-    if (!response.ok) {
-      let errorMsg = `HTTP error! status: ${response.status}`;
-      try {
-        const err = await response.json();
-        errorMsg = err.message || err.error || errorMsg;
-      } catch {}
-      throw new Error(errorMsg);
-    }
-    return response.json();
+
+    const data = await response.json();
+
+    // Log da resposta
+    console.log("📡 apiClient.request - Resposta recebida:", {
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText,
+      data,
+    });
+
+    return {
+      data,
+      status: response.status,
+      ok: response.ok,
+    };
   }
 
   get<T>(endpoint: string, options: RequestInit = {}) {

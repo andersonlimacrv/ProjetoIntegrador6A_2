@@ -4,64 +4,188 @@ import { TeamRepository } from "../repositories/TeamRepository";
 export class TeamService {
   private teamRepository = new TeamRepository();
 
-  async getAllTeams(): Promise<Team[]> {
-    return this.teamRepository.getAll();
+  async getAllTeams(): Promise<ApiResponse<Team[]>> {
+    try {
+      const teams = await this.teamRepository.getAll();
+      return {
+        success: true,
+        data: teams,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar equipes",
+      };
+    }
   }
 
-  async getTeamById(id: string): Promise<Team | null> {
-    return this.teamRepository.getById(id);
+  async getTeamById(id: string): Promise<ApiResponse<Team>> {
+    try {
+      const team = await this.teamRepository.getById(id);
+      if (!team) {
+        return {
+          success: false,
+          error: "Equipe não encontrada",
+        };
+      }
+      return {
+        success: true,
+        data: team,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar equipe",
+      };
+    }
   }
 
-  async createTeam(data: Partial<Team>): Promise<Team> {
-    // TODO: Implementar validações de negócio
-    return this.teamRepository.create(data);
+  async createTeam(data: Partial<Team>): Promise<ApiResponse<Team>> {
+    try {
+      const team = await this.teamRepository.create(data);
+      return {
+        success: true,
+        data: team,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao criar equipe",
+      };
+    }
   }
 
-  async updateTeam(id: string, data: Partial<Team>): Promise<Team | null> {
-    // TODO: Implementar validações de negócio
-    return this.teamRepository.update(id, data);
+  async updateTeam(id: string, data: Partial<Team>): Promise<ApiResponse<Team>> {
+    try {
+      const team = await this.teamRepository.update(id, data);
+      if (!team) {
+        return {
+          success: false,
+          error: "Equipe não encontrada",
+        };
+      }
+      return {
+        success: true,
+        data: team,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao atualizar equipe",
+      };
+    }
   }
 
-  async deleteTeam(id: string): Promise<boolean> {
-    // TODO: Implementar validações de negócio
-    return this.teamRepository.delete(id);
+  async deleteTeam(id: string): Promise<ApiResponse<boolean>> {
+    try {
+      const deleted = await this.teamRepository.delete(id);
+      return {
+        success: deleted,
+        data: deleted,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao deletar equipe",
+      };
+    }
   }
 
-  async getTeamsByTenant(tenantId: string): Promise<Team[]> {
-    // TODO: Implementar busca por tenant
-    return [];
+  async getTeamsByTenant(tenantId: string): Promise<ApiResponse<Team[]>> {
+    try {
+      // TODO: Implementar busca por tenant
+      return {
+        success: true,
+        data: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar equipes",
+      };
+    }
   }
 
-  async getTeamMembers(teamId: string): Promise<any[]> {
-    // TODO: Implementar busca de membros
-    return [];
+  async getTeamMembers(teamId: string): Promise<ApiResponse<any[]>> {
+    try {
+      // TODO: Implementar busca de membros
+      return {
+        success: true,
+        data: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar membros",
+      };
+    }
   }
 
   async addMemberToTeam(
     teamId: string,
     userId: string,
     data: any
-  ): Promise<any> {
-    // TODO: Implementar adição de membro
-    return {};
+  ): Promise<ApiResponse<any>> {
+    try {
+      // TODO: Implementar adição de membro
+      return {
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao adicionar membro",
+      };
+    }
   }
 
   async updateMemberRole(
     teamId: string,
     userId: string,
     data: any
-  ): Promise<any> {
-    // TODO: Implementar atualização de role
-    return {};
+  ): Promise<ApiResponse<any>> {
+    try {
+      // TODO: Implementar atualização de role
+      return {
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao atualizar role",
+      };
+    }
   }
 
-  async removeMemberFromTeam(teamId: string, userId: string): Promise<boolean> {
-    // TODO: Implementar remoção de membro
-    return true;
+  async removeMemberFromTeam(teamId: string, userId: string): Promise<ApiResponse<boolean>> {
+    try {
+      // TODO: Implementar remoção de membro
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao remover membro",
+      };
+    }
   }
 
-  async getTeamProjects(teamId: string): Promise<any[]> {
-    // TODO: Implementar busca de projetos
-    return [];
+  async getTeamProjects(teamId: string): Promise<ApiResponse<any[]>> {
+    try {
+      // TODO: Implementar busca de projetos
+      return {
+        success: true,
+        data: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar projetos",
+      };
+    }
   }
 }

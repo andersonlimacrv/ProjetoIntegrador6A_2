@@ -16,7 +16,7 @@ export class CommentController {
             ? "Comentários listados com sucesso"
             : comments.error || "Erro ao buscar comentários",
         },
-        comments.success ? 200 : 400
+        comments.success ? 200 : 500
       );
     } catch (error) {
       return c.json(

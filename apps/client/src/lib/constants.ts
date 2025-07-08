@@ -19,6 +19,11 @@ import {
   Presentation,
   WalletCards,
   Sliders,
+  CheckSquare,
+  MessageSquare,
+  BarChart3,
+  Target,
+  Activity,
 } from "lucide-react";
 
 export const navbarItems = {
@@ -118,6 +123,11 @@ export const navbarItems = {
           icon: FileStack,
         },
         {
+          title: "Kanban Board",
+          url: "/dashboard/user-stories/kanban",
+          icon: Target,
+        },
+        {
           title: "Templates",
           url: "/dashboard/user-stories/templates",
           icon: GraduationCap,
@@ -125,11 +135,22 @@ export const navbarItems = {
       ],
     },
     {
+      title: "Tasks",
+      url: "/dashboard/tasks",
+      icon: CheckSquare,
+      isActive: false,
+    },
+    {
       title: "Analytics",
       url: "/dashboard/analytics",
       icon: LineChart,
       isActive: false,
       items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard/analytics/dashboard",
+          icon: BarChart3,
+        },
         {
           title: "Reports",
           url: "/dashboard/analytics/reports",
@@ -141,6 +162,12 @@ export const navbarItems = {
           icon: Sliders,
         },
       ],
+    },
+    {
+      title: "Activity",
+      url: "/dashboard/activity",
+      icon: MessageSquare,
+      isActive: false,
     },
     {
       title: "Settings",

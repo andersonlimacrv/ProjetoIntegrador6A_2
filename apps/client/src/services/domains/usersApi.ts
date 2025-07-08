@@ -3,7 +3,6 @@ import type {
   User,
   CreateUserDTO,
   UpdateUserDTO,
-  LoginUserDTO,
   ApiResponse,
   Session,
   Activity,
@@ -12,41 +11,85 @@ import type {
 } from "@packages/shared";
 
 export const usersApi = {
-  getAll: () => apiClient.get<ApiResponse<User[]>>("/users"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<User>>(`/users/${id}`),
-  create: (data: CreateUserDTO) =>
-    apiClient.post<ApiResponse<User>>("/users", data),
-  update: (id: string | number, data: UpdateUserDTO) =>
-    apiClient.put<ApiResponse<User>>(`/users/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/users/${id}`),
-
-  // Auth
-  login: (data: LoginUserDTO) =>
-    apiClient.post<ApiResponse<{ user: User; token: string }>>(
-      "/users/login",
+  // CRUD
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<User[]>>("/users");
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<User>>(`/users/${id}`);
+    return response;
+  },
+  create: async (data: CreateUserDTO) => {
+    const response = await apiClient.post<ApiResponse<User>>("/users", data);
+    return response;
+  },
+  update: async (id: string | number, data: UpdateUserDTO) => {
+    const response = await apiClient.put<ApiResponse<User>>(
+      `/users/${id}`,
       data
-    ),
-  logout: () => apiClient.post<ApiResponse<void>>("/users/logout"),
-  refreshToken: () =>
-    apiClient.post<ApiResponse<{ token: string }>>("/users/refresh-token"),
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/users/${id}`);
+    return response;
+  },
+
+  // Autenticação
+  login: async (data: any) => {
+    const response = await apiClient.post<
+      ApiResponse<{ user: User; token: string }>
+    >("/users/login", data);
+    return response;
+  },
+  logout: async () => {
+    const response = await apiClient.post<ApiResponse<void>>("/users/logout");
+    return response;
+  },
+  refreshToken: async (refreshToken: string) => {
+    const response = await apiClient.post<ApiResponse<{ token: string }>>(
+      "/users/refresh-token",
+      { refreshToken }
+    );
+    return response;
+  },
 
   // Sessões
-  getSessions: (id: string | number) =>
-    apiClient.get<ApiResponse<Session[]>>(`/users/${id}/sessions`),
-  deleteSession: (id: string | number, sessionId: string) =>
-    apiClient.delete<ApiResponse<void>>(`/users/${id}/sessions/${sessionId}`),
+  getSessions: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Session[]>>(
+      `/users/${id}/sessions`
+    );
+    return response;
+  },
+  deleteSession: async (id: string | number, sessionId: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/users/${id}/sessions/${sessionId}`
+    );
+    return response;
+  },
 
   // Atividades
-  getActivities: (id: string | number) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/users/${id}/activities`),
+  getActivities: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      `/users/${id}/activities`
+    );
+    return response;
+  },
 
   // Tenants
-  getTenants: (id: string | number) =>
-    apiClient.get<ApiResponse<Tenant[]>>(`/users/${id}/tenants`),
+  getTenants: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Tenant[]>>(
+      `/users/${id}/tenants`
+    );
+    return response;
+  },
 
-  // Equipes
-  getTeams: (id: string | number) =>
-    apiClient.get<ApiResponse<Team[]>>(`/users/${id}/teams`),
+  // Teams
+  getTeams: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Team[]>>(
+      `/users/${id}/teams`
+    );
+    return response;
+  },
 };

@@ -16,7 +16,7 @@ export class EpicController {
             ? "Épicos listados com sucesso"
             : epics.error || "Erro ao buscar épicos",
         },
-        epics.success ? 200 : 400
+        epics.success ? 200 : 500
       );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar épicos" }, 500);

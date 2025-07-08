@@ -1,457 +1,1169 @@
-# Pacote Shared - Projeto Integrador 6A
+# 📦 Shared Package - Tipos e Utilitários Compartilhados
 
-Pacote compartilhado contendo **tipos**, **schemas de validação** e **utilitários** reutilizáveis entre frontend e backend.
+Pacote compartilhado contendo tipos TypeScript, interfaces e utilitários utilizados tanto pelo frontend quanto pelo backend do sistema de gerenciamento de tarefas ágeis.
 
-## 🎯 Objetivo
+## 📋 Índice
 
-O pacote `shared` é o **coração da reutilização** no projeto, garantindo:
+- [Visão Geral](#visão-geral)
+- [Arquitetura](#arquitetura)
+- [Tipos](#tipos)
+- [Interfaces](#interfaces)
+- [Utilitários](#utilitários)
+- [Instalação](#instalação)
+- [Uso](#uso)
+- [Desenvolvimento](#desenvolvimento)
 
-- **Consistência** de tipos entre frontend e backend
-- **Reutilização** de schemas de validação
-- **Manutenibilidade** com código centralizado
-- **Type Safety** em toda a aplicação
-- **Zero duplicação** de código
+## 🎯 Visão Geral
 
-## 📁 Estrutura
+O pacote `shared` é o coração da arquitetura do sistema, fornecendo:
+
+- **Tipos TypeScript**: Definições de tipos para todas as entidades
+- **Interfaces de API**: Contratos para comunicação frontend-backend
+- **DTOs**: Data Transfer Objects para operações CRUD
+- **Utilitários**: Funções compartilhadas entre aplicações
+- **Constantes**: Valores constantes do sistema
+- **Validações**: Schemas de validação compartilhados
+
+## 🏗️ Arquitetura
+
+### Estrutura do Pacote
 
 ```
-packages/shared/
-├── src/
-│   ├── types/          # Interfaces e DTOs
-│   │   ├── user.ts     # Tipos relacionados a usuários
-│   │   └── task.ts     # Tipos relacionados a tasks
-│   ├── utils/          # Funções utilitárias
-│   │   └── index.ts    # Utilitários gerais
-│   └── index.ts        # Ponto de entrada (exports)
-├── package.json        # Configuração do pacote
-└── tsconfig.json       # Configuração TypeScript
+src/
+├── types/              # Definições de tipos
+│   ├── user.ts         # Tipos de usuário
+│   ├── project.ts      # Tipos de projeto
+│   ├── team.ts         # Tipos de equipe
+│   ├── sprint.ts       # Tipos de sprint
+│   ├── userStory.ts    # Tipos de user story
+│   ├── task.ts         # Tipos de tarefa
+│   ├── tenant.ts       # Tipos de tenant
+│   ├── comment.ts      # Tipos de comentário
+│   ├── activity.ts     # Tipos de atividade
+│   └── session.ts      # Tipos de sessão
+├── utils/              # Utilitários
+│   └── index.ts        # Funções utilitárias
+└── index.ts            # Ponto de entrada
 ```
 
-## 🔧 Configuração
+### Princípios de Design
 
-### package.json
+1. **Single Source of Truth**: Todas as definições de tipos vêm de um único local
+2. **Type Safety**: Tipagem forte em toda a aplicação
+3. **Consistência**: Interfaces consistentes entre frontend e backend
+4. **Extensibilidade**: Fácil adição de novos tipos e funcionalidades
+5. **Documentação**: Tipos bem documentados com JSDoc
 
-```json
-{
-  "name": "@packages/shared",
-  "version": "1.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
-  }
-}
-```
+## 📝 Tipos
 
-### tsconfig.json
-
-```json
-{
-  "compilerOptions": {
-    "outDir": "./dist",
-    "declaration": true,
-    "declarationMap": true
-  }
-}
-```
-
-## 📊 Tipos Compartilhados
-
-### Interfaces de Usuário
+### 🧑‍💼 User Types
 
 ```typescript
-// src/types/user.ts
+// apps/shared/src/types/user.ts
+
+/**
+ * Usuário do sistema
+ */
 export interface User {
-  id: number;
-  name: string;
+  /** ID único do usuário */
+  id: string;
+  /** Email do usuário (único) */
   email: string;
+  /** Nome completo do usuário */
+  name: string;
+  /** URL do avatar do usuário */
+  avatarUrl?: string;
+  /** Status de ativação do usuário */
+  isActive: boolean;
+  /** Data do último login */
+  lastLogin?: Date;
+  /** Data de criação */
   createdAt: Date;
+  /** Data da última atualização */
   updatedAt: Date;
 }
 
+/**
+ * DTO para criação de usuário
+ */
 export interface CreateUserDTO {
-  name: string;
+  /** Email do usuário */
   email: string;
+  /** Senha do usuário */
+  password: string;
+  /** Nome completo do usuário */
+  name: string;
+  /** URL do avatar (opcional) */
+  avatarUrl?: string;
 }
 
+/**
+ * DTO para atualização de usuário
+ */
 export interface UpdateUserDTO {
+  /** Nome do usuário */
   name?: string;
+  /** Email do usuário */
   email?: string;
+  /** URL do avatar */
+  avatarUrl?: string;
+  /** Status de ativação */
+  isActive?: boolean;
+}
+
+/**
+ * DTO para login de usuário
+ */
+export interface LoginUserDTO {
+  /** Email do usuário */
+  email: string;
+  /** Senha do usuário */
+  password: string;
 }
 ```
 
-### Interfaces de Task
+### 🏢 Tenant Types
 
 ```typescript
-// src/types/task.ts
-export interface Task {
-  id: number;
-  title: string;
+// apps/shared/src/types/tenant.ts
+
+/**
+ * Tenant (Empresa/Organização)
+ */
+export interface Tenant {
+  /** ID único do tenant */
+  id: string;
+  /** Nome da empresa */
+  name: string;
+  /** Slug único da empresa */
+  slug: string;
+  /** Descrição da empresa */
   description?: string;
-  completed: boolean;
-  userId: number;
+  /** URL do avatar da empresa */
+  avatarUrl?: string;
+  /** Data de criação */
   createdAt: Date;
+  /** Data da última atualização */
   updatedAt: Date;
 }
 
-export interface CreateTaskDTO {
+/**
+ * DTO para criação de tenant
+ */
+export interface CreateTenantDTO {
+  /** Nome da empresa */
+  name: string;
+  /** Slug da empresa */
+  slug: string;
+  /** Descrição da empresa */
+  description?: string;
+  /** URL do avatar */
+  avatarUrl?: string;
+}
+
+/**
+ * DTO para atualização de tenant
+ */
+export interface UpdateTenantDTO {
+  /** Nome da empresa */
+  name?: string;
+  /** Slug da empresa */
+  slug?: string;
+  /** Descrição da empresa */
+  description?: string;
+  /** URL do avatar */
+  avatarUrl?: string;
+}
+```
+
+### 📋 Project Types
+
+```typescript
+// apps/shared/src/types/project.ts
+
+/**
+ * Projeto do sistema
+ */
+export interface Project {
+  /** ID único do projeto */
+  id: string;
+  /** ID do tenant */
+  tenantId: string;
+  /** Nome do projeto */
+  name: string;
+  /** Slug único do projeto */
+  slug: string;
+  /** Descrição do projeto */
+  description?: string;
+  /** Chave única do projeto */
+  projectKey: string;
+  /** Status do projeto */
+  status: ProjectStatus;
+  /** ID do proprietário */
+  ownerId: string;
+  /** Data de início */
+  startDate?: Date;
+  /** Data de término */
+  endDate?: Date;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
+}
+
+/**
+ * Status do projeto
+ */
+export type ProjectStatus = "active" | "archived" | "completed";
+
+/**
+ * DTO para criação de projeto
+ */
+export interface CreateProjectDTO {
+  /** ID do tenant */
+  tenantId: string;
+  /** Nome do projeto */
+  name: string;
+  /** Slug do projeto */
+  slug: string;
+  /** Descrição do projeto */
+  description?: string;
+  /** Chave do projeto */
+  projectKey: string;
+  /** ID do proprietário */
+  ownerId: string;
+  /** Data de início */
+  startDate?: Date;
+  /** Data de término */
+  endDate?: Date;
+}
+
+/**
+ * DTO para atualização de projeto
+ */
+export interface UpdateProjectDTO {
+  /** Nome do projeto */
+  name?: string;
+  /** Slug do projeto */
+  slug?: string;
+  /** Descrição do projeto */
+  description?: string;
+  /** Chave do projeto */
+  projectKey?: string;
+  /** Status do projeto */
+  status?: ProjectStatus;
+  /** Data de início */
+  startDate?: Date;
+  /** Data de término */
+  endDate?: Date;
+}
+```
+
+### 👥 Team Types
+
+```typescript
+// apps/shared/src/types/team.ts
+
+/**
+ * Equipe do sistema
+ */
+export interface Team {
+  /** ID único da equipe */
+  id: string;
+  /** ID do tenant */
+  tenantId: string;
+  /** Nome da equipe */
+  name: string;
+  /** Descrição da equipe */
+  description?: string;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
+}
+
+/**
+ * DTO para criação de equipe
+ */
+export interface CreateTeamDTO {
+  /** ID do tenant */
+  tenantId: string;
+  /** Nome da equipe */
+  name: string;
+  /** Descrição da equipe */
+  description?: string;
+}
+
+/**
+ * DTO para atualização de equipe
+ */
+export interface UpdateTeamDTO {
+  /** Nome da equipe */
+  name?: string;
+  /** Descrição da equipe */
+  description?: string;
+}
+```
+
+### 🏃 Sprint Types
+
+```typescript
+// apps/shared/src/types/sprint.ts
+
+/**
+ * Sprint ágil
+ */
+export interface Sprint {
+  /** ID único do sprint */
+  id: string;
+  /** ID do projeto */
+  projectId: string;
+  /** Nome do sprint */
+  name: string;
+  /** Descrição do sprint */
+  description?: string;
+  /** Data de início */
+  startDate: Date;
+  /** Data de término */
+  endDate: Date;
+  /** Status do sprint */
+  status: SprintStatus;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
+}
+
+/**
+ * Status do sprint
+ */
+export type SprintStatus = "planned" | "active" | "completed" | "cancelled";
+
+/**
+ * DTO para criação de sprint
+ */
+export interface CreateSprintDTO {
+  /** ID do projeto */
+  projectId: string;
+  /** Nome do sprint */
+  name: string;
+  /** Descrição do sprint */
+  description?: string;
+  /** Data de início */
+  startDate: Date;
+  /** Data de término */
+  endDate: Date;
+}
+
+/**
+ * DTO para atualização de sprint
+ */
+export interface UpdateSprintDTO {
+  /** Nome do sprint */
+  name?: string;
+  /** Descrição do sprint */
+  description?: string;
+  /** Data de início */
+  startDate?: Date;
+  /** Data de término */
+  endDate?: Date;
+  /** Status do sprint */
+  status?: SprintStatus;
+}
+```
+
+### 📖 User Story Types
+
+```typescript
+// apps/shared/src/types/userStory.ts
+
+/**
+ * User Story (História de Usuário)
+ */
+export interface UserStory {
+  /** ID único da user story */
+  id: string;
+  /** ID do épico (opcional) */
+  epicId?: string;
+  /** ID do projeto */
+  projectId: string;
+  /** ID do status */
+  statusId: string;
+  /** Título da user story */
   title: string;
+  /** Descrição da user story */
   description?: string;
-  userId: number;
+  /** Critérios de aceitação */
+  acceptanceCriteria?: string;
+  /** Story points */
+  storyPoints?: number;
+  /** Prioridade (1-5) */
+  priority: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** Data de vencimento */
+  dueDate?: Date;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
 }
 
-export interface UpdateTaskDTO {
+/**
+ * DTO para criação de user story
+ */
+export interface CreateUserStoryDTO {
+  /** ID do épico */
+  epicId?: string;
+  /** ID do projeto */
+  projectId: string;
+  /** ID do status */
+  statusId: string;
+  /** Título da user story */
+  title: string;
+  /** Descrição da user story */
+  description?: string;
+  /** Critérios de aceitação */
+  acceptanceCriteria?: string;
+  /** Story points */
+  storyPoints?: number;
+  /** Prioridade */
+  priority?: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** Data de vencimento */
+  dueDate?: Date;
+}
+
+/**
+ * DTO para atualização de user story
+ */
+export interface UpdateUserStoryDTO {
+  /** ID do épico */
+  epicId?: string;
+  /** ID do status */
+  statusId?: string;
+  /** Título da user story */
   title?: string;
+  /** Descrição da user story */
   description?: string;
-  completed?: boolean;
+  /** Critérios de aceitação */
+  acceptanceCriteria?: string;
+  /** Story points */
+  storyPoints?: number;
+  /** Prioridade */
+  priority?: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** Data de vencimento */
+  dueDate?: Date;
 }
 ```
 
-### Respostas Padronizadas
+### ✅ Task Types
 
 ```typescript
-// src/index.ts
+// apps/shared/src/types/task.ts
+
+/**
+ * Tarefa do sistema
+ */
+export interface Task {
+  /** ID único da tarefa */
+  id: string;
+  /** ID da user story (opcional) */
+  storyId?: string;
+  /** ID do projeto */
+  projectId: string;
+  /** ID do status */
+  statusId: string;
+  /** Título da tarefa */
+  title: string;
+  /** Descrição da tarefa */
+  description?: string;
+  /** Prioridade (1-5) */
+  priority: number;
+  /** Horas estimadas */
+  estimatedHours?: number;
+  /** Horas reais */
+  actualHours?: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** ID do reportador */
+  reporterId: string;
+  /** Data de vencimento */
+  dueDate?: Date;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
+}
+
+/**
+ * DTO para criação de tarefa
+ */
+export interface CreateTaskDTO {
+  /** ID da user story */
+  storyId?: string;
+  /** ID do projeto */
+  projectId: string;
+  /** ID do status */
+  statusId: string;
+  /** Título da tarefa */
+  title: string;
+  /** Descrição da tarefa */
+  description?: string;
+  /** Prioridade */
+  priority?: number;
+  /** Horas estimadas */
+  estimatedHours?: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** ID do reportador */
+  reporterId: string;
+  /** Data de vencimento */
+  dueDate?: Date;
+}
+
+/**
+ * DTO para atualização de tarefa
+ */
+export interface UpdateTaskDTO {
+  /** ID da user story */
+  storyId?: string;
+  /** ID do status */
+  statusId?: string;
+  /** Título da tarefa */
+  title?: string;
+  /** Descrição da tarefa */
+  description?: string;
+  /** Prioridade */
+  priority?: number;
+  /** Horas estimadas */
+  estimatedHours?: number;
+  /** Horas reais */
+  actualHours?: number;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** Data de vencimento */
+  dueDate?: Date;
+}
+```
+
+### 💬 Comment Types
+
+```typescript
+// apps/shared/src/types/comment.ts
+
+/**
+ * Comentário do sistema
+ */
+export interface Comment {
+  /** ID único do comentário */
+  id: string;
+  /** ID da entidade comentada */
+  entityId: string;
+  /** Tipo da entidade */
+  entityType: EntityType;
+  /** ID do autor */
+  authorId: string;
+  /** Conteúdo do comentário */
+  content: string;
+  /** Data de criação */
+  createdAt: Date;
+  /** Data da última atualização */
+  updatedAt: Date;
+}
+
+/**
+ * Tipo de entidade comentável
+ */
+export type EntityType = "project" | "task" | "user_story" | "sprint";
+
+/**
+ * DTO para criação de comentário
+ */
+export interface CreateCommentDTO {
+  /** ID da entidade comentada */
+  entityId: string;
+  /** Tipo da entidade */
+  entityType: EntityType;
+  /** ID do autor */
+  authorId: string;
+  /** Conteúdo do comentário */
+  content: string;
+}
+
+/**
+ * DTO para atualização de comentário
+ */
+export interface UpdateCommentDTO {
+  /** Conteúdo do comentário */
+  content: string;
+}
+```
+
+### 📊 Activity Types
+
+```typescript
+// apps/shared/src/types/activity.ts
+
+/**
+ * Atividade do sistema
+ */
+export interface Activity {
+  /** ID único da atividade */
+  id: string;
+  /** ID do usuário */
+  userId: string;
+  /** ID do tenant */
+  tenantId: string;
+  /** Ação realizada */
+  action: string;
+  /** Tipo da entidade */
+  entityType: string;
+  /** ID da entidade */
+  entityId: string;
+  /** Valores antigos (JSON) */
+  oldValues?: any;
+  /** Valores novos (JSON) */
+  newValues?: any;
+  /** Data de criação */
+  createdAt: Date;
+}
+
+/**
+ * DTO para criação de atividade
+ */
+export interface CreateActivityDTO {
+  /** ID do usuário */
+  userId: string;
+  /** ID do tenant */
+  tenantId: string;
+  /** Ação realizada */
+  action: string;
+  /** Tipo da entidade */
+  entityType: string;
+  /** ID da entidade */
+  entityId: string;
+  /** Valores antigos */
+  oldValues?: any;
+  /** Valores novos */
+  newValues?: any;
+}
+```
+
+### 🔐 Session Types
+
+```typescript
+// apps/shared/src/types/session.ts
+
+/**
+ * Sessão do usuário
+ */
+export interface Session {
+  /** ID único da sessão */
+  id: string;
+  /** ID do usuário */
+  userId: string;
+  /** Hash do token */
+  tokenHash: string;
+  /** Data de expiração */
+  expiresAt: Date;
+  /** Data de criação */
+  createdAt: Date;
+}
+
+/**
+ * DTO para criação de sessão
+ */
+export interface CreateSessionDTO {
+  /** ID do usuário */
+  userId: string;
+  /** Hash do token */
+  tokenHash: string;
+  /** Data de expiração */
+  expiresAt: Date;
+}
+```
+
+## 🔧 Interfaces
+
+### API Response
+
+```typescript
+/**
+ * Resposta padrão da API
+ */
 export interface ApiResponse<T = any> {
+  /** Indica se a operação foi bem-sucedida */
   success: boolean;
+  /** Dados da resposta */
   data?: T;
-  error?: string;
+  /** Mensagem de sucesso */
   message?: string;
+  /** Mensagem de erro */
+  error?: string;
 }
 ```
 
-## ✅ Schemas de Validação
-
-### Schemas Zod
+### Pagination
 
 ```typescript
-// src/types/user.ts
-export const CreateUserSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("Email inválido"),
-});
+/**
+ * Parâmetros de paginação
+ */
+export interface PaginationParams {
+  /** Página atual */
+  page?: number;
+  /** Itens por página */
+  limit?: number;
+  /** Campo de ordenação */
+  sortBy?: string;
+  /** Direção da ordenação */
+  sortOrder?: "asc" | "desc";
+}
 
-export const UpdateUserSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório").optional(),
-  email: z.string().email("Email inválido").optional(),
-});
+/**
+ * Resposta paginada
+ */
+export interface PaginatedResponse<T> {
+  /** Dados da página */
+  data: T[];
+  /** Informações de paginação */
+  pagination: {
+    /** Página atual */
+    page: number;
+    /** Itens por página */
+    limit: number;
+    /** Total de itens */
+    total: number;
+    /** Total de páginas */
+    totalPages: number;
+    /** Tem próxima página */
+    hasNext: boolean;
+    /** Tem página anterior */
+    hasPrev: boolean;
+  };
+}
+```
 
-// src/types/task.ts
-export const CreateTaskSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Título é obrigatório")
-    .max(200, "Título muito longo"),
-  description: z.string().max(1000, "Descrição muito longa").optional(),
-  userId: z.number().int().positive("ID do usuário deve ser positivo"),
-});
+### Filters
 
-export const UpdateTaskSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Título é obrigatório")
-    .max(200, "Título muito longo")
-    .optional(),
-  description: z.string().max(1000, "Descrição muito longa").optional(),
-  completed: z.boolean().optional(),
-});
+```typescript
+/**
+ * Filtros comuns
+ */
+export interface CommonFilters {
+  /** Termo de busca */
+  search?: string;
+  /** Status */
+  status?: string;
+  /** Data de início */
+  startDate?: Date;
+  /** Data de fim */
+  endDate?: Date;
+  /** IDs específicos */
+  ids?: string[];
+}
+
+/**
+ * Filtros de projeto
+ */
+export interface ProjectFilters extends CommonFilters {
+  /** ID do tenant */
+  tenantId?: string;
+  /** ID do proprietário */
+  ownerId?: string;
+  /** Status do projeto */
+  status?: ProjectStatus;
+}
+
+/**
+ * Filtros de tarefa
+ */
+export interface TaskFilters extends CommonFilters {
+  /** ID do projeto */
+  projectId?: string;
+  /** ID do responsável */
+  assigneeId?: string;
+  /** ID do reportador */
+  reporterId?: string;
+  /** Prioridade */
+  priority?: number;
+}
 ```
 
 ## 🛠️ Utilitários
 
-### Formatação
+### Type Guards
 
 ```typescript
-// src/utils/index.ts
-export function formatDate(date: Date | string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+// apps/shared/src/utils/index.ts
+
+/**
+ * Verifica se é um usuário válido
+ */
+export function isUser(obj: any): obj is User {
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    typeof obj.email === "string" &&
+    typeof obj.name === "string"
+  );
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value);
+/**
+ * Verifica se é um projeto válido
+ */
+export function isProject(obj: any): obj is Project {
+  return (
+    obj &&
+    typeof obj.id === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.tenantId === "string"
+  );
+}
+
+/**
+ * Verifica se é uma resposta de API válida
+ */
+export function isApiResponse(obj: any): obj is ApiResponse {
+  return obj && typeof obj.success === "boolean";
 }
 ```
 
-### Validação
+### Validation Helpers
 
 ```typescript
-// src/utils/index.ts
+/**
+ * Valida email
+ */
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
-export function isValidCPF(cpf: string): boolean {
-  const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-  return cpfRegex.test(cpf);
+/**
+ * Valida slug
+ */
+export function isValidSlug(slug: string): boolean {
+  const slugRegex = /^[a-z0-9-]+$/;
+  return slugRegex.test(slug) && !slug.startsWith("-") && !slug.endsWith("-");
+}
+
+/**
+ * Valida project key
+ */
+export function isValidProjectKey(key: string): boolean {
+  const keyRegex = /^[A-Z0-9]+$/;
+  return keyRegex.test(key) && key.length >= 2 && key.length <= 10;
 }
 ```
 
-## 🔄 Uso no Backend
+### Date Helpers
+
+```typescript
+/**
+ * Formata data para exibição
+ */
+export function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("pt-BR");
+}
+
+/**
+ * Formata data e hora para exibição
+ */
+export function formatDateTime(date: Date | string): string {
+  const d = new Date(date);
+  return d.toLocaleString("pt-BR");
+}
+
+/**
+ * Calcula diferença em dias
+ */
+export function daysBetween(start: Date, end: Date): number {
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+```
+
+### String Helpers
+
+```typescript
+/**
+ * Gera slug a partir de string
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .replace(/[^a-z0-9\s-]/g, "") // Remove caracteres especiais
+    .replace(/\s+/g, "-") // Substitui espaços por hífens
+    .replace(/-+/g, "-") // Remove hífens consecutivos
+    .replace(/^-+|-+$/g, ""); // Remove hífens no início e fim
+}
+
+/**
+ * Gera project key a partir de string
+ */
+export function generateProjectKey(text: string): string {
+  return text
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove acentos
+    .replace(/[^A-Z0-9\s]/g, "") // Remove caracteres especiais
+    .split(" ")
+    .map((word) => word.slice(0, 3)) // Pega as 3 primeiras letras de cada palavra
+    .join("")
+    .slice(0, 10); // Máximo 10 caracteres
+}
+
+/**
+ * Capitaliza primeira letra
+ */
+export function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+}
+```
+
+## 🚀 Instalação
+
+### No Backend
+
+```bash
+# No diretório apps/server
+bun add @packages/shared
+```
+
+### No Frontend
+
+```bash
+# No diretório apps/client
+bun add @packages/shared
+```
+
+## 📖 Uso
 
 ### Importação de Tipos
 
 ```typescript
-// apps/server/src/controllers/userController.ts
-import {
-  User,
-  CreateUserDTO,
-  UpdateUserDTO,
-  ApiResponse,
-} from "@packages/shared";
-import { CreateUserSchema, UpdateUserSchema } from "@packages/shared";
+// Importar tipos específicos
+import type { User, CreateUserDTO, UpdateUserDTO } from "@packages/shared";
+
+// Importar interfaces
+import type { ApiResponse, PaginationParams } from "@packages/shared";
+
+// Importar utilitários
+import { generateSlug, isValidEmail } from "@packages/shared";
 ```
 
-### Validação com Schemas
+### Uso no Backend
 
 ```typescript
-// apps/server/src/controllers/userController.ts
-export async function createUser(c: Context): Promise<Response> {
-  const body = await c.req.json();
+// Controller
+import type { CreateProjectDTO, ApiResponse, Project } from "@packages/shared";
 
-  const validation = validateData(CreateUserSchema, body);
-  if (!validation.success) {
-    return c.json({ success: false, error: validation.error }, 400);
-  }
+export class ProjectController {
+  async createProject(req: Request, res: Response) {
+    const projectData: CreateProjectDTO = req.body;
 
-  const userData: CreateUserDTO = validation.data;
-  // ... resto da lógica
-}
-```
+    const result: ApiResponse<Project> =
+      await this.projectService.createProject(projectData);
 
-### Repository com Tipos
-
-```typescript
-// apps/server/src/repositories/UserRepository.ts
-import { User, CreateUserDTO, UpdateUserDTO } from "@packages/shared";
-
-export class UserRepository {
-  async create(data: CreateUserDTO): Promise<User> {
-    // ... implementação
-  }
-
-  async update(id: number, data: UpdateUserDTO): Promise<User | null> {
-    // ... implementação
+    return res.json(result);
   }
 }
 ```
 
-## 🔄 Uso no Frontend
-
-### Importação de Tipos
+### Uso no Frontend
 
 ```typescript
-// apps/client/src/services/api.ts
-import {
-  User,
-  CreateUserDTO,
-  UpdateUserDTO,
-  Task,
-  CreateTaskDTO,
-  ApiResponse,
-} from "@packages/shared";
-```
+// Service
+import type { CreateProjectDTO, ApiResponse, Project } from "@packages/shared";
 
-### Uso em Componentes
+export const projectsApi = {
+  create: async (data: CreateProjectDTO): Promise<ApiResponse<Project>> => {
+    const response = await apiClient.post("/projects", data);
+    return response.data;
+  },
+};
 
-```typescript
-// apps/client/src/components/UserList.tsx
-import { User, formatDate } from "@packages/shared";
+// Component
+import type { Project } from "@packages/shared";
 
-export function UserList() {
-  const [users, setUsers] = useState<User[]>([]);
+interface ProjectCardProps {
+  project: Project;
+}
 
+export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div>
-      {users.map((user) => (
-        <div key={user.id}>
-          <h3>{user.name}</h3>
-          <p>{user.email}</p>
-          <small>Criado em: {formatDate(user.createdAt)}</small>
-        </div>
-      ))}
+      <h3>{project.name}</h3>
+      <p>{project.description}</p>
     </div>
   );
 }
 ```
 
-### Cliente API Tipado
+## 🔧 Desenvolvimento
+
+### Adicionando Novos Tipos
+
+1. **Criar arquivo de tipos**
 
 ```typescript
-// apps/client/src/services/api.ts
-import { User, CreateUserDTO, Task, CreateTaskDTO } from "@packages/shared";
+// src/types/newEntity.ts
+export interface NewEntity {
+  id: string;
+  name: string;
+  // ...
+}
 
-class ApiClient {
-  async getUsers(): Promise<User[]> {
-    const response = await fetch("/api/users");
-    return response.json();
-  }
-
-  async createUser(data: CreateUserDTO): Promise<User> {
-    const response = await fetch("/api/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return response.json();
-  }
-
-  async getTasks(): Promise<Task[]> {
-    const response = await fetch("/api/tasks");
-    return response.json();
-  }
-
-  async createTask(data: CreateTaskDTO): Promise<Task> {
-    const response = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return response.json();
-  }
+export interface CreateNewEntityDTO {
+  name: string;
+  // ...
 }
 ```
 
-## 🏗️ Build e Deploy
+2. **Exportar no index**
 
-### Build do Pacote
+```typescript
+// src/index.ts
+export * from "./types/newEntity";
+```
+
+3. **Atualizar documentação**
+
+```typescript
+/**
+ * Nova entidade do sistema
+ * @description Descrição da entidade
+ */
+export interface NewEntity {
+  // ...
+}
+```
+
+### Validação de Tipos
 
 ```bash
-# Na raiz do projeto
-bun run build:shared
+# Verificar tipos
+bun run type-check
 
-# Ou no diretório do pacote
-cd packages/shared
+# Build do pacote
 bun run build
 ```
 
-### Watch Mode (Desenvolvimento)
+### Testes
 
 ```bash
-# Rebuild automático em mudanças
-cd packages/shared
-bun run dev
+# Executar testes
+bun run test
+
+# Testes em modo watch
+bun run test:watch
 ```
 
-### Estrutura de Build
+## 📚 Documentação
 
-```
-packages/shared/dist/
-├── index.js          # Código compilado
-├── index.d.ts        # Declarações de tipos
-├── types/
-│   ├── user.d.ts     # Tipos compilados
-│   └── task.d.ts     # Tipos compilados
-└── utils/
-    └── index.d.ts    # Utilitários compilados
-```
+### JSDoc
 
-## 📦 Instalação e Configuração
+Todos os tipos e interfaces são documentados com JSDoc:
 
-### Workspace Configuration
-
-```json
-// package.json (raiz)
-{
-  "workspaces": ["apps/*", "packages/*"]
+````typescript
+/**
+ * Usuário do sistema
+ * @description Representa um usuário autenticado no sistema
+ * @example
+ * ```typescript
+ * const user: User = {
+ *   id: "123",
+ *   email: "user@example.com",
+ *   name: "João Silva",
+ *   isActive: true
+ * };
+ * ```
+ */
+export interface User {
+  /** ID único do usuário */
+  id: string;
+  /** Email do usuário (único) */
+  email: string;
+  // ...
 }
-```
+````
 
-### Dependências
-
-```json
-// apps/server/package.json e apps/client/package.json
-{
-  "dependencies": {
-    "@packages/shared": "workspace:*"
-  }
-}
-```
-
-## 🔍 Vantagens
-
-### 1. **Type Safety**
-
-- Tipos consistentes entre frontend e backend
-- Detecção de erros em tempo de compilação
-- IntelliSense melhorado
-
-### 2. **Reutilização**
-
-- Schemas de validação compartilhados
-- Utilitários comuns
-- Constantes centralizadas
-
-### 3. **Manutenibilidade**
-
-- Mudanças centralizadas
-- Menos duplicação de código
-- Versionamento único
-
-### 4. **Consistência**
-
-- Respostas padronizadas
-- Validação uniforme
-- Formatação consistente
-
-### 5. **Desenvolvimento Rápido**
-
-- Zero duplicação de tipos
-- Validação automática
-- Refatoração segura
-
-## 🚀 Fluxo de Desenvolvimento
-
-### 1. Definir Tipo no Shared
+### Exemplos de Uso
 
 ```typescript
-// packages/shared/src/types/product.ts
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-}
+// Exemplo de criação de projeto
+const projectData: CreateProjectDTO = {
+  tenantId: "tenant-123",
+  name: "Meu Projeto",
+  slug: "meu-projeto",
+  description: "Descrição do projeto",
+  projectKey: "MP",
+  ownerId: "user-123",
+};
+
+// Exemplo de resposta da API
+const response: ApiResponse<Project> = {
+  success: true,
+  data: {
+    id: "project-123",
+    tenantId: "tenant-123",
+    name: "Meu Projeto",
+    // ...
+  },
+  message: "Projeto criado com sucesso",
+};
 ```
 
-### 2. Criar Schema no Shared
+## 🔄 Versionamento
 
-```typescript
-// packages/shared/src/types/product.ts
-export const CreateProductSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  price: z.number().positive("Preço deve ser positivo"),
-  category: z.string().min(1, "Categoria é obrigatória"),
-});
+### Semântico
+
+O pacote segue versionamento semântico:
+
+- **MAJOR**: Mudanças incompatíveis
+- **MINOR**: Novas funcionalidades compatíveis
+- **PATCH**: Correções de bugs compatíveis
+
+### Changelog
+
+```markdown
+# Changelog
+
+## [1.2.0] - 2024-01-15
+
+### Added
+
+- Novos tipos para comentários
+- Utilitários de validação
+
+### Changed
+
+- Melhorada documentação dos tipos
+
+## [1.1.0] - 2024-01-10
+
+### Added
+
+- Tipos para atividades
+- Filtros de busca
+
+## [1.0.0] - 2024-01-01
+
+### Added
+
+- Tipos básicos do sistema
+- Interfaces de API
+- Utilitários compartilhados
 ```
 
-### 3. Usar no Backend
+---
 
-```typescript
-// apps/server/src/models/Product.ts
-export * from "@packages/shared";
-
-// apps/server/src/repositories/ProductRepository.ts
-import { Product, CreateProductDTO } from "@packages/shared";
-
-// apps/server/src/controllers/productController.ts
-- Formatação de produtos
-- Cálculos de preços
-- Validação de estoque
-
-## 📚 Dependências
-
-- **TypeScript** - Tipagem estática
-- **Zod** - Validação de esquemas
-- **Bun** - Runtime e package manager
-```
+**📦 Pacote compartilhado robusto, fornecendo tipagem forte e consistência entre frontend e backend!**

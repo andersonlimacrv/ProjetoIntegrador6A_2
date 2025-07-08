@@ -2,35 +2,60 @@ import { apiClient } from "../apiClient";
 import type {
   Activity,
   CreateActivityDTO,
-  UpdateActivityDTO,
   ApiResponse,
 } from "@packages/shared";
 
 export const activitiesApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<Activity[]>>("/activities"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<Activity>>(`/activities/${id}`),
-  create: (data: CreateActivityDTO) =>
-    apiClient.post<ApiResponse<Activity>>("/activities", data),
-  update: (id: string | number, data: UpdateActivityDTO) =>
-    apiClient.put<ApiResponse<Activity>>(`/activities/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/activities/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      "/activities"
+    );
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity>>(
+      `/activities/${id}`
+    );
+    return response;
+  },
+  create: async (data: CreateActivityDTO) => {
+    const response = await apiClient.post<ApiResponse<Activity>>(
+      "/activities",
+      data
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/activities/${id}`
+    );
+    return response;
+  },
 
-  // Por usuário
-  getByUser: (userId: string | number) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/activities/user/${userId}`),
-  // Por projeto
-  getByProject: (projectId: string | number) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/activities/project/${projectId}`),
-  // Por tarefa
-  getByTask: (taskId: string | number) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/activities/task/${taskId}`),
-  // Por tipo
-  getByType: (type: string) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/activities/type/${type}`),
-  // Feed
-  getUserFeed: (userId: string | number) =>
-    apiClient.get<ApiResponse<Activity[]>>(`/activities/feed/${userId}`),
+  // Por entidade
+  getByUser: async (userId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      `/activities/user/${userId}`
+    );
+    return response;
+  },
+  getByTenant: async (tenantId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      `/activities/tenant/${tenantId}`
+    );
+    return response;
+  },
+  getByProject: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      `/activities/project/${projectId}`
+    );
+    return response;
+  },
+  getByEntity: async (entityType: string, entityId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Activity[]>>(
+      `/activities/${entityType}/${entityId}`
+    );
+    return response;
+  },
 };

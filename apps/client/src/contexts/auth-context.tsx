@@ -10,14 +10,20 @@ interface User {
   id: string;
   email: string;
   name: string;
-  password: string;
-  role: string;
   avatarUrl?: string;
+}
+
+interface Tenant {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  tenant: Tenant | null;
+  isAuthenticated: boolean;
+  login: (userData: User, tenantData?: Tenant) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -26,40 +32,63 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [tenant, setTenant] = useState<Tenant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Carregar dados de autenticação do localStorage
     const savedUser = localStorage.getItem("user");
-    if (savedUser) {
+    const savedTenant = localStorage.getItem("tenant");
+    const token = localStorage.getItem("token");
+
+    if (savedUser && token) {
       setUser(JSON.parse(savedUser));
+      if (savedTenant) {
+        setTenant(JSON.parse(savedTenant));
+      }
     }
+
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const mockUser: User = {
-      id: "1",
-      email,
-      name: email.split("@")[0] || "",
-      password: password,
-      avatarUrl: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      role: "admin",
-    };
-
-    setUser(mockUser);
-    localStorage.setItem("user", JSON.stringify(mockUser));
-  };
-
   const logout = () => {
     setUser(null);
+    setTenant(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("tenant");
+    localStorage.removeItem("token");
+    localStorage.removeItem("sessionId");
   };
 
+  const login = (userData: User, tenantData?: Tenant) => {
+    setUser(userData);
+    if (tenantData) {
+      setTenant(tenantData);
+    }
+  };
+
+  const isAuthenticated = !!user && !!localStorage.getItem("token");
+
+  console.log(
+    "AuthContext - user:",
+    user,
+    "token:",
+    localStorage.getItem("token"),
+    "isAuthenticated:",
+    isAuthenticated
+  );
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        tenant,
+        isAuthenticated,
+        login,
+        logout,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

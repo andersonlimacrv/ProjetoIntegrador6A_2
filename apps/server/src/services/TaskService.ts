@@ -9,21 +9,27 @@ import { userRepository } from "../repositories/UserRepository";
 import { projectRepository } from "../repositories/ProjectRepository";
 
 export class TaskService {
+  private taskRepository: TaskRepository;
+
+  constructor() {
+    this.taskRepository = new TaskRepository();
+  }
+
   /**
    * Busca todas as tasks
    */
   async getAllTasks(): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findAll();
+      const tasks = await this.taskRepository.findAll();
       return {
         success: true,
         data: tasks,
       };
     } catch (error) {
-      console.error("Erro ao buscar tasks:", error);
       return {
         success: false,
-        error: "Erro interno ao buscar tasks",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar tarefas",
       };
     }
   }
@@ -42,7 +48,7 @@ export class TaskService {
         };
       }
 
-      const tasks = await taskRepository.findByProjectId(projectId);
+      const tasks = await this.taskRepository.findByProjectId(projectId);
       return {
         success: true,
         data: tasks,
@@ -61,7 +67,7 @@ export class TaskService {
    */
   async getTasksByStoryId(storyId: string): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findByStoryId(storyId);
+      const tasks = await this.taskRepository.findByStoryId(storyId);
       return {
         success: true,
         data: tasks,
@@ -89,7 +95,7 @@ export class TaskService {
         };
       }
 
-      const tasks = await taskRepository.findByAssigneeId(assigneeId);
+      const tasks = await this.taskRepository.findByAssigneeId(assigneeId);
       return {
         success: true,
         data: tasks,
@@ -117,7 +123,7 @@ export class TaskService {
         };
       }
 
-      const tasks = await taskRepository.findByReporterId(reporterId);
+      const tasks = await this.taskRepository.findByReporterId(reporterId);
       return {
         success: true,
         data: tasks,
@@ -136,7 +142,7 @@ export class TaskService {
    */
   async getTaskById(id: string): Promise<ApiResponse<Task>> {
     try {
-      const task = await taskRepository.findById(id);
+      const task = await this.taskRepository.findById(id);
 
       if (!task) {
         return {
@@ -163,7 +169,7 @@ export class TaskService {
    */
   async getTaskByIdWithDetails(id: string): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findByIdWithDetails(id);
+      const task = await this.taskRepository.findByIdWithDetails(id);
 
       if (!task) {
         return {
@@ -241,7 +247,7 @@ export class TaskService {
         };
       }
 
-      const newTask = await taskRepository.create(data);
+      const newTask = await this.taskRepository.create(data);
 
       return {
         success: true,
@@ -266,7 +272,7 @@ export class TaskService {
   ): Promise<ApiResponse<Task>> {
     try {
       // Verifica se a task existe
-      const existingTask = await taskRepository.findById(id);
+      const existingTask = await this.taskRepository.findById(id);
       if (!existingTask) {
         return {
           success: false,
@@ -299,7 +305,7 @@ export class TaskService {
         }
       }
 
-      const updatedTask = await taskRepository.update(id, data);
+      const updatedTask = await this.taskRepository.update(id, data);
 
       if (!updatedTask) {
         return {
@@ -328,7 +334,7 @@ export class TaskService {
   async deleteTask(id: string): Promise<ApiResponse<null>> {
     try {
       // Verifica se a task existe
-      const existingTask = await taskRepository.findById(id);
+      const existingTask = await this.taskRepository.findById(id);
       if (!existingTask) {
         return {
           success: false,
@@ -336,7 +342,7 @@ export class TaskService {
         };
       }
 
-      const deleted = await taskRepository.delete(id);
+      const deleted = await this.taskRepository.delete(id);
 
       if (!deleted) {
         return {
@@ -364,7 +370,7 @@ export class TaskService {
   async assignTask(taskId: string, userId: string): Promise<ApiResponse<any>> {
     try {
       // Verifica se a task existe
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -381,7 +387,7 @@ export class TaskService {
         };
       }
 
-      const assignment = await taskRepository.assignTask(taskId, userId);
+      const assignment = await this.taskRepository.assignTask(taskId, userId);
 
       return {
         success: true,
@@ -405,7 +411,7 @@ export class TaskService {
     userId: string
   ): Promise<ApiResponse<null>> {
     try {
-      const unassigned = await taskRepository.unassignTask(taskId, userId);
+      const unassigned = await this.taskRepository.unassignTask(taskId, userId);
 
       if (!unassigned) {
         return {
@@ -432,7 +438,7 @@ export class TaskService {
    */
   async getTaskAssignments(taskId: string): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -440,7 +446,7 @@ export class TaskService {
         };
       }
 
-      const assignments = await taskRepository.findTaskAssignments(taskId);
+      const assignments = await this.taskRepository.findTaskAssignments(taskId);
 
       return {
         success: true,
@@ -463,7 +469,7 @@ export class TaskService {
     labelId: string
   ): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -471,7 +477,7 @@ export class TaskService {
         };
       }
 
-      const taskLabel = await taskRepository.addLabel(taskId, labelId);
+      const taskLabel = await this.taskRepository.addLabel(taskId, labelId);
 
       return {
         success: true,
@@ -495,7 +501,7 @@ export class TaskService {
     labelId: string
   ): Promise<ApiResponse<null>> {
     try {
-      const removed = await taskRepository.removeLabel(taskId, labelId);
+      const removed = await this.taskRepository.removeLabel(taskId, labelId);
 
       if (!removed) {
         return {
@@ -522,7 +528,7 @@ export class TaskService {
    */
   async getTaskLabels(taskId: string): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -530,7 +536,7 @@ export class TaskService {
         };
       }
 
-      const labels = await taskRepository.findTaskLabels(taskId);
+      const labels = await this.taskRepository.findTaskLabels(taskId);
 
       return {
         success: true,
@@ -553,7 +559,7 @@ export class TaskService {
     commentData: any
   ): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -561,7 +567,7 @@ export class TaskService {
         };
       }
 
-      const comment = await taskRepository.addComment({
+      const comment = await this.taskRepository.addComment({
         content: commentData.content,
         userId: commentData.userId,
         entityType: "task",
@@ -588,7 +594,7 @@ export class TaskService {
    */
   async getTaskComments(taskId: string): Promise<ApiResponse<any>> {
     try {
-      const task = await taskRepository.findById(taskId);
+      const task = await this.taskRepository.findById(taskId);
       if (!task) {
         return {
           success: false,
@@ -596,7 +602,7 @@ export class TaskService {
         };
       }
 
-      const comments = await taskRepository.findTaskComments(taskId);
+      const comments = await this.taskRepository.findTaskComments(taskId);
 
       return {
         success: true,
@@ -616,7 +622,7 @@ export class TaskService {
    */
   async getTasksByStatus(statusId: string): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findByStatus(statusId);
+      const tasks = await this.taskRepository.findByStatus(statusId);
       return {
         success: true,
         data: tasks,
@@ -635,7 +641,7 @@ export class TaskService {
    */
   async getTasksByPriority(priority: number): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findByPriority(priority);
+      const tasks = await this.taskRepository.findByPriority(priority);
       return {
         success: true,
         data: tasks,
@@ -654,7 +660,7 @@ export class TaskService {
    */
   async getOverdueTasks(): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findOverdue();
+      const tasks = await this.taskRepository.findOverdue();
       return {
         success: true,
         data: tasks,
@@ -673,7 +679,7 @@ export class TaskService {
    */
   async getTasksBySprint(sprintId: string): Promise<ApiResponse<Task[]>> {
     try {
-      const tasks = await taskRepository.findBySprint(sprintId);
+      const tasks = await this.taskRepository.findBySprint(sprintId);
       return {
         success: true,
         data: tasks,

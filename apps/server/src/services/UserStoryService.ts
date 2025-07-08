@@ -4,8 +4,20 @@ import { UserStoryRepository } from "../repositories/UserStoryRepository";
 export class UserStoryService {
   private userStoryRepository = new UserStoryRepository();
 
-  async getAllUserStories(): Promise<UserStory[]> {
-    return this.userStoryRepository.getAll();
+  async getAllUserStories(): Promise<ApiResponse<UserStory[]>> {
+    try {
+      const stories = await this.userStoryRepository.getAll();
+      return {
+        success: true,
+        data: stories,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar histórias",
+      };
+    }
   }
 
   async getUserStoryById(id: string): Promise<UserStory | null> {

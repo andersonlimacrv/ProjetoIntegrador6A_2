@@ -16,7 +16,7 @@ export class ProjectController {
             ? "Projetos listados com sucesso"
             : projects.error || "Erro ao buscar projetos",
         },
-        projects.success ? 200 : 400
+        projects.success ? 200 : 500
       );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
@@ -64,9 +64,25 @@ export class ProjectController {
   static async createProject(c: Context) {
     try {
       const data = await c.req.json();
+
+      // Log do payload recebido
+      console.log(
+        "📥 ProjectController.createProject - Payload recebido:",
+        data
+      );
+
       const project = await ProjectController.projectService.createProject(
         data
       );
+
+      // Log da resposta do service
+      console.log("📤 ProjectController.createProject - Resposta do service:", {
+        success: project.success,
+        error: project.error,
+        message: project.message,
+        data: project.data ? "Projeto criado" : "Sem dados",
+      });
+
       return c.json(
         {
           ...project,
@@ -77,7 +93,19 @@ export class ProjectController {
         project.success ? 201 : 400
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao criar projeto" }, 500);
+      console.error(
+        "💥 ProjectController.createProject - Erro capturado:",
+        error
+      );
+      return c.json(
+        {
+          success: false,
+          error: "Erro ao criar projeto",
+          message:
+            error instanceof Error ? error.message : "Erro interno no servidor",
+        },
+        500
+      );
     }
   }
 

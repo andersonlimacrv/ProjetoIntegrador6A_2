@@ -16,45 +16,18 @@ export class TaskController {
     this.taskService = new TaskService();
   }
 
-  async getAllTasks(c: Context): Promise<Response> {
+  static async createTask(c: Context) {
     try {
-      const tasks = await this.taskService.getAllTasks();
-      return c.json(
-        {
-          ...tasks,
-          message: tasks.success
-            ? "Tarefas listadas com sucesso"
-            : tasks.error || "Erro ao listar tarefas",
-        },
-        tasks.success ? 200 : 400
-      );
-    } catch (error) {
-      return c.json({ success: false, error: "Erro ao listar tarefas" }, 500);
-    }
-  }
-
-  async getTaskById(c: Context): Promise<Response> {
-    try {
-      const { id } = c.req.param() as TaskIdInput;
-      const task = await this.taskService.getTaskById(parseInt(id));
-      return c.json(
-        {
-          ...task,
-          message: task.success
-            ? "Tarefa encontrada com sucesso"
-            : task.error || "Tarefa não encontrada",
-        },
-        task.success ? 200 : 404
-      );
-    } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar tarefa" }, 500);
-    }
-  }
-
-  async createTask(c: Context): Promise<Response> {
-    try {
-      const input: CreateTaskInput = await c.req.json();
-      const task = await this.taskService.createTask(input);
+      const data = await c.req.json();
+      console.log("📥 TaskController.createTask - Payload recebido:", data);
+      
+      const task = await TaskController.taskService.createTask(data);
+      console.log("📤 TaskController.createTask - Resposta do service:", {
+        success: task.success,
+        error: task.error,
+        hasData: !!task.data
+      });
+      
       return c.json(
         {
           ...task,
@@ -65,15 +38,71 @@ export class TaskController {
         task.success ? 201 : 400
       );
     } catch (error) {
+      console.error("💥 TaskController.createTask - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao criar tarefa" }, 500);
     }
   }
 
-  async updateTask(c: Context): Promise<Response> {
+  static async getAllTasks(c: Context) {
     try {
-      const { id } = c.req.param() as TaskIdInput;
-      const input: UpdateTaskInput = await c.req.json();
-      const task = await this.taskService.updateTask(parseInt(id), input);
+      console.log("📥 TaskController.getAllTasks - Requisição recebida");
+      
+      const tasks = await TaskController.taskService.getAllTasks();
+      console.log("📤 TaskController.getAllTasks - Resposta do service:", {
+        success: tasks.success,
+        count: tasks.data?.length || 0
+      });
+      
+      return c.json(
+        { ...tasks, message: "Tarefas listadas com sucesso" },
+        tasks.success ? 200 : 500
+      );
+    } catch (error) {
+      console.error("💥 TaskController.getAllTasks - Erro capturado:", error);
+      return c.json({ success: false, error: "Erro ao listar tarefas" }, 500);
+    }
+  }
+
+  static async getTaskById(c: Context) {
+    try {
+      const id = c.req.param("id");
+      console.log("📥 TaskController.getTaskById - ID recebido:", id);
+      
+      const task = await TaskController.taskService.getTaskById(id);
+      console.log("📤 TaskController.getTaskById - Resposta do service:", {
+        success: task.success,
+        error: task.error,
+        hasData: !!task.data
+      });
+      
+      return c.json(
+        {
+          ...task,
+          message: task.success
+            ? "Tarefa encontrada com sucesso"
+            : task.error || "Tarefa não encontrada",
+        },
+        task.success ? 200 : 404
+      );
+    } catch (error) {
+      console.error("💥 TaskController.getTaskById - Erro capturado:", error);
+      return c.json({ success: false, error: "Erro ao buscar tarefa" }, 500);
+    }
+  }
+
+  static async updateTask(c: Context) {
+    try {
+      const id = c.req.param("id");
+      const data = await c.req.json();
+      console.log("📥 TaskController.updateTask - ID:", id, "Payload:", data);
+      
+      const task = await TaskController.taskService.updateTask(id, data);
+      console.log("📤 TaskController.updateTask - Resposta do service:", {
+        success: task.success,
+        error: task.error,
+        hasData: !!task.data
+      });
+      
       return c.json(
         {
           ...task,
@@ -84,14 +113,22 @@ export class TaskController {
         task.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 TaskController.updateTask - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao atualizar tarefa" }, 500);
     }
   }
 
-  async deleteTask(c: Context): Promise<Response> {
+  static async deleteTask(c: Context) {
     try {
-      const { id } = c.req.param() as TaskIdInput;
-      const deleted = await this.taskService.deleteTask(parseInt(id));
+      const id = c.req.param("id");
+      console.log("📥 TaskController.deleteTask - ID recebido:", id);
+      
+      const deleted = await TaskController.taskService.deleteTask(id);
+      console.log("📤 TaskController.deleteTask - Resposta do service:", {
+        success: deleted.success,
+        error: deleted.error
+      });
+      
       return c.json(
         {
           ...deleted,
@@ -102,6 +139,7 @@ export class TaskController {
         deleted.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 TaskController.deleteTask - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao deletar tarefa" }, 500);
     }
   }

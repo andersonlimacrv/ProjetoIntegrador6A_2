@@ -1,11 +1,23 @@
 import { EpicRepository } from "../repositories/EpicRepository";
 import { Epic } from "../../../packages/shared/src";
+import { ApiResponse } from "../../../packages/shared/src";
 
 export class EpicService {
   private epicRepository = new EpicRepository();
 
-  async getAllEpics(): Promise<Epic[]> {
-    return this.epicRepository.getAll();
+  async getAllEpics(): Promise<ApiResponse<Epic[]>> {
+    try {
+      const epics = await this.epicRepository.getAll();
+      return {
+        success: true,
+        data: epics,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar épicos",
+      };
+    }
   }
 
   async getEpicById(id: string): Promise<Epic | null> {

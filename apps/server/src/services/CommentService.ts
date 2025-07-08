@@ -4,8 +4,20 @@ import { CommentRepository } from "../repositories/CommentRepository";
 export class CommentService {
   private commentRepository = new CommentRepository();
 
-  async getAllComments(): Promise<Comment[]> {
-    return this.commentRepository.getAll();
+  async getAllComments(): Promise<ApiResponse<Comment[]>> {
+    try {
+      const comments = await this.commentRepository.getAll();
+      return {
+        success: true,
+        data: comments,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar comentários",
+      };
+    }
   }
 
   async getCommentById(id: string): Promise<Comment | null> {

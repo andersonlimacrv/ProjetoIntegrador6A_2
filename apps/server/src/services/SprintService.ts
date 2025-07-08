@@ -4,77 +4,275 @@ import { SprintRepository } from "../repositories/SprintRepository";
 export class SprintService {
   private sprintRepository = new SprintRepository();
 
-  async getAllSprints(): Promise<Sprint[]> {
-    return this.sprintRepository.getAll();
+  async getAllSprints(): Promise<ApiResponse<Sprint[]>> {
+    try {
+      const sprints = await this.sprintRepository.getAll();
+      return {
+        success: true,
+        data: sprints,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar sprints",
+      };
+    }
   }
 
-  async getSprintById(id: string): Promise<Sprint | null> {
-    return this.sprintRepository.getById(id);
+  async getSprintById(id: string): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.getById(id);
+      if (!sprint) {
+        return {
+          success: false,
+          error: "Sprint não encontrado",
+        };
+      }
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao buscar sprint",
+      };
+    }
   }
 
-  async createSprint(data: Partial<Sprint>): Promise<Sprint> {
-    // TODO: Implementar validações de negócio
-    return this.sprintRepository.create(data);
+  async createSprint(data: Partial<Sprint>): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.create(data);
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Erro ao criar sprint",
+      };
+    }
   }
 
   async updateSprint(
     id: string,
     data: Partial<Sprint>
-  ): Promise<Sprint | null> {
-    // TODO: Implementar validações de negócio
-    return this.sprintRepository.update(id, data);
+  ): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.update(id, data);
+      if (!sprint) {
+        return {
+          success: false,
+          error: "Sprint não encontrado",
+        };
+      }
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao atualizar sprint",
+      };
+    }
   }
 
-  async deleteSprint(id: string): Promise<boolean> {
-    // TODO: Implementar validações de negócio
-    return this.sprintRepository.delete(id);
+  async deleteSprint(id: string): Promise<ApiResponse<boolean>> {
+    try {
+      const deleted = await this.sprintRepository.delete(id);
+      return {
+        success: deleted,
+        data: deleted,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao deletar sprint",
+      };
+    }
   }
 
-  async getSprintsByProject(projectId: string): Promise<Sprint[]> {
-    // TODO: Implementar busca por projeto
-    return [];
+  async getSprintsByProject(projectId: string): Promise<ApiResponse<Sprint[]>> {
+    try {
+      // TODO: Implementar busca por projeto
+      return {
+        success: true,
+        data: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar sprints",
+      };
+    }
   }
 
-  async getSprintBacklog(sprintId: string): Promise<any[]> {
-    // TODO: Implementar busca do backlog
-    return [];
+  async getSprintBacklog(sprintId: string): Promise<ApiResponse<any[]>> {
+    try {
+      // TODO: Implementar busca do backlog
+      return {
+        success: true,
+        data: [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar backlog",
+      };
+    }
   }
 
-  async addStoryToBacklog(sprintId: string, data: any): Promise<any> {
-    // TODO: Implementar adição ao backlog
-    return {};
+  async addStoryToBacklog(
+    sprintId: string,
+    data: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      // TODO: Implementar adição ao backlog
+      return {
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erro ao adicionar ao backlog",
+      };
+    }
   }
 
   async removeStoryFromBacklog(
     sprintId: string,
     storyId: string
-  ): Promise<boolean> {
-    // TODO: Implementar remoção do backlog
-    return true;
+  ): Promise<ApiResponse<boolean>> {
+    try {
+      // TODO: Implementar remoção do backlog
+      return {
+        success: true,
+        data: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao remover do backlog",
+      };
+    }
   }
 
-  async getSprintMetrics(sprintId: string): Promise<any> {
-    // TODO: Implementar busca de métricas
-    return {};
+  async getSprintMetrics(sprintId: string): Promise<ApiResponse<any>> {
+    try {
+      // TODO: Implementar busca de métricas
+      return {
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar métricas",
+      };
+    }
   }
 
-  async createSprintMetrics(sprintId: string, data: any): Promise<any> {
-    // TODO: Implementar criação de métricas
-    return {};
+  async createSprintMetrics(
+    sprintId: string,
+    data: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      // TODO: Implementar criação de métricas
+      return {
+        success: true,
+        data: {},
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao criar métricas",
+      };
+    }
   }
 
-  async startSprint(sprintId: string): Promise<Sprint | null> {
-    // TODO: Implementar início do sprint
-    return this.sprintRepository.update(sprintId, { status: "active" });
+  async startSprint(sprintId: string): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.update(sprintId, {
+        status: "active",
+      });
+      if (!sprint) {
+        return {
+          success: false,
+          error: "Sprint não encontrado",
+        };
+      }
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao iniciar sprint",
+      };
+    }
   }
 
-  async completeSprint(sprintId: string): Promise<Sprint | null> {
-    // TODO: Implementar conclusão do sprint
-    return this.sprintRepository.update(sprintId, { status: "completed" });
+  async completeSprint(sprintId: string): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.update(sprintId, {
+        status: "completed",
+      });
+      if (!sprint) {
+        return {
+          success: false,
+          error: "Sprint não encontrado",
+        };
+      }
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao concluir sprint",
+      };
+    }
   }
 
-  async cancelSprint(sprintId: string): Promise<Sprint | null> {
-    // TODO: Implementar cancelamento do sprint
-    return this.sprintRepository.update(sprintId, { status: "cancelled" });
+  async cancelSprint(sprintId: string): Promise<ApiResponse<Sprint>> {
+    try {
+      const sprint = await this.sprintRepository.update(sprintId, {
+        status: "cancelled",
+      });
+      if (!sprint) {
+        return {
+          success: false,
+          error: "Sprint não encontrado",
+        };
+      }
+      return {
+        success: true,
+        data: sprint,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao cancelar sprint",
+      };
+    }
   }
 }

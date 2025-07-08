@@ -32,6 +32,11 @@ import type {
 } from "../db/schema";
 
 export class ProjectRepository {
+  // Listar todos os projetos
+  async findAll(): Promise<Project[]> {
+    return await db.select().from(projects).orderBy(desc(projects.createdAt));
+  }
+
   // Criar um novo projeto
   async create(data: NewProject): Promise<Project> {
     const [project] = await db.insert(projects).values(data).returning();

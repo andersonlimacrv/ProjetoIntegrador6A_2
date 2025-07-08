@@ -17,7 +17,7 @@ export class ActivityController {
             ? "Atividades listadas com sucesso"
             : activities.error || "Erro ao buscar atividades",
         },
-        activities.success ? 200 : 400
+        activities.success ? 200 : 500
       );
     } catch (error) {
       return c.json(

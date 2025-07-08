@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icons } from "@/components/ui/icons";
 import { useToast } from "@/contexts/toast-context";
-
+import { authApi } from "@/services/domains/authApi";
 
 interface LoginDialogProps {
   open: boolean;
@@ -30,8 +30,20 @@ interface LoginDialogProps {
 
 export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("UsuarioExemplo@email.com");
-  const [password, setPassword] = useState("Senha_Exemplo");
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  // Login state
+  const [email, setEmail] = useState("joao.silva@exemplo.com");
+  const [password, setPassword] = useState("123456");
+
+  // Register state
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    companyName: "",
+  });
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -41,23 +53,100 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-     addToast({
-        type: "success",
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta!",
-      })
-      onOpenChange(false);
-      navigate("/dashboard");
+      const response = await authApi.login({ email, password });
+      
+      if (response.ok && response.data.success) {
+        // Armazenar dados de autenticação
+        localStorage.setItem("token", response.data.data.token || "");
+        localStorage.setItem("sessionId", response.data.data.sessionId || "");
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
+        if (response.data.data.tenant) {
+          localStorage.setItem("tenant", JSON.stringify(response.data.data.tenant));
+        }
+        
+        // Atualizar contexto de autenticação
+        login(response.data.data.user, response.data.data.tenant);
+        
+        addToast({
+          type: "success",
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta!",
+        });
+        
+        console.log("Login bem-sucedido, redirecionando para /dashboard");
+        onOpenChange(false);
+        navigate("/dashboard");
+      } else {
+        // Tratar erro de credenciais inválidas (401) como warning
+        const isInvalidCredentials = response.status === 401;
+        const message = response.data.message || response.data.error || "Erro ao fazer login";
+        
+        addToast({
+          type: isInvalidCredentials ? "warning" : "error",
+          title: isInvalidCredentials ? "Credenciais inválidas" : "Erro ao fazer login",
+          description: message,
+        });
+      }
     } catch (error) {
+      console.error("Erro de conexão:", error);
       addToast({
         type: "error",
-        title: "Erro ao fazer login",
-        description: "Verifique suas credenciais",
-      })
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao servidor",
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsRegistering(true);
+
+    try {
+      const response = await authApi.register(registerData);
+      
+      if (response.ok && response.data.success) {
+        // Armazenar dados de autenticação
+        localStorage.setItem("token", response.data.data.token || "");
+        localStorage.setItem("sessionId", response.data.data.sessionId || "");
+        localStorage.setItem("user", JSON.stringify(response.data.data.user));
+        if (response.data.data.tenant) {
+          localStorage.setItem("tenant", JSON.stringify(response.data.data.tenant));
+        }
+        
+        // Atualizar contexto de autenticação
+        login(response.data.data.user, response.data.data.tenant);
+        
+        addToast({
+          type: "success",
+          title: "Conta criada com sucesso!",
+          description: "Bem-vindo ao sistema!",
+        });
+        
+        onOpenChange(false);
+        navigate("/dashboard");
+      } else {
+        addToast({
+          type: "error",
+          title: "Erro ao criar conta",
+          description: response.data.message || response.data.error || "Verifique os dados informados",
+        });
+      }
+    } catch (error) {
+      console.error("Erro de conexão:", error);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao servidor",
+      });
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  const handleRegisterInputChange = (field: string, value: string) => {
+    setRegisterData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -168,7 +257,7 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <Card className="min-h-[420px] bg-white/5">
+                <Card className="min-h-[520px] bg-white/5">
                   <CardHeader className="space-y-1">
                     <CardTitle className="text-xl">Crie sua conta</CardTitle>
                     <CardDescription>
@@ -176,35 +265,83 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nome completo</Label>
-                      <Input
-                        id="name"
-                        placeholder="Seu nome"
-                        className="bg-white/5 border-white/10 focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email-register">Email</Label>
-                      <Input
-                        id="email-register"
-                        type="email"
-                        placeholder="seu@email.com"
-                        className="bg-white/5 border-white/10 focus:border-purple-500"
-                      />
-                    </div>
-                    <div className="space-y-2 pb-4">
-                      <Label htmlFor="password-register">Senha</Label>
-                      <Input
-                        id="password-register"
-                        type="password"
-                        placeholder="••••••••"
-                        className="bg-white/5 border-white/10 focus:border-purple-500"
-                      />
-                    </div>
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                      Criar conta grátis
-                    </Button>
+                    <form onSubmit={handleRegister} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Nome completo</Label>
+                        <Input
+                          id="name"
+                          placeholder="Seu nome"
+                          value={registerData.name}
+                          onChange={(e) =>
+                            handleRegisterInputChange("name", e.target.value)
+                          }
+                          required
+                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email-register">Email</Label>
+                        <Input
+                          id="email-register"
+                          type="email"
+                          placeholder="seu@email.com"
+                          value={registerData.email}
+                          onChange={(e) =>
+                            handleRegisterInputChange("email", e.target.value)
+                          }
+                          required
+                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company-name">Nome da empresa</Label>
+                        <Input
+                          id="company-name"
+                          placeholder="Nome da sua empresa"
+                          value={registerData.companyName}
+                          onChange={(e) =>
+                            handleRegisterInputChange(
+                              "companyName",
+                              e.target.value
+                            )
+                          }
+                          required
+                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                        />
+                      </div>
+                      <div className="space-y-2 pb-4">
+                        <Label htmlFor="password-register">Senha</Label>
+                        <Input
+                          id="password-register"
+                          type="password"
+                          placeholder="••••••••"
+                          value={registerData.password}
+                          onChange={(e) =>
+                            handleRegisterInputChange(
+                              "password",
+                              e.target.value
+                            )
+                          }
+                          required
+                          minLength={6}
+                          className="bg-white/5 border-white/10 focus:border-purple-500"
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        disabled={isRegistering}
+                      >
+                        {isRegistering ? (
+                          <>
+                            <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                            Criando conta...
+                          </>
+                        ) : (
+                          "Criar conta grátis"
+                        )}
+                      </Button>
+                    </form>
                   </CardContent>
                 </Card>
               </motion.div>

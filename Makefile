@@ -40,10 +40,12 @@ docker-up:
 docker-down:
 	docker-compose down
 
-docker-rebuild:
-	docker-compose down
-	docker-compose build --no-cache
-	docker-compose up -d
+reborn:
+	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) build --no-cache
+	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) logs -f
+
 
 # Banco de dados
 db-create-tables:

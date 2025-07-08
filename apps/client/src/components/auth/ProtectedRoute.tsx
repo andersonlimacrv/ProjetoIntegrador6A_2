@@ -7,15 +7,26 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  console.log(
+    "ProtectedRoute - isAuthenticated:",
+    isAuthenticated,
+    "isLoading:",
+    isLoading
+  );
 
   if (isLoading) {
     return <SkeletonDashboard />;
   }
 
-  if (!user) {
+  if (!isAuthenticated) {
+    console.log(
+      "ProtectedRoute - Usuário não autenticado, redirecionando para /"
+    );
     return <Navigate to="/" replace />;
   }
 
+  console.log("ProtectedRoute - Usuário autenticado, renderizando children");
   return <>{children}</>;
 }

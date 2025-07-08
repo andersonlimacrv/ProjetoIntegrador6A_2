@@ -15,92 +15,130 @@ export class SprintController {
     this.sprintService = new SprintService();
   }
 
-  async getAllSprints(c: Context): Promise<Response> {
+  static async createSprint(c: Context) {
     try {
-      const sprints = await this.sprintService.getAllSprints();
-      return c.json(
-        {
-          ...sprints,
-          message: sprints.success
-            ? "Sprints listados com sucesso"
-            : sprints.error || "Erro ao buscar sprints",
-        },
-        sprints.success ? 200 : 400
-      );
-    } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar sprints" }, 500);
-    }
-  }
-
-  async getSprintById(c: Context): Promise<Response> {
-    try {
-      const { id } = c.req.param() as SprintIdInput;
-      const sprint = await this.sprintService.getSprintById(parseInt(id));
+      const data = await c.req.json();
+      console.log("📥 SprintController.createSprint - Payload recebido:", data);
+      
+      const sprint = await SprintController.sprintService.createSprint(data);
+      console.log("📤 SprintController.createSprint - Resposta do service:", {
+        success: sprint.success,
+        error: sprint.error,
+        hasData: !!sprint.data
+      });
+      
       return c.json(
         {
           ...sprint,
           message: sprint.success
-            ? "Sprint encontrado com sucesso"
-            : sprint.error || "Sprint não encontrado",
-        },
-        sprint.success ? 200 : 404
-      );
-    } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar sprint" }, 500);
-    }
-  }
-
-  async createSprint(c: Context): Promise<Response> {
-    try {
-      const input: CreateSprintInput = await c.req.json();
-      const sprint = await this.sprintService.createSprint(input);
-      return c.json(
-        {
-          ...sprint,
-          message: sprint.success
-            ? "Sprint criado com sucesso"
+            ? "Sprint criada com sucesso"
             : sprint.error || "Erro ao criar sprint",
         },
         sprint.success ? 201 : 400
       );
     } catch (error) {
+      console.error("💥 SprintController.createSprint - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao criar sprint" }, 500);
     }
   }
 
-  async updateSprint(c: Context): Promise<Response> {
+  static async getAllSprints(c: Context) {
     try {
-      const { id } = c.req.param() as SprintIdInput;
-      const input: UpdateSprintInput = await c.req.json();
-      const sprint = await this.sprintService.updateSprint(parseInt(id), input);
+      console.log("📥 SprintController.getAllSprints - Requisição recebida");
+      
+      const sprints = await SprintController.sprintService.getAllSprints();
+      console.log("📤 SprintController.getAllSprints - Resposta do service:", {
+        success: sprints.success,
+        count: sprints.data?.length || 0
+      });
+      
+      return c.json(
+        { ...sprints, message: "Sprints listadas com sucesso" },
+        sprints.success ? 200 : 500
+      );
+    } catch (error) {
+      console.error("💥 SprintController.getAllSprints - Erro capturado:", error);
+      return c.json({ success: false, error: "Erro ao listar sprints" }, 500);
+    }
+  }
+
+  static async getSprintById(c: Context) {
+    try {
+      const id = c.req.param("id");
+      console.log("📥 SprintController.getSprintById - ID recebido:", id);
+      
+      const sprint = await SprintController.sprintService.getSprintById(id);
+      console.log("📤 SprintController.getSprintById - Resposta do service:", {
+        success: sprint.success,
+        error: sprint.error,
+        hasData: !!sprint.data
+      });
+      
       return c.json(
         {
           ...sprint,
           message: sprint.success
-            ? "Sprint atualizado com sucesso"
-            : sprint.error || "Sprint não encontrado",
+            ? "Sprint encontrada com sucesso"
+            : sprint.error || "Sprint não encontrada",
         },
         sprint.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 SprintController.getSprintById - Erro capturado:", error);
+      return c.json({ success: false, error: "Erro ao buscar sprint" }, 500);
+    }
+  }
+
+  static async updateSprint(c: Context) {
+    try {
+      const id = c.req.param("id");
+      const data = await c.req.json();
+      console.log("📥 SprintController.updateSprint - ID:", id, "Payload:", data);
+      
+      const sprint = await SprintController.sprintService.updateSprint(id, data);
+      console.log("📤 SprintController.updateSprint - Resposta do service:", {
+        success: sprint.success,
+        error: sprint.error,
+        hasData: !!sprint.data
+      });
+      
+      return c.json(
+        {
+          ...sprint,
+          message: sprint.success
+            ? "Sprint atualizada com sucesso"
+            : sprint.error || "Sprint não encontrada",
+        },
+        sprint.success ? 200 : 404
+      );
+    } catch (error) {
+      console.error("💥 SprintController.updateSprint - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao atualizar sprint" }, 500);
     }
   }
 
-  async deleteSprint(c: Context): Promise<Response> {
+  static async deleteSprint(c: Context) {
     try {
-      const { id } = c.req.param() as SprintIdInput;
-      const deleted = await this.sprintService.deleteSprint(parseInt(id));
+      const id = c.req.param("id");
+      console.log("📥 SprintController.deleteSprint - ID recebido:", id);
+      
+      const deleted = await SprintController.sprintService.deleteSprint(id);
+      console.log("📤 SprintController.deleteSprint - Resposta do service:", {
+        success: deleted.success,
+        error: deleted.error
+      });
+      
       return c.json(
         {
           ...deleted,
           message: deleted.success
-            ? "Sprint deletado com sucesso"
-            : deleted.error || "Sprint não encontrado",
+            ? "Sprint deletada com sucesso"
+            : deleted.error || "Sprint não encontrada",
         },
         deleted.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 SprintController.deleteSprint - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao deletar sprint" }, 500);
     }
   }

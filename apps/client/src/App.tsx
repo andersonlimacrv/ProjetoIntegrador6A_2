@@ -12,10 +12,12 @@ import { ProjectsPage } from "@/pages/projects";
 import { AllProjectsPage } from "@/pages/projects/all-project";
 import { CreateProjectPage } from "@/pages/projects/create-project";
 import { TeamsPage } from "@/pages/teams";
+import { AllTeamsPage } from "@/pages/teams/all-teams";
 import { MembersPage } from "@/pages/teams/members";
 import { RolesPage } from "@/pages/teams/roles";
 import { PermissionsPage } from "@/pages/teams/permissions";
 import { SprintsPage } from "@/pages/sprints";
+import { AllSprintsPage } from "@/pages/sprints/all-sprints";
 import { CurrentSprintPage } from "@/pages/sprints/current";
 import { SprintPlanningPage } from "@/pages/sprints/planning";
 import { EpicsPage } from "@/pages/epics";
@@ -23,10 +25,14 @@ import { EpicBoardPage } from "@/pages/epics/board";
 import { EpicTimelinePage } from "@/pages/epics/timeline";
 import { UserStoriesPage } from "@/pages/user-stories";
 import { BacklogPage } from "@/pages/user-stories/backlog";
+import { UserStoriesKanbanPage } from "@/pages/user-stories/kanban";
 import { TemplatesPage } from "@/pages/user-stories/templates";
+import { TasksPage } from "@/pages/tasks";
 import { AnalyticsPage } from "@/pages/analytics";
+import { AnalyticsDashboardPage } from "@/pages/analytics/dashboard";
 import { ReportsPage } from "@/pages/analytics/reports";
 import { MetricsPage } from "@/pages/analytics/metrics";
+import { ActivityPage } from "@/pages/activity";
 import { SettingsPage } from "@/pages/settings";
 import { GeneralSettingsPage } from "@/pages/settings/general";
 import { TeamSettingsPage } from "@/pages/settings/team";
@@ -61,6 +67,8 @@ function App() {
 
             {/* Teams Routes */}
             <Route path="teams" element={<TeamsPage />}>
+              <Route index element={<AllTeamsPage />} />
+              <Route path="all" element={<AllTeamsPage />} />
               <Route path="members" element={<MembersPage />} />
               <Route path="roles" element={<RolesPage />} />
               <Route path="permissions" element={<PermissionsPage />} />
@@ -68,6 +76,8 @@ function App() {
 
             {/* Sprints Routes */}
             <Route path="sprints" element={<SprintsPage />}>
+              <Route index element={<AllSprintsPage />} />
+              <Route path="all" element={<AllSprintsPage />} />
               <Route path="current" element={<CurrentSprintPage />} />
               <Route path="planning" element={<SprintPlanningPage />} />
             </Route>
@@ -81,14 +91,22 @@ function App() {
             {/* User Stories Routes */}
             <Route path="user-stories" element={<UserStoriesPage />}>
               <Route path="backlog" element={<BacklogPage />} />
+              <Route path="kanban" element={<UserStoriesKanbanPage />} />
               <Route path="templates" element={<TemplatesPage />} />
             </Route>
 
+            {/* Tasks Routes */}
+            <Route path="tasks" element={<TasksPage />} />
+
             {/* Analytics Routes */}
             <Route path="analytics" element={<AnalyticsPage />}>
+              <Route path="dashboard" element={<AnalyticsDashboardPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="metrics" element={<MetricsPage />} />
             </Route>
+
+            {/* Activity Routes */}
+            <Route path="activity" element={<ActivityPage />} />
 
             {/* Settings Routes */}
             <Route path="settings" element={<SettingsPage />}>

@@ -30,7 +30,6 @@ import {
   projectLabels,
 } from "./schema";
 
-
 /**
  * Dados de exemplo para popular o banco
  */
@@ -544,11 +543,9 @@ export async function seedDatabase() {
         `ℹ️ Já existem ${existingProjectLabels.length} etiquetas de projeto no banco`
       );
     }
-
     console.log("🎉 Seed concluído com sucesso!");
   } catch (error) {
     console.error("❌ Erro ao verificar dados de exemplo:", error);
     throw error;
   }
 }
-

@@ -66,35 +66,47 @@ export class ProjectService {
    */
   async createProject(data: CreateProjectInput): Promise<ApiResponse<any>> {
     try {
+      console.log("🔍 ProjectService.createProject - Iniciando criação:", data);
+      
       // Verifica se o tenant existe
+      console.log("🔍 Verificando tenant:", data.tenantId);
       const tenant = await this.tenantRepository.findById(data.tenantId);
       if (!tenant) {
+        console.error("❌ Tenant não encontrado:", data.tenantId);
         return {
           success: false,
           error: "Tenant não encontrado",
         };
       }
+      console.log("✅ Tenant encontrado:", tenant.name);
 
       // Verifica se o proprietário existe
+      console.log("🔍 Verificando proprietário:", data.ownerId);
       const owner = await this.userRepository.findById(data.ownerId);
       if (!owner) {
+        console.error("❌ Proprietário não encontrado:", data.ownerId);
         return {
           success: false,
           error: "Proprietário não encontrado",
         };
       }
+      console.log("✅ Proprietário encontrado:", owner.name);
 
       // Verifica se o slug já existe no tenant
+      console.log("🔍 Verificando slug único:", data.slug);
       const existingProject = await this.projectRepository.findBySlug(
         data.slug
       );
       if (existingProject) {
+        console.error("❌ Slug já existe:", data.slug);
         return {
           success: false,
           error: "Slug já existe",
         };
       }
+      console.log("✅ Slug único confirmado");
 
+      console.log("🔧 Criando projeto no banco de dados...");
       const project = await this.projectRepository.create({
         id: randomUUID(),
         tenantId: data.tenantId,
@@ -110,12 +122,20 @@ export class ProjectService {
         updatedAt: new Date(),
       });
 
+      console.log("✅ Projeto criado com sucesso:", {
+        id: project.id,
+        name: project.name,
+        slug: project.slug,
+        projectKey: project.projectKey
+      });
+
       return {
         success: true,
         data: project,
         message: "Projeto criado com sucesso",
       };
     } catch (error) {
+      console.error("💥 ProjectService.createProject - Erro:", error);
       return {
         success: false,
         error: "Erro ao criar projeto",

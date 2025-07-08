@@ -10,31 +10,54 @@ import type {
 
 export const teamsApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<Team[]>>("/teams"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<Team>>(`/teams/${id}`),
-  create: (data: CreateTeamDTO) =>
-    apiClient.post<ApiResponse<Team>>("/teams", data),
-  update: (id: string | number, data: UpdateTeamDTO) =>
-    apiClient.put<ApiResponse<Team>>(`/teams/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/teams/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<Team[]>>("/teams");
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Team>>(`/teams/${id}`);
+    return response;
+  },
+  create: async (data: CreateTeamDTO) => {
+    const response = await apiClient.post<ApiResponse<Team>>("/teams", data);
+    return response;
+  },
+  update: async (id: string | number, data: UpdateTeamDTO) => {
+    const response = await apiClient.put<ApiResponse<Team>>(`/teams/${id}`, data);
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/teams/${id}`);
+    return response;
+  },
 
   // Por tenant
-  getByTenant: (tenantId: string | number) =>
-    apiClient.get<ApiResponse<Team[]>>(`/teams/tenant/${tenantId}`),
+  getByTenant: async (tenantId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Team[]>>(`/teams/tenant/${tenantId}`);
+    return response;
+  },
 
   // Membros
-  getMembers: (id: string | number) =>
-    apiClient.get<ApiResponse<User[]>>(`/teams/${id}/members`),
-  addMember: (id: string | number, userId: string | number) =>
-    apiClient.post<ApiResponse<void>>(`/teams/${id}/members/${userId}`),
-  updateMemberRole: (id: string | number, userId: string | number, data: any) =>
-    apiClient.put<ApiResponse<void>>(`/teams/${id}/members/${userId}`, data),
-  removeMember: (id: string | number, userId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/teams/${id}/members/${userId}`),
+  getMembers: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<User[]>>(`/teams/${id}/members`);
+    return response;
+  },
+  addMember: async (id: string | number, userId: string | number) => {
+    const response = await apiClient.post<ApiResponse<void>>(`/teams/${id}/members/${userId}`);
+    return response;
+  },
+  updateMember: async (id: string | number, userId: string | number, data: any) => {
+    const response = await apiClient.put<ApiResponse<void>>(`/teams/${id}/members/${userId}`, data);
+    return response;
+  },
+  removeMember: async (id: string | number, userId: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/teams/${id}/members/${userId}`);
+    return response;
+  },
 
   // Projetos
-  getProjects: (id: string | number) =>
-    apiClient.get<ApiResponse<Project[]>>(`/teams/${id}/projects`),
+  getProjects: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Project[]>>(`/teams/${id}/projects`);
+    return response;
+  },
 };

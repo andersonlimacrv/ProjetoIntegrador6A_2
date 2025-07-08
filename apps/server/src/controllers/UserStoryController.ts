@@ -8,59 +8,107 @@ export class UserStoryController {
   // CRUD básico
   static async getAllUserStories(c: Context) {
     try {
-      const stories =
+      console.log(
+        "📥 UserStoryController.getAllUserStories - Requisição recebida"
+      );
+
+      const userStories =
         await UserStoryController.userStoryService.getAllUserStories();
-      return c.json(
+      console.log(
+        "📤 UserStoryController.getAllUserStories - Resposta do service:",
         {
-          ...stories,
-          message: stories.success
-            ? "Histórias listadas com sucesso"
-            : stories.error || "Erro ao buscar histórias",
-        },
-        stories.success ? 200 : 400
+          success: userStories.success,
+          count: userStories.data?.length || 0,
+        }
+      );
+
+      return c.json(
+        { ...userStories, message: "User Stories listadas com sucesso" },
+        userStories.success ? 200 : 500
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar histórias" }, 500);
+      console.error(
+        "💥 UserStoryController.getAllUserStories - Erro capturado:",
+        error
+      );
+      return c.json(
+        { success: false, error: "Erro ao listar user stories" },
+        500
+      );
     }
   }
 
   static async getUserStoryById(c: Context) {
     try {
       const id = c.req.param("id");
-      const story = await UserStoryController.userStoryService.getUserStoryById(
-        id
+      console.log("📥 UserStoryController.getUserStoryById - ID recebido:", id);
+
+      const userStory =
+        await UserStoryController.userStoryService.getUserStoryById(id);
+      console.log(
+        "📤 UserStoryController.getUserStoryById - Resposta do service:",
+        {
+          success: userStory.success,
+          error: userStory.error,
+          hasData: !!userStory.data,
+        }
       );
+
       return c.json(
         {
-          ...story,
-          message: story.success
-            ? "História encontrada com sucesso"
-            : story.error || "História não encontrada",
+          ...userStory,
+          message: userStory.success
+            ? "User Story encontrada com sucesso"
+            : userStory.error || "User Story não encontrada",
         },
-        story.success ? 200 : 404
+        userStory.success ? 200 : 404
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar história" }, 500);
+      console.error(
+        "💥 UserStoryController.getUserStoryById - Erro capturado:",
+        error
+      );
+      return c.json(
+        { success: false, error: "Erro ao buscar user story" },
+        500
+      );
     }
   }
 
   static async createUserStory(c: Context) {
     try {
       const data = await c.req.json();
-      const story = await UserStoryController.userStoryService.createUserStory(
+      console.log(
+        "📥 UserStoryController.createUserStory - Payload recebido:",
         data
       );
+
+      const userStory =
+        await UserStoryController.userStoryService.createUserStory(data);
+      console.log(
+        "📤 UserStoryController.createUserStory - Resposta do service:",
+        {
+          success: userStory.success,
+          error: userStory.error,
+          hasData: !!userStory.data,
+        }
+      );
+
       return c.json(
         {
-          ...story,
-          message: story.success
-            ? "História criada com sucesso"
-            : story.error || "Erro ao criar história",
+          ...userStory,
+          message: userStory.success
+            ? "User Story criada com sucesso"
+            : userStory.error || "Erro ao criar user story",
         },
-        story.success ? 201 : 400
+        userStory.success ? 201 : 400
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao criar história" }, 500);
+      console.error(
+        "💥 UserStoryController.createUserStory - Erro capturado:",
+        error
+      );
+      return c.json({ success: false, error: "Erro ao criar user story" }, 500);
     }
   }
 
@@ -68,22 +116,40 @@ export class UserStoryController {
     try {
       const id = c.req.param("id");
       const data = await c.req.json();
-      const story = await UserStoryController.userStoryService.updateUserStory(
+      console.log(
+        "📥 UserStoryController.updateUserStory - ID:",
         id,
+        "Payload:",
         data
       );
+
+      const userStory =
+        await UserStoryController.userStoryService.updateUserStory(id, data);
+      console.log(
+        "📤 UserStoryController.updateUserStory - Resposta do service:",
+        {
+          success: userStory.success,
+          error: userStory.error,
+          hasData: !!userStory.data,
+        }
+      );
+
       return c.json(
         {
-          ...story,
-          message: story.success
-            ? "História atualizada com sucesso"
-            : story.error || "História não encontrada",
+          ...userStory,
+          message: userStory.success
+            ? "User Story atualizada com sucesso"
+            : userStory.error || "User Story não encontrada",
         },
-        story.success ? 200 : 404
+        userStory.success ? 200 : 404
       );
     } catch (error) {
+      console.error(
+        "💥 UserStoryController.updateUserStory - Erro capturado:",
+        error
+      );
       return c.json(
-        { success: false, error: "Erro ao atualizar história" },
+        { success: false, error: "Erro ao atualizar user story" },
         500
       );
     }
@@ -92,19 +158,36 @@ export class UserStoryController {
   static async deleteUserStory(c: Context) {
     try {
       const id = c.req.param("id");
+      console.log("📥 UserStoryController.deleteUserStory - ID recebido:", id);
+
       const deleted =
         await UserStoryController.userStoryService.deleteUserStory(id);
+      console.log(
+        "📤 UserStoryController.deleteUserStory - Resposta do service:",
+        {
+          success: deleted.success,
+          error: deleted.error,
+        }
+      );
+
       return c.json(
         {
           ...deleted,
           message: deleted.success
-            ? "História deletada com sucesso"
-            : deleted.error || "História não encontrada",
+            ? "User Story deletada com sucesso"
+            : deleted.error || "User Story não encontrada",
         },
         deleted.success ? 200 : 404
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao deletar história" }, 500);
+      console.error(
+        "💥 UserStoryController.deleteUserStory - Erro capturado:",
+        error
+      );
+      return c.json(
+        { success: false, error: "Erro ao deletar user story" },
+        500
+      );
     }
   }
 

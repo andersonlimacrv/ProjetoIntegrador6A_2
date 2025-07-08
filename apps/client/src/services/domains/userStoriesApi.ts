@@ -9,40 +9,79 @@ import type {
 
 export const userStoriesApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<UserStory[]>>("/userStories"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<UserStory>>(`/userStories/${id}`),
-  create: (data: CreateUserStoryDTO) =>
-    apiClient.post<ApiResponse<UserStory>>("/userStories", data),
-  update: (id: string | number, data: UpdateUserStoryDTO) =>
-    apiClient.put<ApiResponse<UserStory>>(`/userStories/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/userStories/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<UserStory[]>>(
+      "/user-stories"
+    );
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<UserStory>>(
+      `/user-stories/${id}`
+    );
+    return response;
+  },
+  create: async (data: CreateUserStoryDTO) => {
+    const response = await apiClient.post<ApiResponse<UserStory>>(
+      "/user-stories",
+      data
+    );
+    return response;
+  },
+  update: async (id: string | number, data: UpdateUserStoryDTO) => {
+    const response = await apiClient.put<ApiResponse<UserStory>>(
+      `/user-stories/${id}`,
+      data
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/user-stories/${id}`
+    );
+    return response;
+  },
 
   // Por projeto
-  getByProject: (projectId: string | number) =>
-    apiClient.get<ApiResponse<UserStory[]>>(
-      `/userStories/project/${projectId}`
-    ),
-  // Por épico
-  getByEpic: (epicId: string | number) =>
-    apiClient.get<ApiResponse<UserStory[]>>(`/userStories/epic/${epicId}`),
+  getByProject: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<UserStory[]>>(
+      `/user-stories/project/${projectId}`
+    );
+    return response;
+  },
+  getByEpic: async (epicId: string | number) => {
+    const response = await apiClient.get<ApiResponse<UserStory[]>>(
+      `/user-stories/epic/${epicId}`
+    );
+    return response;
+  },
 
   // Tarefas
-  getTasks: (id: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/userStories/${id}/tasks`),
-
-  // Status
-  updateStatus: (id: string | number, statusId: string | number) =>
-    apiClient.patch<ApiResponse<UserStory>>(
-      `/userStories/${id}/status/${statusId}`
-    ),
+  getTasks: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/user-stories/${id}/tasks`
+    );
+    return response;
+  },
 
   // Sprint
-  addToSprint: (id: string | number, sprintId: string | number) =>
-    apiClient.post<ApiResponse<UserStory>>(
-      `/userStories/${id}/sprint/${sprintId}`
-    ),
-  removeFromSprint: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/userStories/${id}/sprint`),
+  assignToSprint: async (id: string | number, sprintId: string | number) => {
+    const response = await apiClient.patch<ApiResponse<UserStory>>(
+      `/user-stories/${id}/sprint`,
+      { sprintId }
+    );
+    return response;
+  },
+  addToSprint: async (id: string | number, sprintId: string | number) => {
+    const response = await apiClient.post<ApiResponse<UserStory>>(
+      `/user-stories/${id}/sprint/${sprintId}`
+    );
+    return response;
+  },
+  removeFromSprint: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/user-stories/${id}/sprint`
+    );
+    return response;
+  },
 };

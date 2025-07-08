@@ -1,337 +1,611 @@
-# Projeto Integrador 6A
+# 🚀 Sistema de Gerenciamento de Tarefas Ágeis
 
-Sistema de gerenciamento desenvolvido com **Bun**, **React**, **Vite**, **Hono.js**, **Drizzle ORM**, **Tailwind CSS** e **shadcn/ui**.
+Um sistema completo de gerenciamento de projetos ágeis com arquitetura moderna, construído com TypeScript, React, Node.js e PostgreSQL.
 
-## 🏗️ Arquitetura
+## 📋 Índice
 
-### Estrutura do Projeto
+- [Visão Geral](#visão-geral)
+- [Arquitetura MVC](#arquitetura-mvc)
+- [Tecnologias](#tecnologias)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Boas Práticas Implementadas](#boas-práticas-implementadas)
+- [Instalação](#instalação)
+- [Uso](#uso)
+- [API Documentation](#api-documentation)
+- [Contribuição](#contribuição)
+
+## 🎯 Visão Geral
+
+Este projeto implementa um sistema completo de gerenciamento de tarefas ágeis com as seguintes funcionalidades:
+
+- **Gestão de Projetos**: Criação, edição e acompanhamento de projetos
+- **Sistema de Equipes**: Organização de equipes por projeto
+- **Sprints**: Planejamento e execução de sprints ágeis
+- **User Stories**: Criação e gestão de histórias de usuário
+- **Tarefas**: Sistema completo de tarefas com status e prioridades
+- **Epics**: Organização de funcionalidades em épicos
+- **Sistema de Comentários**: Comunicação entre membros da equipe
+- **Atividades**: Log de todas as atividades do sistema
+- **Multi-tenancy**: Suporte a múltiplas empresas/tenants
+- **Autenticação**: Sistema completo de login/registro
+
+## 🏗️ Arquitetura MVC
+
+### O que é MVC?
+
+**MVC (Model-View-Controller)** é um padrão arquitetural que separa a aplicação em três componentes principais:
+
+1. **Model (Modelo)**: Gerencia os dados e a lógica de negócio
+2. **View (Visão)**: Responsável pela apresentação dos dados ao usuário
+3. **Controller (Controlador)**: Recebe as requisições do usuário e coordena as ações
+
+### Implementação MVC no Projeto
+
+#### 🎯 Backend (Server)
+
+```
+apps/server/src/
+├── controllers/     # Controllers (C) - Recebem requisições HTTP
+├── services/        # Services (M) - Lógica de negócio
+├── repositories/    # Repositories (M) - Acesso a dados
+├── models/          # Models (M) - Definições de entidades
+├── routes/          # Routes - Definição de endpoints
+├── middlewares/     # Middlewares - Validação e autenticação
+└── db/             # Database - Schema e conexão
+```
+
+**Controllers (C)**: Recebem requisições HTTP e delegam para os services
+
+```typescript
+// Exemplo: ProjectController.ts
+export class ProjectController {
+  async createProject(req: Request, res: Response) {
+    // Recebe requisição HTTP
+    const projectData = req.body;
+
+    // Delega para o service
+    const result = await this.projectService.createProject(projectData);
+
+    // Retorna resposta
+    return res.json(result);
+  }
+}
+```
+
+**Services (M)**: Contêm a lógica de negócio
+
+```typescript
+// Exemplo: ProjectService.ts
+export class ProjectService {
+  async createProject(data: CreateProjectDTO): Promise<ApiResponse<Project>> {
+    // Validações de negócio
+    // Regras de negócio
+    // Orquestração de operações
+    return await this.projectRepository.create(data);
+  }
+}
+```
+
+**Repositories (M)**: Acesso aos dados
+
+```typescript
+// Exemplo: ProjectRepository.ts
+export class ProjectRepository {
+  async create(data: CreateProjectDTO): Promise<Project> {
+    // Operações diretas no banco de dados
+    return await db.insert(projects).values(data).returning();
+  }
+}
+```
+
+#### 🎨 Frontend (Client)
+
+```
+apps/client/src/
+├── components/      # Components (V) - Interface do usuário
+├── pages/          # Pages (V) - Páginas da aplicação
+├── services/       # Services (C) - Comunicação com API
+├── contexts/       # Contexts (M) - Estado global
+├── hooks/          # Hooks (C) - Lógica reutilizável
+└── lib/           # Utils (M) - Utilitários
+```
+
+**Components (V)**: Interface do usuário
+
+```typescript
+// Exemplo: CreateProjectPage.tsx
+export function CreateProjectPage() {
+  // Renderiza interface
+  return (
+    <form onSubmit={handleSubmit}>
+      <Input value={formData.name} />
+      <Button type="submit">Criar Projeto</Button>
+    </form>
+  );
+}
+```
+
+**Services (C)**: Comunicação com backend
+
+```typescript
+// Exemplo: projectsApi.ts
+export const projectsApi = {
+  create: async (data: CreateProjectDTO) => {
+    // Comunicação com API
+    return await apiClient.post("/projects", data);
+  },
+};
+```
+
+**Contexts (M)**: Estado global da aplicação
+
+```typescript
+// Exemplo: auth-context.tsx
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [tenant, setTenant] = useState(null);
+
+  // Gerencia estado de autenticação
+  return (
+    <AuthContext.Provider value={{ user, tenant, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+```
+
+### Vantagens da Arquitetura MVC
+
+1. **Separação de Responsabilidades**: Cada camada tem uma responsabilidade específica
+2. **Manutenibilidade**: Código organizado e fácil de manter
+3. **Testabilidade**: Cada camada pode ser testada independentemente
+4. **Reutilização**: Lógica de negócio pode ser reutilizada
+5. **Escalabilidade**: Fácil adicionar novas funcionalidades
+
+## 🛠️ Tecnologias
+
+### Backend
+
+- **Node.js** - Runtime JavaScript
+- **TypeScript** - Linguagem tipada
+- **Hono** - Framework web rápido
+- **Drizzle ORM** - ORM moderno para TypeScript
+- **PostgreSQL** - Banco de dados relacional
+- **JWT** - Autenticação baseada em tokens
+- **bcrypt** - Criptografia de senhas
+
+### Frontend
+
+- **React 18** - Biblioteca para interfaces
+- **TypeScript** - Linguagem tipada
+- **Vite** - Build tool rápida
+- **React Router** - Roteamento
+- **Tailwind CSS** - Framework CSS utilitário
+- **Shadcn/ui** - Componentes UI
+- **Framer Motion** - Animações
+- **React Hook Form** - Gerenciamento de formulários
+
+### DevOps
+
+- **Docker** - Containerização
+- **Docker Compose** - Orquestração de containers
+- **Bun** - Runtime JavaScript rápido
+
+## 📁 Estrutura do Projeto
 
 ```
 ProjetoIntegrador6A_2/
 ├── apps/
-│   ├── client/          # Frontend React + Vite
-│   └── server/          # Backend Hono + Drizzle
+│   ├── client/                 # Frontend React
+│   │   ├── src/
+│   │   │   ├── components/     # Componentes reutilizáveis
+│   │   │   ├── pages/         # Páginas da aplicação
+│   │   │   ├── services/      # APIs e comunicação
+│   │   │   ├── contexts/      # Estado global
+│   │   │   ├── hooks/         # Hooks customizados
+│   │   │   └── lib/           # Utilitários
+│   │   └── package.json
+│   └── server/                 # Backend Node.js
+│       ├── src/
+│       │   ├── controllers/   # Controllers MVC
+│       │   ├── services/      # Services MVC
+│       │   ├── repositories/  # Repositories MVC
+│       │   ├── models/        # Models MVC
+│       │   ├── routes/        # Definição de rotas
+│       │   ├── middlewares/   # Middlewares
+│       │   └── db/           # Banco de dados
+│       └── package.json
 ├── packages/
-│   └── shared/          # Tipos e utilitários compartilhados
-├── infra/               # Configurações Docker e banco
-└── docker-compose.yml   # Orquestração dos serviços
+│   └── shared/                # Tipos compartilhados
+│       └── src/
+│           └── types/         # Definições TypeScript
+├── infra/                     # Configurações de infraestrutura
+│   └── docker/               # Dockerfiles
+├── docker-compose.yml         # Orquestração Docker
+└── package.json              # Workspace root
 ```
 
-### Padrão MVC no Servidor
+## ✨ Boas Práticas Implementadas
 
-O servidor segue um padrão **MVC estrito** com **reutilização máxima**:
+### 🎯 Backend
 
-#### **Models** (`src/models/`)
+#### 1. **Arquitetura em Camadas**
 
-- **Re-exportam tipos** do pacote `shared`
-- **Sem duplicação** de interfaces
-- Exemplo: `User.ts` e `Task.ts` apenas re-exportam do `@packages/shared`
+- **Controllers**: Recebem requisições HTTP
+- **Services**: Lógica de negócio
+- **Repositories**: Acesso a dados
+- **Models**: Definições de entidades
 
-#### **Repositories** (`src/repositories/`)
-
-- **Acesso direto** ao banco de dados
-- **Usam tipos** do pacote `shared`
-- Implementam operações CRUD básicas
-- Exemplo: `UserRepository.ts`, `TaskRepository.ts`
-
-#### **Services** (`src/services/`)
-
-- **Lógica de negócio** simples e direta
-- **Validações** de regras de negócio
-- **Usam tipos** do pacote `shared`
-- Exemplo: `UserService.ts`, `TaskService.ts`
-
-#### **Controllers** (`src/controllers/`)
-
-- **Orquestração** das operações
-- **Validação** com schemas do `shared`
-- **Respostas padronizadas**
-- Exemplo: `userController.ts`, `taskController.ts`
-
-#### **Routes** (`src/routes/`)
-
-- **Endpoints** da API
-- **Middlewares** de validação
-- Exemplo: `users.ts`, `tasks.ts`
-
-### Pacote Shared (Reutilização Máxima)
-
-O `packages/shared` é o **coração da reutilização**:
-
-#### **Tipos TypeScript**
+#### 2. **Padrão Repository**
 
 ```typescript
-// Compartilhados entre frontend e backend
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+export class ProjectRepository {
+  async create(data: CreateProjectDTO): Promise<Project> {
+    return await db.insert(projects).values(data).returning();
+  }
 
-export interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  completed: boolean;
-  userId: number;
-  createdAt: Date;
-  updatedAt: Date;
+  async findById(id: string): Promise<Project | null> {
+    const [project] = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.id, id));
+    return project || null;
+  }
 }
 ```
 
-#### **Schemas de Validação**
+#### 3. **Respostas Padronizadas**
 
 ```typescript
-// Zod schemas reutilizáveis
-export const CreateUserSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  email: z.string().email("Email inválido"),
-});
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+```
 
-export const CreateTaskSchema = z.object({
-  title: z.string().min(1, "Título é obrigatório"),
-  description: z.string().optional(),
-  userId: z.number().positive(),
+#### 4. **Validação de Dados**
+
+- Validação no frontend antes do envio
+- Validação no backend com middlewares
+- Tratamento de erros consistente
+
+#### 5. **Logs Estruturados**
+
+```typescript
+console.log("🚀 ProjectController.createProject - Payload recebido:", payload);
+console.log(
+  "📤 ProjectController.createProject - Resposta do service:",
+  result
+);
+```
+
+#### 6. **Multi-tenancy**
+
+- Suporte a múltiplas empresas
+- Isolamento de dados por tenant
+- Sistema de permissões
+
+### 🎨 Frontend
+
+#### 1. **Componentes Reutilizáveis**
+
+```typescript
+// Componente genérico de card
+export function Card({ children, title, description }) {
+  return (
+    <div className="card">
+      <h3>{title}</h3>
+      <p>{description}</p>
+      {children}
+    </div>
+  );
+}
+```
+
+#### 2. **Hooks Customizados**
+
+```typescript
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+}
+```
+
+#### 3. **Gerenciamento de Estado**
+
+- Context API para estado global
+- useState para estado local
+- Separação clara de responsabilidades
+
+#### 4. **Tratamento de Erros**
+
+```typescript
+try {
+  const response = await api.create(data);
+  if (response.ok) {
+    addToast({ type: "success", title: "Sucesso!" });
+  } else {
+    addToast({
+      type: "error",
+      title: "Erro",
+      description: response.data.error,
+    });
+  }
+} catch (error) {
+  addToast({ type: "error", title: "Erro de conexão" });
+}
+```
+
+#### 5. **Sistema de Toast**
+
+- Notificações temporárias
+- Diferentes tipos (success, error, warning)
+- Auto-dismiss
+
+#### 6. **Roteamento Organizado**
+
+```typescript
+// Rotas aninhadas para melhor organização
+<Route path="/dashboard" element={<DashboardLayout />}>
+  <Route path="projects" element={<ProjectsLayout />}>
+    <Route index element={<AllProjects />} />
+    <Route path="create" element={<CreateProject />} />
+  </Route>
+</Route>
+```
+
+### 🔒 Segurança
+
+#### 1. **Autenticação JWT**
+
+- Tokens com expiração
+- Refresh tokens
+- Sessões no banco de dados
+
+#### 2. **Criptografia de Senhas**
+
+```typescript
+const hashedPassword = await bcrypt.hash(password, 12);
+const isValid = await bcrypt.compare(password, hashedPassword);
+```
+
+#### 3. **Validação de Dados**
+
+- Sanitização de inputs
+- Validação de tipos
+- Prevenção de SQL injection
+
+#### 4. **CORS Configurado**
+
+- Configuração específica para desenvolvimento
+- Headers de segurança
+
+### 📊 Banco de Dados
+
+#### 1. **Schema Bem Definido**
+
+```typescript
+export const projects = pgTable("projects", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 255 }).notNull(),
+  tenantId: uuid("tenant_id")
+    .references(() => tenants.id)
+    .notNull(),
+  // ...
 });
 ```
 
-#### **Vantagens da Reutilização**
+#### 2. **Relacionamentos**
 
-- **Type Safety** em toda aplicação
-- **Validação consistente** frontend/backend
-- **Manutenibilidade** centralizada
-- **Zero duplicação** de código
-- **Desenvolvimento mais rápido**
+- Foreign keys bem definidas
+- Índices para performance
+- Constraints de integridade
 
-## 🚀 Como Executar
+#### 3. **Migrations**
 
-### Desenvolvimento Local
+- Controle de versão do banco
+- Rollback seguro
+- Dados de seed
+
+## 🚀 Instalação
+
+### Pré-requisitos
+
+- Node.js 18+
+- Docker e Docker Compose
+- Bun (opcional, mas recomendado)
+
+### Passos
+
+1. **Clone o repositório**
 
 ```bash
-# Instalar dependências
+git clone <repository-url>
+cd ProjetoIntegrador6A_2
+```
+
+2. **Configure as variáveis de ambiente**
+
+```bash
+cp env.example .env
+# Edite o arquivo .env com suas configurações
+```
+
+3. **Inicie os containers**
+
+```bash
+docker-compose up -d
+```
+
+4. **Instale as dependências**
+
+```bash
 bun install
-
-# Executar em desenvolvimento
-make dev
 ```
 
-### Docker
+5. **Execute as migrations**
 
 ```bash
-# Construir e executar
-make docker-up
-
-# Parar containers
-make docker-down
+cd apps/server
+bun run db:migrate
+bun run db:seed
 ```
 
-## 📊 Endpoints da API
-
-### Health Check
-
-- `GET /health` - Status do servidor e banco de dados
-
-### Usuários
-
-- `GET /api/users` - Listar todos os usuários
-- `GET /api/users/:id` - Buscar usuário por ID
-- `POST /api/users` - Criar novo usuário
-- `PUT /api/users/:id` - Atualizar usuário
-- `DELETE /api/users/:id` - Deletar usuário
-
-### Tasks
-
-- `GET /api/tasks` - Listar todas as tasks
-- `GET /api/tasks/:id` - Buscar task por ID
-- `GET /api/tasks/user/:userId` - Tasks de um usuário
-- `GET /api/tasks/completed` - Tasks completadas
-- `GET /api/tasks/pending` - Tasks pendentes
-- `POST /api/tasks` - Criar nova task
-- `PUT /api/tasks/:id` - Atualizar task
-- `PATCH /api/tasks/:id/complete` - Marcar como completa
-- `PATCH /api/tasks/:id/incomplete` - Marcar como incompleta
-- `DELETE /api/tasks/:id` - Deletar task
-
-## 🛠️ Comandos Úteis
-
-### Desenvolvimento
+6. **Inicie o desenvolvimento**
 
 ```bash
-make dev          # Executar em desenvolvimento
-make build        # Construir para produção
-make clean        # Limpar arquivos temporários
+# Terminal 1 - Backend
+cd apps/server
+bun run dev
+
+# Terminal 2 - Frontend
+cd apps/client
+bun run dev
 ```
 
-### Docker
+## 📖 Uso
 
-```bash
-make docker-up    # Subir containers
-make docker-down  # Parar containers
-make docker-rebuild # Reconstruir containers
-```
+### Primeiro Acesso
 
-### Banco de Dados
+1. Acesse `http://localhost:5173`
+2. Clique em "Cadastrar"
+3. Preencha os dados da empresa e usuário
+4. Faça login com as credenciais criadas
 
-```bash
-make db-seed      # Popular banco com dados de exemplo
-make db-reset     # Resetar banco (limpar + popular)
-```
+### Funcionalidades Principais
 
-## 🔧 Configuração
+1. **Criar Projeto**
 
-### Variáveis de Ambiente
+   - Nome, descrição e chave do projeto
+   - Geração automática de slug
+   - Associação com tenant
 
-Crie um arquivo `.env` na raiz do projeto:
+2. **Gerenciar Equipes**
 
-```env
-# Servidor
-NODE_ENV=development
-SERVER_PORT=3001
+   - Criar equipes
+   - Adicionar membros
+   - Definir roles
 
-# Banco de Dados
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=integrador_db
-DB_USER=useryabuser
-DB_PASSWORD=senha_spr_sekreta
-DATABASE_URL=postgresql://useryabuser:senha_spr_sekreta@localhost:5432/integrador_db
+3. **Planejar Sprints**
 
-# CORS
-CORS_ORIGIN=http://localhost:5190
+   - Criar sprints
+   - Definir duração
+   - Adicionar user stories
 
-# Frontend
-CLIENT_PORT=5190
-VITE_API_URL=http://localhost:3001
-```
+4. **Criar User Stories**
 
-## 📚 Estrutura do Código
+   - Título e descrição
+   - Critérios de aceitação
+   - Story points
 
-### Frontend (apps/client)
+5. **Gerenciar Tarefas**
+   - Criar tarefas
+   - Definir prioridades
+   - Atribuir responsáveis
 
-- **Components** - Componentes React reutilizáveis
-- **Services** - Cliente HTTP para comunicação com API
-- **Types** - Tipos importados do pacote shared
+## 📚 API Documentation
 
-### Backend (apps/server)
+### Endpoints Principais
 
-- **MVC Pattern** - Separação clara de responsabilidades
-- **Validação** - Middlewares de validação com Zod
-- **Tratamento de Erros** - Middleware global de erros
-- **Logs** - Sistema de logging detalhado
+#### Autenticação
 
-### Shared (packages/shared)
+- `POST /api/auth/register` - Cadastro de usuário
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
 
-- **Types** - Interfaces e DTOs compartilhados
-- **Schemas** - Validação Zod reutilizável
-- **Utils** - Funções utilitárias
+#### Projetos
 
-## 🔄 Fluxo de Desenvolvimento
+- `GET /api/projects` - Listar projetos
+- `POST /api/projects` - Criar projeto
+- `GET /api/projects/:id` - Buscar projeto
+- `PUT /api/projects/:id` - Atualizar projeto
+- `DELETE /api/projects/:id` - Deletar projeto
 
-### 1. Definir Tipos no Shared
+#### Equipes
+
+- `GET /api/teams` - Listar equipes
+- `POST /api/teams` - Criar equipe
+- `GET /api/teams/:id` - Buscar equipe
+
+#### Sprints
+
+- `GET /api/sprints` - Listar sprints
+- `POST /api/sprints` - Criar sprint
+- `GET /api/sprints/:id` - Buscar sprint
+
+#### User Stories
+
+- `GET /api/user-stories` - Listar user stories
+- `POST /api/user-stories` - Criar user story
+- `GET /api/user-stories/:id` - Buscar user story
+
+#### Tarefas
+
+- `GET /api/tasks` - Listar tarefas
+- `POST /api/tasks` - Criar tarefa
+- `GET /api/tasks/:id` - Buscar tarefa
+
+### Exemplo de Uso
 
 ```typescript
-// packages/shared/src/types/user.ts
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-```
-
-### 2. Criar Schema no Shared
-
-```typescript
-// packages/shared/src/types/user.ts
-export const CreateUserSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
+// Criar projeto
+const project = await projectsApi.create({
+  name: "Meu Projeto",
+  slug: "meu-projeto",
+  description: "Descrição do projeto",
+  projectKey: "MP",
+  tenantId: "tenant-id",
+  ownerId: "user-id",
 });
+
+// Listar projetos
+const projects = await projectsApi.getAll();
 ```
 
-### 3. Implementar no Backend
+## 🤝 Contribuição
 
-```typescript
-// apps/server/src/models/User.ts
-export * from "@packages/shared";
+### Padrões de Código
 
-// apps/server/src/repositories/UserRepository.ts
-import { User, CreateUserDTO } from "@packages/shared";
+1. **TypeScript**: Use tipagem forte
+2. **ESLint**: Siga as regras de linting
+3. **Prettier**: Formatação consistente
+4. **Commits**: Use conventional commits
 
-// apps/server/src/controllers/userController.ts
-import { CreateUserSchema } from "@packages/shared";
+### Estrutura de Commits
+
+```
+feat: adiciona funcionalidade de criar projeto
+fix: corrige erro de validação no formulário
+docs: atualiza documentação da API
+style: formata código com prettier
+refactor: refatora service de projetos
+test: adiciona testes para user stories
 ```
 
-### 4. Usar no Frontend
+### Processo de Desenvolvimento
 
-```typescript
-// apps/client/src/services/api.ts
-import { User, CreateUserDTO } from "@packages/shared";
+1. Crie uma branch para sua feature
+2. Implemente as mudanças seguindo os padrões
+3. Adicione testes quando necessário
+4. Faça commit seguindo conventional commits
+5. Abra um Pull Request
+6. Aguarde review e merge
 
-// apps/client/src/components/UserList.tsx
-import { User } from "@packages/shared";
-```
+## 📄 Licença
 
-## 🧪 Testes
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-### API
+## 👥 Equipe
 
-```bash
-# Health check
-curl http://localhost:3001/health
+- **Desenvolvedor**: Anderson
+- **Projeto**: Sistema de Gerenciamento de Tarefas Ágeis
+- **Versão**: 1.0.0
 
-# Listar usuários
-curl http://localhost:3001/api/users
+---
 
-# Listar tasks
-curl http://localhost:3001/api/tasks
-
-# Criar task
-curl -X POST http://localhost:3001/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Nova Task", "description": "Descrição", "userId": 1}'
-```
-
-## 🚨 Tratamento de Erros
-
-- **400** - Dados inválidos
-- **404** - Recurso não encontrado
-- **409** - Conflito (ex: email já existe)
-- **500** - Erro interno do servidor
-
-## 📝 Logs
-
-O sistema inclui logs detalhados:
-
-- Requisições HTTP com tempo de resposta
-- Erros de validação
-- Status da conexão com banco
-- Operações de CRUD
-
-## 🔍 Monitoramento
-
-- **Health Check** - `/health` para verificar status
-- **Logs** - Console logs detalhados
-- **Docker** - Logs dos containers
-
-## 📚 Dependências Principais
-
-### Backend
-
-- **Hono.js** - Framework web
-- **Drizzle ORM** - ORM para PostgreSQL
-- **Zod** - Validação de esquemas
-- **PostgreSQL** - Banco de dados
-
-### Frontend
-
-- **React** - Framework UI
-- **Vite** - Build tool
-- **Tailwind CSS** - Framework CSS
-- **shadcn/ui** - Componentes UI
-
-### Shared
-
-- **TypeScript** - Tipagem estática
-- **Zod** - Validação de esquemas
+**⭐ Se este projeto foi útil, considere dar uma estrela!**

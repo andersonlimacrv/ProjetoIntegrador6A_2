@@ -4,8 +4,20 @@ import { ActivityRepository } from "../repositories/ActivityRepository";
 export class ActivityService {
   private activityRepository = new ActivityRepository();
 
-  async getAllActivities(): Promise<Activity[]> {
-    return this.activityRepository.getAll();
+  async getAllActivities(): Promise<ApiResponse<Activity[]>> {
+    try {
+      const activities = await this.activityRepository.getAll();
+      return {
+        success: true,
+        data: activities,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar atividades",
+      };
+    }
   }
 
   async getActivityById(id: string): Promise<Activity | null> {

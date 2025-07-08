@@ -8,25 +8,36 @@ export class TeamController {
   // CRUD básico
   static async getAllTeams(c: Context) {
     try {
+      console.log("📥 TeamController.getAllTeams - Requisição recebida");
+
       const teams = await TeamController.teamService.getAllTeams();
+      console.log("📤 TeamController.getAllTeams - Resposta do service:", {
+        success: teams.success,
+        count: teams.data?.length || 0,
+      });
+
       return c.json(
-        {
-          ...teams,
-          message: teams.success
-            ? "Equipes listadas com sucesso"
-            : teams.error || "Erro ao buscar equipes",
-        },
-        teams.success ? 200 : 400
+        { ...teams, message: "Equipes listadas com sucesso" },
+        teams.success ? 200 : 500
       );
     } catch (error) {
-      return c.json({ success: false, error: "Erro ao buscar equipes" }, 500);
+      console.error("💥 TeamController.getAllTeams - Erro capturado:", error);
+      return c.json({ success: false, error: "Erro ao listar equipes" }, 500);
     }
   }
 
   static async getTeamById(c: Context) {
     try {
       const id = c.req.param("id");
+      console.log("📥 TeamController.getTeamById - ID recebido:", id);
+
       const team = await TeamController.teamService.getTeamById(id);
+      console.log("📤 TeamController.getTeamById - Resposta do service:", {
+        success: team.success,
+        error: team.error,
+        hasData: !!team.data,
+      });
+
       return c.json(
         {
           ...team,
@@ -37,6 +48,7 @@ export class TeamController {
         team.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 TeamController.getTeamById - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao buscar equipe" }, 500);
     }
   }
@@ -44,7 +56,15 @@ export class TeamController {
   static async createTeam(c: Context) {
     try {
       const data = await c.req.json();
+      console.log("📥 TeamController.createTeam - Payload recebido:", data);
+
       const team = await TeamController.teamService.createTeam(data);
+      console.log("📤 TeamController.createTeam - Resposta do service:", {
+        success: team.success,
+        error: team.error,
+        hasData: !!team.data,
+      });
+
       return c.json(
         {
           ...team,
@@ -55,6 +75,7 @@ export class TeamController {
         team.success ? 201 : 400
       );
     } catch (error) {
+      console.error("💥 TeamController.createTeam - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao criar equipe" }, 500);
     }
   }
@@ -63,7 +84,15 @@ export class TeamController {
     try {
       const id = c.req.param("id");
       const data = await c.req.json();
+      console.log("📥 TeamController.updateTeam - ID:", id, "Payload:", data);
+
       const team = await TeamController.teamService.updateTeam(id, data);
+      console.log("📤 TeamController.updateTeam - Resposta do service:", {
+        success: team.success,
+        error: team.error,
+        hasData: !!team.data,
+      });
+
       return c.json(
         {
           ...team,
@@ -74,6 +103,7 @@ export class TeamController {
         team.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 TeamController.updateTeam - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao atualizar equipe" }, 500);
     }
   }
@@ -81,7 +111,14 @@ export class TeamController {
   static async deleteTeam(c: Context) {
     try {
       const id = c.req.param("id");
+      console.log("📥 TeamController.deleteTeam - ID recebido:", id);
+
       const deleted = await TeamController.teamService.deleteTeam(id);
+      console.log("📤 TeamController.deleteTeam - Resposta do service:", {
+        success: deleted.success,
+        error: deleted.error,
+      });
+
       return c.json(
         {
           ...deleted,
@@ -92,6 +129,7 @@ export class TeamController {
         deleted.success ? 200 : 404
       );
     } catch (error) {
+      console.error("💥 TeamController.deleteTeam - Erro capturado:", error);
       return c.json({ success: false, error: "Erro ao deletar equipe" }, 500);
     }
   }

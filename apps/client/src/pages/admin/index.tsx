@@ -15,6 +15,7 @@ import {
   Settings,
 } from "lucide-react";
 import { useToast } from "@/contexts/toast-context";
+import { useAuth } from "@/contexts/auth-context";
 import {
   Table,
   TableBody,
@@ -71,6 +72,8 @@ import type {
 
 export function AdminPage() {
   const [users, setUsers] = useState<ApiUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -84,29 +87,41 @@ export function AdminPage() {
   });
 
   const { addToast } = useToast();
+  const { user: currentUser } = useAuth();
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await usersApi.getAll();
+
+      if (response.ok && response.data.success) {
+        setUsers(response.data.data || []);
+      } else {
+        addToast({
+          title: "Erro ao carregar usuários",
+          description:
+            response.data.message ||
+            response.data.error ||
+            "Ocorreu um erro ao buscar os usuários.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      addToast({
+        title: "Erro de conexão",
+        description:
+          "Não foi possível conectar ao servidor. Verifique sua conexão.",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  async function fetchUsers() {
-    try {
-      const fetchRes = await usersApi.getAll();
-      if (fetchRes.success && Array.isArray(fetchRes.data)) {
-        setUsers(fetchRes.data);
-      } else {
-        setUsers([]);
-        addToast({
-          type: "error",
-          title: "Erro",
-          description: fetchRes.error || "Erro ao buscar usuários CLIENT",
-        });
-      }
-    } catch (e: any) {
-      setUsers([]);
-      addToast({ type: "error", title: "Erro", description: e.message });
-    }
-  }
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -175,8 +190,8 @@ export function AdminPage() {
     }
     try {
       const createRes = await usersApi.create(newUser);
-      if (createRes.success && createRes.data) {
-        setUsers((prev) => [...prev, createRes.data as ApiUser]);
+      if (createRes.ok && createRes.data.success && createRes.data.data) {
+        setUsers((prev) => [...prev, createRes.data.data as ApiUser]);
         setNewUser({
           name: "",
           email: "",
@@ -187,13 +202,16 @@ export function AdminPage() {
         addToast({
           type: "success",
           title: "Usuário criado",
-          description: `${createRes.data.name} foi criado com sucesso`,
+          description: `${newUser.name} foi adicionado ao sistema`,
         });
       } else {
         addToast({
           type: "error",
           title: "Erro",
-          description: createRes.error || "Erro ao criar usuário",
+          description:
+            createRes.data.message ||
+            createRes.data.error ||
+            "Erro ao criar usuário",
         });
       }
     } catch (e: any) {
@@ -208,35 +226,31 @@ export function AdminPage() {
 
   const handleUpdateUser = async () => {
     if (!editingUser) return;
-    const updateData: UpdateUserDTO = {
-      name: editingUser.name,
-      email: editingUser.email,
-      avatarUrl: editingUser.avatarUrl || "",
-      isActive: editingUser.isActive,
-    };
     try {
-      const updateRes = await usersApi.update(
-        Number(editingUser.id),
-        updateData
-      );
-      if (updateRes.success && updateRes.data) {
+      const updateData: UpdateUserDTO = {
+        name: editingUser.name,
+        email: editingUser.email,
+        ...(editingUser.avatarUrl && { avatarUrl: editingUser.avatarUrl }),
+      };
+      const updateRes = await usersApi.update(editingUser.id, updateData);
+      if (updateRes.ok && updateRes.data.success && updateRes.data.data) {
         setUsers((prev) =>
-          prev.map((u) =>
-            u.id === editingUser.id && updateRes.data ? updateRes.data : u
-          )
+          prev.map((u) => (u.id === editingUser.id ? updateRes.data.data! : u))
         );
         setIsEditDialogOpen(false);
-        setEditingUser(null);
         addToast({
           type: "success",
           title: "Usuário atualizado",
-          description: `${updateRes.data.name} foi atualizado com sucesso`,
+          description: `${editingUser.name} foi atualizado`,
         });
       } else {
         addToast({
           type: "error",
           title: "Erro",
-          description: updateRes.error || "Erro ao atualizar usuário",
+          description:
+            updateRes.data.message ||
+            updateRes.data.error ||
+            "Erro ao atualizar usuário",
         });
       }
     } catch (e: any) {
@@ -247,7 +261,7 @@ export function AdminPage() {
   const handleDeleteUser = async (user: ApiUser) => {
     try {
       const deleteRes = await usersApi.delete(user.id);
-      if (deleteRes.success) {
+      if (deleteRes.ok && deleteRes.data.success) {
         setUsers((prev) => prev.filter((u) => u.id !== user.id));
         addToast({
           type: "warning",
@@ -258,7 +272,10 @@ export function AdminPage() {
         addToast({
           type: "error",
           title: "Erro",
-          description: deleteRes.error || "Erro ao deletar usuário",
+          description:
+            deleteRes.data.message ||
+            deleteRes.data.error ||
+            "Erro ao deletar usuário",
         });
       }
     } catch (e: any) {
@@ -270,24 +287,27 @@ export function AdminPage() {
     const updateData: UpdateUserDTO = { isActive: !user.isActive };
     try {
       const toggleRes = await usersApi.update(Number(user.id), updateData);
-      if (toggleRes.success && toggleRes.data) {
+      if (toggleRes.ok && toggleRes.data.success && toggleRes.data.data) {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === user.id && toggleRes.data ? toggleRes.data : u
+            u.id === user.id && toggleRes.data.data ? toggleRes.data.data! : u
           )
         );
         addToast({
           type: "info",
           title: "Status atualizado",
           description: `${user.name} agora está ${
-            toggleRes.data.isActive ? "ativo" : "inativo"
+            toggleRes.data.data.isActive ? "ativo" : "inativo"
           }`,
         });
       } else {
         addToast({
           type: "error",
           title: "Erro",
-          description: toggleRes.error || "Erro ao atualizar status",
+          description:
+            toggleRes.data.message ||
+            toggleRes.data.error ||
+            "Erro ao atualizar status",
         });
       }
     } catch (e: any) {
@@ -311,6 +331,14 @@ export function AdminPage() {
           <p className="text-muted-foreground mt-2">
             Manage users, roles, and system permissions
           </p>
+          {currentUser && (
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-xs">
+                <Shield className="w-3 h-3 mr-1" />
+                Logado como: {currentUser.name}
+              </Badge>
+            </div>
+          )}
         </div>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -455,6 +483,7 @@ export function AdminPage() {
           <TableHeader>
             <TableRow>
               <TableHead className="pl-6">User</TableHead>
+              <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Login</TableHead>
               <TableHead>Created</TableHead>
@@ -462,114 +491,142 @@ export function AdminPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell className="px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                      {user.avatarUrl ? (
-                        <img
-                          src={user.avatarUrl}
-                          alt={user.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        getInitials(user.name)
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    className={`${getStatusBadgeColor(
-                      user.isActive ? "active" : "inactive"
-                    )} border-0`}
-                  >
-                    {user.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {formatDate(
-                    user.lastLogin ? user.lastLogin.toString() : undefined
-                  )}
-                </TableCell>
-                <TableCell>
-                  {formatDate(
-                    user.createdAt ? user.createdAt.toString() : undefined
-                  )}
-                </TableCell>
-                <TableCell className="text-right pr-6">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <span className="flex items-center gap-2 px-4 py-2 bg-muted-foreground/5 hover:cursor-pointer  rounded-md hover:bg-primary/90">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Edit</DropdownMenuLabel>
-                      <DropdownMenuItem onClick={() => handleEditUser(user)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit User
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleToggleStatus(user)}
-                      >
-                        {user.isActive ? (
-                          <>
-                            <UserX className="mr-2 h-4 w-4" />
-                            Deactivate
-                          </>
-                        ) : (
-                          <>
-                            <UserCheck className="mr-2 h-4 w-4" />
-                            Activate
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <AlertDialog>
-                        <AlertDialogTrigger>
-                          <DropdownMenuItem
-                            className="text-red-600 focus:text-red-600"
-                            onSelect={(e) => e.preventDefault()}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete User
-                          </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Are you absolutely sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription className="text-destructive">
-                              This action cannot be undone. This will
-                              permanently delete {user.name}'s account and
-                              remove all associated data from our servers.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteUser(user)}
-                              className="bg-red-600 hover:bg-red-700"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  Carregando usuários...
                 </TableCell>
               </TableRow>
-            ))}
+            ) : filteredUsers.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={6}
+                  className="text-center py-8 text-muted-foreground"
+                >
+                  Nenhum usuário encontrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredUsers.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell className="px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                        {user.avatarUrl ? (
+                          <img
+                            src={user.avatarUrl}
+                            alt={user.name}
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        ) : (
+                          getInitials(user.name)
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{user.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`${getRoleBadgeColor()} border-0 flex items-center gap-1 w-fit`}
+                    >
+                      {getRoleIcon()}
+                      <span>User</span>
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`${getStatusBadgeColor(
+                        user.isActive ? "active" : "inactive"
+                      )} border-0`}
+                    >
+                      {user.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(
+                      user.lastLogin ? user.lastLogin.toString() : undefined
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {formatDate(
+                      user.createdAt ? user.createdAt.toString() : undefined
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right pr-6">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <span className="flex items-center gap-2 px-4 py-2 bg-muted-foreground/5 hover:cursor-pointer  rounded-md hover:bg-primary/90">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Edit</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit User
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleToggleStatus(user)}
+                        >
+                          {user.isActive ? (
+                            <>
+                              <UserX className="mr-2 h-4 w-4" />
+                              Deactivate
+                            </>
+                          ) : (
+                            <>
+                              <UserCheck className="mr-2 h-4 w-4" />
+                              Activate
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <AlertDialog>
+                          <AlertDialogTrigger>
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600"
+                              onSelect={(e) => e.preventDefault()}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete User
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription className="text-destructive">
+                                This action cannot be undone. This will
+                                permanently delete {user.name}'s account and
+                                remove all associated data from our servers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(user)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </motion.div>

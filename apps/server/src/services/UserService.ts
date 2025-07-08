@@ -1,32 +1,37 @@
-import { userRepository } from "../repositories/UserRepository";
+import { UserRepository } from "../repositories/UserRepository";
 import {
-  /* User, */
+  User,
   CreateUserDTO,
   UpdateUserDTO,
   LoginUserDTO,
   ApiResponse,
-} from "../../../packages/shared/src";
+} from "@shared";
 /* import { randomUUID } from "crypto"; */
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env["JWT_SECRET"] || "your-secret-key";
 
 export class UserService {
+  private userRepository: UserRepository;
+
+  constructor() {
+    this.userRepository = new UserRepository();
+  }
   /**
    * Busca todos os usuários
    */
-  async getAllUsers(): Promise<ApiResponse<any[]>> {
+  async getAllUsers(): Promise<ApiResponse<User[]>> {
     try {
-      const users = await userRepository.findAll();
+      const users = await this.userRepository.findAll();
       return {
         success: true,
         data: users,
       };
     } catch (error) {
-      console.error("Erro ao buscar usuários:", error);
       return {
         success: false,
-        error: "Erro interno ao buscar usuários",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar usuários",
       };
     }
   }
@@ -36,7 +41,7 @@ export class UserService {
    */
   async getUserById(id: string): Promise<ApiResponse<any>> {
     try {
-      const user = await userRepository.findById(id);
+      const user = await this.userRepository.findById(id);
 
       if (!user) {
         return {
@@ -63,7 +68,7 @@ export class UserService {
    */
   async getUserByEmail(email: string): Promise<ApiResponse<any>> {
     try {
-      const user = await userRepository.findByEmail(email);
+      const user = await this.userRepository.findByEmail(email);
 
       if (!user) {
         return {
@@ -91,7 +96,7 @@ export class UserService {
   async createUser(data: CreateUserDTO): Promise<ApiResponse<any>> {
     try {
       // Verifica se o email já existe
-      const emailExists = await userRepository.emailExists(data.email);
+      const emailExists = await this.userRepository.emailExists(data.email);
       if (emailExists) {
         return {
           success: false,
@@ -99,7 +104,7 @@ export class UserService {
         };
       }
 
-      const newUser = await userRepository.create(data);
+      const newUser = await this.userRepository.create(data);
 
       return {
         success: true,
@@ -121,7 +126,7 @@ export class UserService {
   async updateUser(id: string, data: UpdateUserDTO): Promise<ApiResponse<any>> {
     try {
       // Verifica se o usuário existe
-      const existingUser = await userRepository.findById(id);
+      const existingUser = await this.userRepository.findById(id);
       if (!existingUser) {
         return {
           success: false,
@@ -131,7 +136,10 @@ export class UserService {
 
       // Se o email está sendo atualizado, verifica se já existe
       if (data.email && data.email !== existingUser.email) {
-        const emailExists = await userRepository.emailExists(data.email, id);
+        const emailExists = await this.userRepository.emailExists(
+          data.email,
+          id
+        );
         if (emailExists) {
           return {
             success: false,
@@ -140,7 +148,7 @@ export class UserService {
         }
       }
 
-      const updatedUser = await userRepository.update(id, data);
+      const updatedUser = await this.userRepository.update(id, data);
 
       if (!updatedUser) {
         return {
@@ -169,7 +177,7 @@ export class UserService {
   async deleteUser(id: string): Promise<ApiResponse<null>> {
     try {
       // Verifica se o usuário existe
-      const existingUser = await userRepository.findById(id);
+      const existingUser = await this.userRepository.findById(id);
       if (!existingUser) {
         return {
           success: false,
@@ -177,7 +185,7 @@ export class UserService {
         };
       }
 
-      const deleted = await userRepository.delete(id);
+      const deleted = await this.userRepository.delete(id);
 
       if (!deleted) {
         return {
@@ -204,7 +212,7 @@ export class UserService {
    */
   async login(data: LoginUserDTO): Promise<ApiResponse<any>> {
     try {
-      const user = await userRepository.authenticate(data);
+      const user = await this.userRepository.authenticate(data);
 
       if (!user) {
         return {
@@ -212,6 +220,10 @@ export class UserService {
           error: "Email ou senha inválidos",
         };
       }
+
+      // Busca o tenant do usuário
+      const userTenants = await this.userRepository.findUserTenants(user.id);
+      const tenant = userTenants.length > 0 ? userTenants[0].tenant : null;
 
       // Gera token JWT
       const token = jwt.sign(
@@ -225,7 +237,7 @@ export class UserService {
       );
 
       // Cria sessão
-      const session = await userRepository.createSession({
+      const session = await this.userRepository.createSession({
         userId: user.id,
         tokenHash: token, // Em produção, deve ser um hash do token
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
@@ -240,6 +252,7 @@ export class UserService {
             name: user.name,
             avatarUrl: user.avatarUrl,
           },
+          tenant,
           token,
           sessionId: session.id,
         },
@@ -259,7 +272,7 @@ export class UserService {
    */
   async logout(sessionId: string): Promise<ApiResponse<null>> {
     try {
-      const deleted = await userRepository.deleteSession(sessionId);
+      const deleted = await this.userRepository.deleteSession(sessionId);
 
       if (!deleted) {
         return {
@@ -288,7 +301,7 @@ export class UserService {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
 
-      const user = await userRepository.findById(decoded.userId);
+      const user = await this.userRepository.findById(decoded.userId);
       if (!user || !user.isActive) {
         return {
           success: false,
@@ -317,7 +330,7 @@ export class UserService {
    */
   async getUserTenants(userId: string): Promise<ApiResponse<any>> {
     try {
-      const user = await userRepository.findById(userId);
+      const user = await this.userRepository.findById(userId);
       if (!user) {
         return {
           success: false,
@@ -325,7 +338,7 @@ export class UserService {
         };
       }
 
-      const tenants = await userRepository.findUserTenants(userId);
+      const tenants = await this.userRepository.findUserTenants(userId);
 
       return {
         success: true,
@@ -353,7 +366,7 @@ export class UserService {
     newValues?: any
   ): Promise<ApiResponse<any>> {
     try {
-      const activity = await userRepository.logActivity({
+      const activity = await this.userRepository.logActivity({
         userId,
         tenantId,
         action,
@@ -384,7 +397,10 @@ export class UserService {
     limit: number = 50
   ): Promise<ApiResponse<any>> {
     try {
-      const activities = await userRepository.findUserActivities(userId, limit);
+      const activities = await this.userRepository.findUserActivities(
+        userId,
+        limit
+      );
 
       return {
         success: true,
@@ -407,7 +423,7 @@ export class UserService {
     limit: number = 50
   ): Promise<ApiResponse<any>> {
     try {
-      const activities = await userRepository.findTenantActivities(
+      const activities = await this.userRepository.findTenantActivities(
         tenantId,
         limit
       );
@@ -430,7 +446,7 @@ export class UserService {
    */
   async cleanupExpiredSessions(): Promise<ApiResponse<any>> {
     try {
-      const deletedCount = await userRepository.deleteExpiredSessions();
+      const deletedCount = await this.userRepository.deleteExpiredSessions();
 
       return {
         success: true,
@@ -443,6 +459,59 @@ export class UserService {
         success: false,
         error: "Erro interno ao limpar sessões",
       };
+    }
+  }
+
+  /**
+   * Cria tenant e usuário juntos (registro inicial)
+   */
+  async registerWithTenant({
+    name,
+    email,
+    password,
+    companyName,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+    companyName: string;
+  }): Promise<ApiResponse<any>> {
+    try {
+      // Verifica se já existe tenant com esse nome
+      const tenantRepo =
+        new (require("../repositories/TenantRepository").TenantRepository)();
+      const existingTenant = await tenantRepo.findBySlug(
+        companyName.toLowerCase().replace(/[^a-z0-9-]/g, "-")
+      );
+      if (existingTenant) {
+        return { success: false, error: "Empresa já cadastrada" };
+      }
+      // Cria tenant
+      const tenant = await tenantRepo.create({
+        id: require("crypto").randomUUID(),
+        name: companyName,
+        slug: companyName.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
+        description: null,
+        avatarUrl: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      // Cria usuário
+      const user = await this.createUser({ name, email, password });
+      if (!user.success || !user.data) {
+        return { success: false, error: user.error || "Erro ao criar usuário" };
+      }
+      // Associa usuário ao tenant como admin
+      await tenantRepo.addUser(tenant.id, user.data.id, "active");
+      // TODO: criar role admin e associar
+      // Retorna usuário e tenant
+      return {
+        success: true,
+        data: { user: user.data, tenant },
+        message: "Cadastro realizado com sucesso",
+      };
+    } catch (error) {
+      return { success: false, error: "Erro ao registrar usuário e tenant" };
     }
   }
 }

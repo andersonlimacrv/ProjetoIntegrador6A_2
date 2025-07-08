@@ -4,45 +4,90 @@ import type {
   CreateSprintDTO,
   UpdateSprintDTO,
   ApiResponse,
-  SprintMetrics,
   UserStory,
+  Task,
 } from "@packages/shared";
 
 export const sprintsApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<Sprint[]>>("/sprints"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<Sprint>>(`/sprints/${id}`),
-  create: (data: CreateSprintDTO) =>
-    apiClient.post<ApiResponse<Sprint>>("/sprints", data),
-  update: (id: string | number, data: UpdateSprintDTO) =>
-    apiClient.put<ApiResponse<Sprint>>(`/sprints/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/sprints/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<Sprint[]>>("/sprints");
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Sprint>>(`/sprints/${id}`);
+    return response;
+  },
+  create: async (data: CreateSprintDTO) => {
+    const response = await apiClient.post<ApiResponse<Sprint>>(
+      "/sprints",
+      data
+    );
+    return response;
+  },
+  update: async (id: string | number, data: UpdateSprintDTO) => {
+    const response = await apiClient.put<ApiResponse<Sprint>>(
+      `/sprints/${id}`,
+      data
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/sprints/${id}`
+    );
+    return response;
+  },
 
   // Por projeto
-  getByProject: (projectId: string | number) =>
-    apiClient.get<ApiResponse<Sprint[]>>(`/sprints/project/${projectId}`),
+  getByProject: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Sprint[]>>(
+      `/sprints/project/${projectId}`
+    );
+    return response;
+  },
 
-  // Backlog
-  getBacklog: (id: string | number) =>
-    apiClient.get<ApiResponse<UserStory[]>>(`/sprints/${id}/backlog`),
-  addStoryToBacklog: (id: string | number, data: any) =>
-    apiClient.post<ApiResponse<UserStory>>(`/sprints/${id}/backlog`, data),
-  removeStoryFromBacklog: (id: string | number, storyId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/sprints/${id}/backlog/${storyId}`),
+  // Sprint atual
+  getCurrent: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Sprint>>(
+      `/sprints/project/${projectId}/current`
+    );
+    return response;
+  },
+
+  // User Stories
+  getUserStories: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<UserStory[]>>(
+      `/sprints/${id}/user-stories`
+    );
+    return response;
+  },
+  addUserStory: async (id: string | number, storyId: string | number) => {
+    const response = await apiClient.post<ApiResponse<void>>(
+      `/sprints/${id}/user-stories/${storyId}`
+    );
+    return response;
+  },
+  removeUserStory: async (id: string | number, storyId: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/sprints/${id}/user-stories/${storyId}`
+    );
+    return response;
+  },
+
+  // Tarefas
+  getTasks: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/sprints/${id}/tasks`
+    );
+    return response;
+  },
 
   // Métricas
-  getMetrics: (id: string | number) =>
-    apiClient.get<ApiResponse<SprintMetrics>>(`/sprints/${id}/metrics`),
-  createMetrics: (id: string | number, data: any) =>
-    apiClient.post<ApiResponse<SprintMetrics>>(`/sprints/${id}/metrics`, data),
-
-  // Status
-  start: (id: string | number) =>
-    apiClient.patch<ApiResponse<Sprint>>(`/sprints/${id}/start`),
-  complete: (id: string | number) =>
-    apiClient.patch<ApiResponse<Sprint>>(`/sprints/${id}/complete`),
-  cancel: (id: string | number) =>
-    apiClient.patch<ApiResponse<Sprint>>(`/sprints/${id}/cancel`),
+  getMetrics: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<any>>(
+      `/sprints/${id}/metrics`
+    );
+    return response;
+  },
 };

@@ -13,93 +13,199 @@ import type {
 
 export const tasksApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<Task[]>>("/tasks"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<Task>>(`/tasks/${id}`),
-  getByIdWithDetails: (id: string | number) =>
-    apiClient.get<ApiResponse<Task>>(`/tasks/${id}/details`),
-  create: (data: CreateTaskDTO) =>
-    apiClient.post<ApiResponse<Task>>("/tasks", data),
-  update: (id: string | number, data: UpdateTaskDTO) =>
-    apiClient.put<ApiResponse<Task>>(`/tasks/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/tasks/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<Task[]>>("/tasks");
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task>>(`/tasks/${id}`);
+    return response;
+  },
+  getDetails: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task>>(
+      `/tasks/${id}/details`
+    );
+    return response;
+  },
+  create: async (data: CreateTaskDTO) => {
+    const response = await apiClient.post<ApiResponse<Task>>("/tasks", data);
+    return response;
+  },
+  update: async (id: string | number, data: UpdateTaskDTO) => {
+    const response = await apiClient.put<ApiResponse<Task>>(
+      `/tasks/${id}`,
+      data
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/tasks/${id}`);
+    return response;
+  },
 
   // Por projeto
-  getByProject: (projectId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/project/${projectId}`),
-  // Por história de usuário
-  getByStory: (storyId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/story/${storyId}`),
-  // Por responsável
-  getByAssignee: (assigneeId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/assignee/${assigneeId}`),
-  // Por reporter
-  getByReporter: (reporterId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/reporter/${reporterId}`),
-  // Por status
-  getByStatus: (statusId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/status/${statusId}`),
-  // Por prioridade
-  getByPriority: (priority: string) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/priority/${priority}`),
+  getByProject: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/project/${projectId}`
+    );
+    return response;
+  },
+  getByStory: async (storyId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/story/${storyId}`
+    );
+    return response;
+  },
+  getByAssignee: async (assigneeId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/assignee/${assigneeId}`
+    );
+    return response;
+  },
+  getByReporter: async (reporterId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/reporter/${reporterId}`
+    );
+    return response;
+  },
+  getByStatus: async (statusId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/status/${statusId}`
+    );
+    return response;
+  },
+  getByPriority: async (priority: number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/priority/${priority}`
+    );
+    return response;
+  },
 
   // Atribuições
-  assign: (id: string | number, userId: string | number) =>
-    apiClient.post<ApiResponse<TaskAssignment>>(
+  assignUser: async (id: string | number, userId: string | number) => {
+    const response = await apiClient.post<ApiResponse<TaskAssignment>>(
       `/tasks/${id}/assign/${userId}`
-    ),
-  unassign: (id: string | number, userId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/tasks/${id}/assign/${userId}`),
-  getAssignments: (id: string | number) =>
-    apiClient.get<ApiResponse<TaskAssignment[]>>(`/tasks/${id}/assignments`),
+    );
+    return response;
+  },
+  unassignUser: async (id: string | number, userId: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/tasks/${id}/assign/${userId}`
+    );
+    return response;
+  },
+  getAssignments: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<TaskAssignment[]>>(
+      `/tasks/${id}/assignments`
+    );
+    return response;
+  },
 
   // Etiquetas
-  getLabels: (id: string | number) =>
-    apiClient.get<ApiResponse<TaskLabel[]>>(`/tasks/${id}/labels`),
-  addLabel: (id: string | number, labelId: string | number) =>
-    apiClient.post<ApiResponse<void>>(`/tasks/${id}/labels/${labelId}`),
-  removeLabel: (id: string | number, labelId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/tasks/${id}/labels/${labelId}`),
+  getLabels: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<TaskLabel[]>>(
+      `/tasks/${id}/labels`
+    );
+    return response;
+  },
+  addLabel: async (id: string | number, labelId: string | number) => {
+    const response = await apiClient.post<ApiResponse<void>>(
+      `/tasks/${id}/labels/${labelId}`
+    );
+    return response;
+  },
+  removeLabel: async (id: string | number, labelId: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
+      `/tasks/${id}/labels/${labelId}`
+    );
+    return response;
+  },
 
   // Anexos
-  getAttachments: (id: string | number) =>
-    apiClient.get<ApiResponse<TaskAttachment[]>>(`/tasks/${id}/attachments`),
-  addAttachment: (id: string | number, data: any) =>
-    apiClient.post<ApiResponse<TaskAttachment>>(
+  getAttachments: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<TaskAttachment[]>>(
+      `/tasks/${id}/attachments`
+    );
+    return response;
+  },
+  uploadAttachment: async (id: string | number, file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await apiClient.post<ApiResponse<TaskAttachment>>(
       `/tasks/${id}/attachments`,
-      data
-    ),
-  removeAttachment: (id: string | number, attachmentId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(
+      formData
+    );
+    return response;
+  },
+  deleteAttachment: async (
+    id: string | number,
+    attachmentId: string | number
+  ) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
       `/tasks/${id}/attachments/${attachmentId}`
-    ),
+    );
+    return response;
+  },
 
   // Dependências
-  getDependencies: (id: string | number) =>
-    apiClient.get<ApiResponse<TaskDependency[]>>(`/tasks/${id}/dependencies`),
-  addDependency: (id: string | number, data: any) =>
-    apiClient.post<ApiResponse<TaskDependency>>(
+  getDependencies: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<TaskDependency[]>>(
+      `/tasks/${id}/dependencies`
+    );
+    return response;
+  },
+  addDependency: async (
+    id: string | number,
+    dependsOnTaskId: string | number,
+    type: string
+  ) => {
+    const response = await apiClient.post<ApiResponse<TaskDependency>>(
       `/tasks/${id}/dependencies`,
-      data
-    ),
-  removeDependency: (id: string | number, dependencyId: string | number) =>
-    apiClient.delete<ApiResponse<void>>(
+      { dependsOnTaskId, type }
+    );
+    return response;
+  },
+  removeDependency: async (
+    id: string | number,
+    dependencyId: string | number
+  ) => {
+    const response = await apiClient.delete<ApiResponse<void>>(
       `/tasks/${id}/dependencies/${dependencyId}`
-    ),
+    );
+    return response;
+  },
 
   // Comentários
-  getComments: (id: string | number) =>
-    apiClient.get<ApiResponse<Comment[]>>(`/tasks/${id}/comments`),
-  addComment: (id: string | number, data: any) =>
-    apiClient.post<ApiResponse<Comment>>(`/tasks/${id}/comments`, data),
+  getComments: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Comment[]>>(
+      `/tasks/${id}/comments`
+    );
+    return response;
+  },
+  addComment: async (id: string | number, data: any) => {
+    const response = await apiClient.post<ApiResponse<Comment>>(
+      `/tasks/${id}/comments`,
+      data
+    );
+    return response;
+  },
 
-  // Tempo
-  getOverdue: () => apiClient.get<ApiResponse<Task[]>>("/tasks/overdue"),
-  updateTime: (id: string | number, data: any) =>
-    apiClient.patch<ApiResponse<Task>>(`/tasks/${id}/time`, data),
-
-  // Sprint
-  getBySprint: (sprintId: string | number) =>
-    apiClient.get<ApiResponse<Task[]>>(`/tasks/sprint/${sprintId}`),
+  // Relatórios
+  getOverdue: async () => {
+    const response = await apiClient.get<ApiResponse<Task[]>>("/tasks/overdue");
+    return response;
+  },
+  updateTimeTracking: async (id: string | number, data: any) => {
+    const response = await apiClient.patch<ApiResponse<Task>>(
+      `/tasks/${id}/time`,
+      data
+    );
+    return response;
+  },
+  getBySprint: async (sprintId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Task[]>>(
+      `/tasks/sprint/${sprintId}`
+    );
+    return response;
+  },
 };

@@ -127,7 +127,7 @@ export class TenantService {
   /**
    * Lista todos os tenants
    */
-  async getAllTenants(): Promise<ApiResponse<any>> {
+  async getAllTenants(): Promise<ApiResponse<Tenant[]>> {
     try {
       const tenants = await this.tenantRepository.findAll();
       return {
@@ -137,7 +137,8 @@ export class TenantService {
     } catch (error) {
       return {
         success: false,
-        error: "Erro ao listar tenants",
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar tenants",
       };
     }
   }

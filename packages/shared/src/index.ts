@@ -22,5 +22,8 @@ export * from "./types/project";
 export * from "./types/epic";
 export * from "./types/userStory";
 export * from "./types/task";
-// Os demais tipos (sprint, status, comment, activity, session, etc) devem ser exportados apenas de seus arquivos exclusivos, se existirem, e não duplicados.
+export * from "./types/sprint";
+export * from "./types/session";
+export * from "./types/activity";
+// Os demais tipos (status, comment, etc) devem ser exportados apenas de seus arquivos exclusivos, se existirem, e não duplicados.
 export * from "./utils";

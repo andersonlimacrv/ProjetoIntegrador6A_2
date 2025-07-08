@@ -86,13 +86,13 @@ export function NavMain({ items }: { items: NavItem[] }) {
                 asChild
                 tooltip={item.title}
                 isActive={isItemActive(item.url)}
-                className="data-[active=true]:bg-accent/60"
+                className="data-[active=true]:bg-accent/60 data-[active=true]:text-muted-foreground font-bold"
               >
                 <a href={item.url}>
                   {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                   <span>{item.title}</span>
                 </a>
-              </SidebarMenuButton >
+              </SidebarMenuButton>
               {item.items && item.items.length > 0 && (
                 <>
                   <CollapsibleTrigger asChild>

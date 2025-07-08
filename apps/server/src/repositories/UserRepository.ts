@@ -9,8 +9,14 @@ import {
   ApiResponse,
 } from "../../../packages/shared/src";
 import { db } from "../db/connection";
-import { users, user_tenants, sessions, activities } from "../db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import {
+  users,
+  user_tenants,
+  sessions,
+  activities,
+  tenants,
+} from "../db/schema";
+import { eq, and, desc, lt } from "drizzle-orm";
 import type { NewUser, User as DbUser } from "../db/schema";
 import bcrypt from "bcryptjs";
 
@@ -162,13 +168,15 @@ export class UserRepository {
   async findUserTenants(userId: string) {
     return await db
       .select({
-        userTenant: userTenants,
+        userTenant: user_tenants,
         user: users,
+        tenant: tenants,
       })
-      .from(userTenants)
-      .innerJoin(users, eq(userTenants.userId, users.id))
-      .where(eq(userTenants.userId, userId))
-      .orderBy(desc(userTenants.joinedAt));
+      .from(user_tenants)
+      .innerJoin(users, eq(user_tenants.userId, users.id))
+      .innerJoin(tenants, eq(user_tenants.tenantId, tenants.id))
+      .where(eq(user_tenants.userId, userId))
+      .orderBy(desc(user_tenants.joinedAt));
   }
 
   /**
@@ -207,8 +215,11 @@ export class UserRepository {
    * Deleta sessão
    */
   async deleteSession(id: string): Promise<boolean> {
-    const result = await db.delete(sessions).where(eq(sessions.id, id));
-    return result.length > 0;
+    const [deletedSession] = await db
+      .delete(sessions)
+      .where(eq(sessions.id, id))
+      .returning();
+    return !!deletedSession;
   }
 
   /**
@@ -217,7 +228,8 @@ export class UserRepository {
   async deleteExpiredSessions(): Promise<number> {
     const result = await db
       .delete(sessions)
-      .where(eq(sessions.expiresAt, new Date()));
+      .where(lt(sessions.expiresAt, new Date()))
+      .returning();
     return result.length;
   }
 

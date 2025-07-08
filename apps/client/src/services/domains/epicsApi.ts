@@ -9,25 +9,43 @@ import type {
 
 export const epicsApi = {
   // CRUD
-  getAll: () => apiClient.get<ApiResponse<Epic[]>>("/epics"),
-  getById: (id: string | number) =>
-    apiClient.get<ApiResponse<Epic>>(`/epics/${id}`),
-  create: (data: CreateEpicDTO) =>
-    apiClient.post<ApiResponse<Epic>>("/epics", data),
-  update: (id: string | number, data: UpdateEpicDTO) =>
-    apiClient.put<ApiResponse<Epic>>(`/epics/${id}`, data),
-  delete: (id: string | number) =>
-    apiClient.delete<ApiResponse<void>>(`/epics/${id}`),
+  getAll: async () => {
+    const response = await apiClient.get<ApiResponse<Epic[]>>("/epics");
+    return response;
+  },
+  getById: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<Epic>>(`/epics/${id}`);
+    return response;
+  },
+  create: async (data: CreateEpicDTO) => {
+    const response = await apiClient.post<ApiResponse<Epic>>("/epics", data);
+    return response;
+  },
+  update: async (id: string | number, data: UpdateEpicDTO) => {
+    const response = await apiClient.put<ApiResponse<Epic>>(
+      `/epics/${id}`,
+      data
+    );
+    return response;
+  },
+  delete: async (id: string | number) => {
+    const response = await apiClient.delete<ApiResponse<void>>(`/epics/${id}`);
+    return response;
+  },
 
   // Por projeto
-  getByProject: (projectId: string | number) =>
-    apiClient.get<ApiResponse<Epic[]>>(`/epics/project/${projectId}`),
+  getByProject: async (projectId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Epic[]>>(
+      `/epics/project/${projectId}`
+    );
+    return response;
+  },
 
-  // Histórias de usuário
-  getStories: (id: string | number) =>
-    apiClient.get<ApiResponse<UserStory[]>>(`/epics/${id}/stories`),
-
-  // Status
-  updateStatus: (id: string | number, statusId: string | number) =>
-    apiClient.patch<ApiResponse<Epic>>(`/epics/${id}/status/${statusId}`),
+  // User Stories
+  getUserStories: async (id: string | number) => {
+    const response = await apiClient.get<ApiResponse<UserStory[]>>(
+      `/epics/${id}/user-stories`
+    );
+    return response;
+  },
 };

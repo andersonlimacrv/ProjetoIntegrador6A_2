@@ -15,6 +15,7 @@ import userStories from "./routes/userStories";
 import sprints from "./routes/sprints";
 import comments from "./routes/comments";
 import activities from "./routes/activities";
+import auth from "./routes/auth";
 
 // Importar middlewares e controllers
 import {
@@ -185,6 +186,7 @@ app.route("/api/tasks", tasks);
 app.route("/api/sprints", sprints);
 app.route("/api/comments", comments);
 app.route("/api/activities", activities);
+app.route("/api/auth", auth);
 
 // Middleware 404
 app.notFound((c) => {
