@@ -84,6 +84,18 @@ export class ProjectRepository {
       .orderBy(desc(projects.createdAt));
   }
 
+  // Listar projetos onde o usuário é membro via time
+  // Relação: user_teams -> team_projects -> projects
+  async findByUserMember(userId: string): Promise<Project[]> {
+    return await db
+      .select()
+      .from(projects)
+      .innerJoin(team_projects, eq(projects.id, team_projects.projectId))
+      .innerJoin(user_teams, eq(team_projects.teamId, user_teams.teamId))
+      .where(eq(user_teams.userId, userId))
+      .orderBy(desc(projects.createdAt));
+  }
+
   // Atualizar projeto
   async update(id: string, data: Partial<Project>): Promise<Project | null> {
     const [project] = await db
@@ -152,7 +164,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return team;
+    return team as Team;
   }
 
   // Buscar equipes por tenant
@@ -177,7 +189,7 @@ export class ProjectRepository {
         assignedAt: new Date(),
       })
       .returning();
-    return teamProject;
+    return teamProject as TeamProject;
   }
 
   // Remover equipe do projeto
@@ -225,7 +237,7 @@ export class ProjectRepository {
         joinedAt: new Date(),
       })
       .returning();
-    return userTeam;
+    return userTeam as UserTeam;
   }
 
   // Buscar usuários da equipe
@@ -253,7 +265,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return epic;
+    return epic as Epic;
   }
 
   // Buscar épicos do projeto
@@ -277,7 +289,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return story;
+    return story as UserStory;
   }
 
   // Buscar histórias do projeto
@@ -310,7 +322,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return task;
+    return task as Task;
   }
 
   // Buscar tarefas do projeto
@@ -343,7 +355,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return sprint;
+    return sprint as Sprint;
   }
 
   // Buscar sprints do projeto
@@ -366,7 +378,7 @@ export class ProjectRepository {
         createdAt: new Date(),
       })
       .returning();
-    return flow;
+    return flow as StatusFlow;
   }
 
   // Buscar fluxos de status do projeto
@@ -389,7 +401,7 @@ export class ProjectRepository {
         updatedAt: new Date(),
       })
       .returning();
-    return settings;
+    return settings as ProjectSetting;
   }
 
   // Buscar configurações do projeto
@@ -425,7 +437,7 @@ export class ProjectRepository {
         createdAt: new Date(),
       })
       .returning();
-    return label;
+    return label as ProjectLabel;
   }
 
   // Buscar etiquetas do projeto

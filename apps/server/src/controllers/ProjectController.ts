@@ -1,6 +1,5 @@
 import { Context } from "hono";
 import { ProjectService } from "../services/ProjectService";
-import { ApiResponse } from "@shared";
 
 export class ProjectController {
   private static projectService = new ProjectService();
@@ -208,6 +207,26 @@ export class ProjectController {
           ...projects,
           message: projects.success
             ? "Projetos do proprietário listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
+    } catch (error) {
+      return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
+    }
+  }
+
+  static async getProjectsByUser(c: Context) {
+    try {
+      const userId = c.req.param("userId");
+      const projects = await ProjectController.projectService.getProjectsByUser(
+        userId
+      );
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos do usuário listados com sucesso"
             : projects.error || "Erro ao buscar projetos",
         },
         projects.success ? 200 : 400

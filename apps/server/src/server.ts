@@ -8,7 +8,6 @@ async function startServer() {
     console.log(
       "🚀 Iniciando Sistema de Gestão de Projetos - Projeto Integrador 6A"
     );
-    console.log("🚀".repeat(30));
     Config.debug();
 
     const dbInitialized = await initializeDatabase();

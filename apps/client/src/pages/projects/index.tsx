@@ -9,7 +9,6 @@ export function ProjectsPage() {
           Gerencie seus projetos e equipes.
         </p>
       </div>
-
       <Outlet />
     </div>
   );

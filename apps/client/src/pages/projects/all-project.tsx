@@ -199,7 +199,7 @@ export function AllProjectsPage() {
       onEdit={() => openEditModal(project)}
       onDelete={() => setProjectToDelete(project)}
     >
-      <div className="space-y-2">
+      <div className="space-y-2 flex justify-center items-end">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Calendar className="w-4 h-4" />
           <span>Criado em {formatDate(project.createdAt)}</span>

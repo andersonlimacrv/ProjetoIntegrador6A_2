@@ -99,10 +99,12 @@ export class SprintService {
 
   async getSprintsByProject(projectId: string): Promise<ApiResponse<Sprint[]>> {
     try {
-      // TODO: Implementar busca por projeto
+      const sprints = await this.sprintRepository.getSprintsByProject(
+        projectId
+      );
       return {
         success: true,
-        data: [],
+        data: sprints,
       };
     } catch (error) {
       return {
@@ -115,10 +117,10 @@ export class SprintService {
 
   async getSprintBacklog(sprintId: string): Promise<ApiResponse<any[]>> {
     try {
-      // TODO: Implementar busca do backlog
+      const backlog = await this.sprintRepository.getSprintBacklog(sprintId);
       return {
         success: true,
-        data: [],
+        data: backlog,
       };
     } catch (error) {
       return {
@@ -134,10 +136,13 @@ export class SprintService {
     data: any
   ): Promise<ApiResponse<any>> {
     try {
-      // TODO: Implementar adição ao backlog
+      const result = await this.sprintRepository.addStoryToBacklog(
+        sprintId,
+        data
+      );
       return {
         success: true,
-        data: {},
+        data: result,
       };
     } catch (error) {
       return {
@@ -155,10 +160,13 @@ export class SprintService {
     storyId: string
   ): Promise<ApiResponse<boolean>> {
     try {
-      // TODO: Implementar remoção do backlog
+      const result = await this.sprintRepository.removeStoryFromBacklog(
+        sprintId,
+        storyId
+      );
       return {
         success: true,
-        data: true,
+        data: result,
       };
     } catch (error) {
       return {
@@ -171,10 +179,10 @@ export class SprintService {
 
   async getSprintMetrics(sprintId: string): Promise<ApiResponse<any>> {
     try {
-      // TODO: Implementar busca de métricas
+      const metrics = await this.sprintRepository.getSprintMetrics(sprintId);
       return {
         success: true,
-        data: {},
+        data: metrics,
       };
     } catch (error) {
       return {
@@ -190,10 +198,13 @@ export class SprintService {
     data: any
   ): Promise<ApiResponse<any>> {
     try {
-      // TODO: Implementar criação de métricas
+      const metrics = await this.sprintRepository.createSprintMetrics(
+        sprintId,
+        data
+      );
       return {
         success: true,
-        data: {},
+        data: metrics,
       };
     } catch (error) {
       return {

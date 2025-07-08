@@ -4,7 +4,6 @@ import { SprintController } from "../controllers/SprintController";
 import { Config } from "../config";
 
 const sprints = new Hono();
-const sprintController = new SprintController();
 
 // Middleware CORS
 sprints.use(
@@ -18,31 +17,29 @@ sprints.use(
 );
 
 // Rotas básicas CRUD
-sprints.get("/", (c) => sprintController.getAllSprints(c));
-sprints.get("/:id", (c) => sprintController.getSprintById(c));
-sprints.post("/", (c) => sprintController.createSprint(c));
-sprints.put("/:id", (c) => sprintController.updateSprint(c));
-sprints.delete("/:id", (c) => sprintController.deleteSprint(c));
+sprints.get("/:id", SprintController.getSprintById);
+sprints.post("/", SprintController.createSprint);
+sprints.put("/:id", SprintController.updateSprint);
+sprints.delete("/:id", SprintController.deleteSprint);
 
 // Rotas por projeto
-sprints.get("/project/:projectId", (c) =>
-  sprintController.getSprintsByProject(c)
-);
+sprints.get("/project/:projectId", SprintController.getSprintsByProject);
 
 // Rotas de backlog
-sprints.get("/:id/backlog", (c) => sprintController.getSprintBacklog(c));
-sprints.post("/:id/backlog", (c) => sprintController.addStoryToBacklog(c));
-sprints.delete("/:id/backlog/:storyId", (c) =>
-  sprintController.removeStoryFromBacklog(c)
+sprints.get("/:id/backlog", SprintController.getSprintBacklog);
+sprints.post("/:id/backlog", SprintController.addStoryToBacklog);
+sprints.delete(
+  "/:id/backlog/:storyId",
+  SprintController.removeStoryFromBacklog
 );
 
 // Rotas de métricas
-sprints.get("/:id/metrics", (c) => sprintController.getSprintMetrics(c));
-sprints.post("/:id/metrics", (c) => sprintController.createSprintMetrics(c));
+sprints.get("/:id/metrics", SprintController.getSprintMetrics);
+sprints.post("/:id/metrics", SprintController.createSprintMetrics);
 
 // Rotas de status
-sprints.patch("/:id/start", (c) => sprintController.startSprint(c));
-sprints.patch("/:id/complete", (c) => sprintController.completeSprint(c));
-sprints.patch("/:id/cancel", (c) => sprintController.cancelSprint(c));
+sprints.patch("/:id/start", SprintController.startSprint);
+sprints.patch("/:id/complete", SprintController.completeSprint);
+sprints.patch("/:id/cancel", SprintController.cancelSprint);
 
 export default sprints;

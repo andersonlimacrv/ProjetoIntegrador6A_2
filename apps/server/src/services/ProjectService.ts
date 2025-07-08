@@ -771,6 +771,46 @@ export class ProjectService {
   }
 
   /**
+   * Lista projetos onde o usuário é dono ou membro via time
+   */
+  async getProjectsByUser(userId: string): Promise<ApiResponse<any>> {
+    try {
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        return {
+          success: false,
+          error: "Usuário não encontrado",
+        };
+      }
+
+      // Buscar projetos onde o usuário é dono
+      const ownedProjects = await this.projectRepository.findByOwner(userId);
+
+      // Buscar projetos onde o usuário é membro via time
+      const memberProjects = await this.projectRepository.findByUserMember(
+        userId
+      );
+
+      // Combinar e remover duplicatas
+      const allProjects = [...ownedProjects, ...memberProjects];
+      const uniqueProjects = allProjects.filter(
+        (project, index, self) =>
+          index === self.findIndex((p) => p.id === project.id)
+      );
+
+      return {
+        success: true,
+        data: uniqueProjects,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Erro ao listar projetos do usuário",
+      };
+    }
+  }
+
+  /**
    * Remove equipe do projeto
    */
   async removeTeamFromProject(

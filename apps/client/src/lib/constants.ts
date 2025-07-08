@@ -49,7 +49,7 @@ export const navbarItems = {
           title: "Create Project",
           url: "/dashboard/projects/create",
           icon: PlusCircle,
-        },
+        }
       ],
     },
     {
@@ -72,24 +72,6 @@ export const navbarItems = {
           title: "Permissions",
           url: "/dashboard/teams/permissions",
           icon: WalletCards,
-        },
-      ],
-    },
-    {
-      title: "Sprints",
-      url: "/dashboard/sprints",
-      icon: Rocket,
-      isActive: false,
-      items: [
-        {
-          title: "Current Sprint",
-          url: "/dashboard/sprints/current",
-          icon: CalendarCheck,
-        },
-        {
-          title: "Sprint Planning",
-          url: "/dashboard/sprints/planning",
-          icon: GanttChartSquare,
         },
       ],
     },

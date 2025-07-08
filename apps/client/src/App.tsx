@@ -17,10 +17,6 @@ import { TeamMembersPage } from "@/pages/teams/members";
 import { AllUsersPage } from "@/pages/teams/all-users";
 import { TeamRolesPage } from "@/pages/teams/roles";
 import { PermissionsPage } from "@/pages/teams/permissions";
-import { SprintsPage } from "@/pages/sprints";
-import { AllSprintsPage } from "@/pages/sprints/all-sprints";
-import { CurrentSprintPage } from "@/pages/sprints/current";
-import { SprintPlanningPage } from "@/pages/sprints/planning";
 import { EpicsPage } from "@/pages/epics";
 import { EpicBoardPage } from "@/pages/epics/board";
 import { EpicTimelinePage } from "@/pages/epics/timeline";
@@ -44,6 +40,7 @@ import { FeedbackPage } from "@/pages/feedback";
 import { AdminPage } from "@/pages/admin";
 import CreateTeamPage from "@/pages/teams/create-team";
 import ProjectDetailsPage from "@/pages/projects/[id]";
+import { ProjectSprintDetailsPage } from "@/pages/sprints/project-sprint-details";
 
 function App() {
   return (
@@ -69,6 +66,12 @@ function App() {
               <Route path=":id" element={<ProjectDetailsPage />} />
             </Route>
 
+            {/* Sprint Details Route */}
+            <Route
+              path="sprints/:sprintId"
+              element={<ProjectSprintDetailsPage />}
+            />
+
             {/* Teams Routes */}
             <Route path="teams" element={<TeamsPage />}>
               <Route index element={<AllTeamsPage />} />
@@ -78,14 +81,6 @@ function App() {
               <Route path=":id/members" element={<TeamMembersPage />} />
               <Route path="roles" element={<TeamRolesPage />} />
               <Route path="permissions" element={<PermissionsPage />} />
-            </Route>
-
-            {/* Sprints Routes */}
-            <Route path="sprints" element={<SprintsPage />}>
-              <Route index element={<AllSprintsPage />} />
-              <Route path="all" element={<AllSprintsPage />} />
-              <Route path="current" element={<CurrentSprintPage />} />
-              <Route path="planning" element={<SprintPlanningPage />} />
             </Route>
 
             {/* Epics Routes */}

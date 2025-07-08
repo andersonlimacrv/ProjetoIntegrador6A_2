@@ -160,9 +160,9 @@ export function DashboardPreview() {
               </h3>
               <p className="text-gray-300">Sprint 5 - Semana 2</p>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col items-center justify-center space-y-2 mx-12">
               <p className="text-lg text-gray-300">
-                Progresso geral <span className="text-white/20">( % )</span>
+                Progresso geral 
               </p>
               <AnimatedCircularProgressBar
                 max={100}

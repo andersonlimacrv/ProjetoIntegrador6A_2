@@ -67,6 +67,12 @@ export const projectsApi = {
     );
     return response;
   },
+  getByUser: async (userId: string | number) => {
+    const response = await apiClient.get<ApiResponse<Project[]>>(
+      `/projects/user/${userId}`
+    );
+    return response;
+  },
 
   // Equipes
   getTeams: async (id: string | number) => {

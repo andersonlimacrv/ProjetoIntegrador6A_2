@@ -27,6 +27,7 @@ projects.delete("/:id", ProjectController.deleteProject);
 // Rotas por tenant
 projects.get("/tenant/:tenantId", ProjectController.getProjectsByTenant);
 projects.get("/owner/:ownerId", ProjectController.getProjectsByOwner);
+projects.get("/user/:userId", ProjectController.getProjectsByUser);
 
 // Rotas de equipes
 projects.get("/:id/teams", ProjectController.getProjectTeams);
@@ -48,4 +49,4 @@ projects.delete("/:id/labels/:labelId", ProjectController.deleteProjectLabel);
 projects.get("/:id/status-flows", ProjectController.getProjectStatusFlows);
 projects.post("/:id/status-flows", ProjectController.createStatusFlow);
 
-export default projects; 
+export default projects;

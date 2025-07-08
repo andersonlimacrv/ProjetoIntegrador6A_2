@@ -30,6 +30,7 @@ import {
   projectLabels,
 } from "./schema";
 
+
 /**
  * Dados de exemplo para popular o banco
  */

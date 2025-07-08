@@ -14,6 +14,8 @@ import {
 import { InferModel } from "drizzle-orm";
 import { relations } from "drizzle-orm";
 
+/* esqueminha */
+
 // Tabelas principais
 export const tenants = pgTable("tenants", {
   id: uuid("id").primaryKey().defaultRandom(),
