@@ -9,6 +9,7 @@ import { sprintsApi } from "@/services/domains/sprintsApi";
 import { tasksApi } from "@/services/domains/tasksApi";
 import { activitiesApi } from "@/services/domains/activitiesApi";
 import { useAuth } from "@/contexts/auth-context";
+import { Card } from "@/components/ui/card";
 
 function getDateKey(dateStr) {
   if (!dateStr) return null;
@@ -132,38 +133,40 @@ export function DashboardHome() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="gap-8">
+      <div className="flex flex-col gap-4 p-4">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">
           Bem-vindo ao seu painel de controle. Gerencie seus projetos, equipes e
           sprints.
         </p>
       </div>
-      <DashboardStats
-        loading={loading}
-        activeProjects={activeProjects}
-        archivedProjects={archivedProjects}
-        teams={teams}
-        uniqueMembers={uniqueMembers}
-        activeSprints={activeSprints}
-        sprints={sprints}
-        pendingTasks={pendingTasks}
-        tasks={tasks}
-        doneTasks={doneTasks}
-        overdueTasks={overdueTasks}
-      />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="col-span-4">
-          <DashboardHeatmap days={days} dateMap={dateMap} />
+      <div className="flex-1 flex-col gap-4 py-4 my-4">
+        <div className="flex flex-row gap-4">
           <DashboardRecentProjects
             loading={loading}
             recentProjects={recentProjects}
             projectTeams={projectTeams}
           />
+          <DashboardActivities loading={loading} activities={activities} />
+          <DashboardStats
+            loading={loading}
+            activeProjects={activeProjects}
+            archivedProjects={archivedProjects}
+            teams={teams}
+            uniqueMembers={uniqueMembers}
+            activeSprints={activeSprints}
+            sprints={sprints}
+            pendingTasks={pendingTasks}
+            tasks={tasks}
+            doneTasks={doneTasks}
+            overdueTasks={overdueTasks}
+          />
         </div>
-        <DashboardActivities loading={loading} activities={activities} />
       </div>
+      <Card className="flex flex-col justify-center items-center px-16 w-full py-4 my-2">
+        <DashboardHeatmap days={days} dateMap={dateMap} />
+      </Card>
     </div>
   );
 }

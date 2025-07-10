@@ -1,4 +1,6 @@
 import TeamLegend from "@/components/tasks/TeamLegend";
+import { Card } from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function DashboardRecentProjects({
   loading,
@@ -6,33 +8,35 @@ export default function DashboardRecentProjects({
   projectTeams,
 }) {
   return (
-    <div className="mt-4 w-full">
-      <h3 className="text-base mb-2 font-semibold">Projetos Recentes</h3>
-      {loading ? (
-        <div className="text-muted-foreground">Carregando...</div>
-      ) : recentProjects.length === 0 ? (
-        <div className="text-muted-foreground">
-          Nenhum projeto recente encontrado.
-        </div>
-      ) : (
-        <ul className="list-disc ml-6 space-y-3">
-          {recentProjects.map((proj) => (
-            <li key={proj.id} className="text-sm flex flex-col gap-1">
-              <span className="font-semibold">{proj.name}</span>{" "}
-              <span className="text-xs text-muted-foreground">
-                (
-                {proj.createdAt
-                  ? new Date(proj.createdAt).toLocaleDateString()
-                  : ""}
-                )
-              </span>
-              <div className="mt-1">
-                <TeamLegend members={projectTeams[proj.id] || []} />
+    <Card className="shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <CardTitle>Projetos Recentes</CardTitle>
+        <CardDescription>Projetos mais recentemente criados</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4 max-h-64 overflow-y-auto w-full">
+          {loading ? (
+            <div className="text-muted-foreground">Carregando...</div>
+          ) : recentProjects.length === 0 ? (
+            <div className="text-muted-foreground">Nenhum projeto recente.</div>
+          ) : (
+            recentProjects.map((project) => (
+              <div key={project.id} className="flex items-center space-x-4 px-8 w-full">
+                <div className="w-2 h-2 rounded-full bg-accent" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{project.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {project.createdAt
+                      ? new Date(project.createdAt).toLocaleString()
+                      : ""}
+                  </p>
+                </div>
+                <TeamLegend projectTeams={projectTeams} projectId={project.id} />
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+            ))
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
