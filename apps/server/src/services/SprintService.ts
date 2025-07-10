@@ -120,7 +120,7 @@ export class SprintService {
       const backlog = await this.sprintRepository.getSprintBacklog(sprintId);
       return {
         success: true,
-        data: backlog,
+        data: Array.isArray(backlog) ? backlog : [],
       };
     } catch (error) {
       return {
@@ -182,7 +182,7 @@ export class SprintService {
       const metrics = await this.sprintRepository.getSprintMetrics(sprintId);
       return {
         success: true,
-        data: metrics,
+        data: metrics || {},
       };
     } catch (error) {
       return {
@@ -283,6 +283,22 @@ export class SprintService {
         success: false,
         error:
           error instanceof Error ? error.message : "Erro ao cancelar sprint",
+      };
+    }
+  }
+
+  async getSprintTasks(sprintId: string): Promise<ApiResponse<any[]>> {
+    try {
+      const tasks = await this.sprintRepository.getSprintTasks(sprintId);
+      return {
+        success: true,
+        data: Array.isArray(tasks) ? tasks : [],
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar tarefas",
       };
     }
   }

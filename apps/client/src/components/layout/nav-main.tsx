@@ -1,5 +1,5 @@
 import { ChevronRight, type LucideIcon } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import {
   Collapsible,
   CollapsibleContent,
@@ -88,10 +88,10 @@ export function NavMain({ items }: { items: NavItem[] }) {
                 isActive={isItemActive(item.url)}
                 className="data-[active=true]:bg-accent/60 data-[active=true]:text-muted-foreground font-bold"
               >
-                <a href={item.url}>
+                <Link to={item.url}>
                   {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
               {item.items && item.items.length > 0 && (
                 <>
@@ -110,14 +110,14 @@ export function NavMain({ items }: { items: NavItem[] }) {
                             isActive={isSubItemActive(subItem.url)}
                             className="data-[active=true]:bg-muted-foreground/10 my-1"
                           >
-                            <a href={subItem.url}>
+                            <Link to={subItem.url}>
                               {subItem.icon && (
                                 <div className="text-primary/30">
                                   <subItem.icon className="mr-2 h-4 w-4" />
                                 </div>
                               )}
                               <span>{subItem.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}

@@ -527,9 +527,6 @@ export function AdminPage() {
                       </div>
                       <div>
                         <p className="font-medium">{user.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {user.email}
-                        </p>
                       </div>
                     </div>
                   </TableCell>

@@ -15,6 +15,7 @@ import userStories from "./routes/userStories";
 import sprints from "./routes/sprints";
 import comments from "./routes/comments";
 import activities from "./routes/activities";
+import statuses from "./routes/statuses";
 import auth from "./routes/auth";
 
 // Importar middlewares e controllers
@@ -186,6 +187,7 @@ app.route("/api/tasks", tasks);
 app.route("/api/sprints", sprints);
 app.route("/api/comments", comments);
 app.route("/api/activities", activities);
+app.route("/api/statuses", statuses);
 app.route("/api/auth", auth);
 
 // Middleware 404

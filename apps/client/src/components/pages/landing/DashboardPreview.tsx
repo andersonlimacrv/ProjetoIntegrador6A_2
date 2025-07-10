@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { AnimatedCircularProgressBar } from "../../ui/animated-circular-progress-bar";
 import { Calendar, Clock, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
+import UserAvatar from "@/components/common/UserAvatar";
 
 type Priority = "high" | "medium" | "low";
 
@@ -161,9 +162,7 @@ export function DashboardPreview() {
               <p className="text-gray-300">Sprint 5 - Semana 2</p>
             </div>
             <div className="flex flex-col items-center justify-center space-y-2 mx-12">
-              <p className="text-lg text-gray-300">
-                Progresso geral 
-              </p>
+              <p className="text-lg text-gray-300">Progresso geral</p>
               <AnimatedCircularProgressBar
                 max={100}
                 min={0}
@@ -226,14 +225,15 @@ export function DashboardPreview() {
                           </h5>
 
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="h-6 w-6">
-                                <AvatarFallback className="text-xs bg-purple-600">
-                                  {task.avatar}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs text-gray-300">
-                                {task.assignee}
+                            <div className="flex items-center gap-2">
+                              <UserAvatar
+                                name="Usuário"
+                                size="sm"
+                                fallbackIcon="U"
+                                className="bg-purple-600 text-white"
+                              />
+                              <span className="text-sm text-muted-foreground">
+                                Usuário
                               </span>
                             </div>
 

@@ -45,6 +45,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import UserAvatar from "@/components/common/UserAvatar";
 
 interface Activity {
   id: string;
@@ -322,6 +323,9 @@ export function ActivityFeed({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
+            <h1 className="text-2xl font-extrabold text-red-700">
+              W.I´P - ESSA FEAT AINDA SERÁ IMPLEMENTADA.
+            </h1>
             <MessageSquare className="h-5 w-5" />
             Novo Comentário
           </CardTitle>
@@ -363,17 +367,13 @@ export function ActivityFeed({
           filteredActivities.map((activity) => (
             <Card key={activity.id} className="border shadow-sm">
               <CardContent className="p-4">
-                <div className="flex gap-4">
-                  {/* Avatar */}
-                  <Avatar className="w-10 h-10">
-                    <AvatarImage src={activity.userAvatar} />
-                    <AvatarFallback>
-                      {getInitials(activity.userName)}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  {/* Conteúdo */}
-                  <div className="flex-1 space-y-2">
+                <div className="flex items-start gap-3">
+                  <UserAvatar
+                    name={activity.userName}
+                    avatarUrl={activity.userAvatar}
+                    size="md"
+                  />
+                  <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{activity.userName}</span>
                       <div
@@ -471,14 +471,16 @@ export function ActivityFeed({
                       <div className="ml-6 space-y-3">
                         <Separator />
                         {activity.replies.map((reply) => (
-                          <div key={reply.id} className="flex gap-3">
-                            <Avatar className="w-8 h-8">
-                              <AvatarImage src={reply.userAvatar} />
-                              <AvatarFallback className="text-xs">
-                                {getInitials(reply.userName)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
+                          <div
+                            key={reply.id}
+                            className="flex items-start gap-2 ml-8"
+                          >
+                            <UserAvatar
+                              name={reply.userName}
+                              avatarUrl={reply.userAvatar}
+                              size="sm"
+                            />
+                            <div className="flex-1 space-y-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-sm">
                                   {reply.userName}

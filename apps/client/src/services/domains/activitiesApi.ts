@@ -35,8 +35,9 @@ export const activitiesApi = {
 
   // Por entidade
   getByUser: async (userId: string | number) => {
-    const response = await apiClient.get<ApiResponse<Activity[]>>(
-      `/activities/user/${userId}`
+    const response = await apiClient.post<ApiResponse<Activity[]>>(
+      `/activities/my-activities`,
+      { userId }
     );
     return response;
   },

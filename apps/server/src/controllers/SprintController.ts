@@ -176,7 +176,7 @@ export class SprintController {
     try {
       const { id } = c.req.param() as SprintIdInput;
       const metrics = await SprintController.sprintService.getSprintMetrics(id);
-      return c.json({ success: true, data: metrics }, 200);
+      return c.json(metrics.data, 200);
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar métricas" }, 500);
     }
@@ -234,6 +234,19 @@ export class SprintController {
       return c.json({ success: true, data: sprint }, 200);
     } catch (error) {
       return c.json({ success: false, error: "Erro ao cancelar sprint" }, 500);
+    }
+  }
+
+  static async getSprintTasks(c: Context) {
+    try {
+      const { id } = c.req.param() as SprintIdInput;
+      const tasks = await SprintController.sprintService.getSprintTasks(id);
+      return c.json({ success: true, data: tasks.data }, 200);
+    } catch (error) {
+      return c.json(
+        { success: false, error: "Erro ao buscar tarefas do sprint" },
+        500
+      );
     }
   }
 }

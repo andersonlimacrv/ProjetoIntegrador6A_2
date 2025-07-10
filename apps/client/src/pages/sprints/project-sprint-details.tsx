@@ -28,23 +28,27 @@ export function ProjectSprintDetailsPage() {
       // User Stories
       const usRes = await sprintsApi.getUserStories(sprintId!);
       if (usRes.ok && usRes.data.success) {
-        setUserStories(usRes.data.data || []);
+        setUserStories(Array.isArray(usRes.data.data) ? usRes.data.data : []);
       } else {
         setUserStories([]);
       }
       // Tasks
       const tRes = await sprintsApi.getTasks(sprintId!);
       if (tRes.ok && tRes.data.success) {
-        setTasks(tRes.data.data || []);
+        setTasks(Array.isArray(tRes.data.data) ? tRes.data.data : []);
       } else {
         setTasks([]);
       }
       // Metrics
       const mRes = await sprintsApi.getMetrics(sprintId!);
       if (mRes.ok && mRes.data.success) {
-        setMetrics(mRes.data.data || null);
+        setMetrics(
+          mRes.data.data && typeof mRes.data.data === "object"
+            ? mRes.data.data
+            : {}
+        );
       } else {
-        setMetrics(null);
+        setMetrics({});
       }
       setLoading(false);
     };
@@ -107,7 +111,7 @@ export function ProjectSprintDetailsPage() {
                 <li key={us.id} className="mb-1">
                   <span className="font-medium">{us.title}</span>{" "}
                   <span className="text-xs text-muted-foreground">
-                    ({us.status})
+                    ({us.statusId})
                   </span>
                 </li>
               ))}
@@ -132,7 +136,7 @@ export function ProjectSprintDetailsPage() {
                 <li key={task.id} className="mb-1">
                   <span className="font-medium">{task.title}</span>{" "}
                   <span className="text-xs text-muted-foreground">
-                    ({task.status})
+                    ({task.statusId})
                   </span>
                 </li>
               ))}
@@ -147,7 +151,7 @@ export function ProjectSprintDetailsPage() {
           <CardTitle className="text-base">Métricas do Sprint</CardTitle>
         </CardHeader>
         <CardContent>
-          {metrics ? (
+          {metrics && Object.keys(metrics).length > 0 ? (
             <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
               {JSON.stringify(metrics, null, 2)}
             </pre>

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Project, UpdateProjectDTO } from "@packages/shared";
+import { Link } from "react-router-dom";
 
 export function AllProjectsPage() {
   const navigate = useNavigate();
@@ -233,10 +234,12 @@ export function AllProjectsPage() {
             Visualize todos os projetos disponíveis.
           </p>
         </div>
-        <Button onClick={() => navigate("/dashboard/projects/create")}>
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Projeto
-        </Button>
+        <Link to="/dashboard/projects/create">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Projeto
+          </Button>
+        </Link>
       </div>
 
       <Card>

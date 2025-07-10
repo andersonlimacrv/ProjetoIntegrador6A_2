@@ -187,6 +187,7 @@ export const tasks = pgTable("tasks", {
   projectId: uuid("project_id")
     .references(() => projects.id)
     .notNull(),
+  sprintId: uuid("sprint_id").references(() => sprints.id),
   statusId: uuid("status_id")
     .references(() => statuses.id)
     .notNull(),

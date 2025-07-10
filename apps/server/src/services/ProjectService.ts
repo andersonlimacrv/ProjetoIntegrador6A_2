@@ -1,6 +1,7 @@
 import { ProjectRepository } from "../repositories/ProjectRepository";
 import { TenantRepository } from "../repositories/TenantRepository";
 import { UserRepository } from "../repositories/UserRepository";
+import { StatusService } from "./StatusService";
 import {
   Project,
   Team,
@@ -36,11 +37,13 @@ export class ProjectService {
   private projectRepository: ProjectRepository;
   private tenantRepository: TenantRepository;
   private userRepository: UserRepository;
+  private statusService: StatusService;
 
   constructor() {
     this.projectRepository = new ProjectRepository();
     this.tenantRepository = new TenantRepository();
     this.userRepository = new UserRepository();
+    this.statusService = new StatusService();
   }
 
   /**
@@ -129,9 +132,24 @@ export class ProjectService {
         projectKey: project.projectKey,
       });
 
+      // Criar status flows e status padrão para o projeto
+      console.log("🔧 Criando status flows e status padrão...");
+      const statusResult = await this.statusService.initializeProjectStatuses(
+        project.id
+      );
+      if (!statusResult.success) {
+        console.warn("⚠️ Erro ao criar status padrão:", statusResult.error);
+        // Não falha a criação do projeto se os status falharem
+      } else {
+        console.log("✅ Status flows e status padrão criados com sucesso");
+      }
+
       return {
         success: true,
-        data: project,
+        data: {
+          project: project,
+          statusInitialized: statusResult.success,
+        },
         message: "Projeto criado com sucesso",
       };
     } catch (error) {
@@ -963,6 +981,66 @@ export class ProjectService {
       return {
         success: false,
         error: "Erro ao buscar etiquetas do projeto",
+      };
+    }
+  }
+
+  async getProjectMembers(projectId: string) {
+    return this.projectRepository.findProjectMembers(projectId);
+  }
+
+  /**
+   * Busca fluxos de status do projeto
+   */
+  async getProjectStatusFlows(projectId: string): Promise<ApiResponse<any>> {
+    try {
+      const project = await this.projectRepository.findById(projectId);
+      if (!project) {
+        return {
+          success: false,
+          error: "Projeto não encontrado",
+        };
+      }
+
+      const flows = await this.statusService.getProjectStatusFlows(projectId);
+      return {
+        success: true,
+        data: flows,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Erro ao buscar fluxos de status do projeto",
+      };
+    }
+  }
+
+  /**
+   * Cria um fluxo de status para o projeto
+   */
+  async createStatusFlow(
+    projectId: string,
+    data: any
+  ): Promise<ApiResponse<any>> {
+    try {
+      const project = await this.projectRepository.findById(projectId);
+      if (!project) {
+        return {
+          success: false,
+          error: "Projeto não encontrado",
+        };
+      }
+
+      const flow = await this.statusService.createStatusFlow(projectId, data);
+      return {
+        success: true,
+        data: flow,
+        message: "Fluxo de status criado com sucesso",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Erro ao criar fluxo de status",
       };
     }
   }

@@ -1,945 +1,306 @@
-# 🧪 Testes - Sistema de Gerenciamento de Tarefas Ágeis
-
-Documentação completa dos testes do backend, incluindo testes de API, validações e cenários de uso do sistema.
-
-## 📋 Índice
-
-- [Visão Geral](#visão-geral)
-- [Arquitetura de Testes](#arquitetura-de-testes)
-- [Configuração](#configuração)
-- [Tipos de Teste](#tipos-de-teste)
-- [Executando Testes](#executando-testes)
-- [Cenários de Teste](#cenários-de-teste)
-- [Boas Práticas](#boas-práticas)
-- [Debugging](#debugging)
-
-## 🎯 Visão Geral
-
-O sistema de testes implementa uma abordagem completa para validar:
-
-- **APIs RESTful**: Todos os endpoints da aplicação
-- **Validações**: Dados de entrada e saída
-- **Autenticação**: Fluxos de login/registro
-- **Autorização**: Controle de acesso por tenant
-- **Integridade de Dados**: Operações CRUD
-- **Cenários de Erro**: Tratamento de exceções
-- **Performance**: Tempo de resposta das APIs
-
-## 🏗️ Arquitetura de Testes
-
-### Estrutura de Testes
-
-```
-tests/
-├── http-client.env.json    # Configurações de ambiente
-├── projects.http          # Testes de projetos
-├── users.http             # Testes de usuários
-├── teams.http             # Testes de equipes
-├── sprints.http           # Testes de sprints
-├── userStories.http       # Testes de user stories
-├── tasks.http             # Testes de tarefas
-├── auth.http              # Testes de autenticação
-├── tenants.http           # Testes de tenants
-├── comments.http          # Testes de comentários
-├── activities.http        # Testes de atividades
-├── exemplo-fluxo-completo.http  # Fluxo completo do sistema
-├── run-tests.sh           # Script de execução
-└── README.md              # Esta documentação
-```
-
-### Ferramentas Utilizadas
-
-- **HTTP Client**: VS Code REST Client ou similar
-- **Postman**: Alternativa para testes manuais
-- **curl**: Testes via linha de comando
-- **Jest**: Testes unitários (futuro)
-- **Supertest**: Testes de integração (futuro)
-
-## ⚙️ Configuração
-
-### Variáveis de Ambiente
-
-```json
-{
-  "development": {
-    "baseUrl": "http://localhost:8080",
-    "apiUrl": "http://localhost:8080/api"
-  },
-  "staging": {
-    "baseUrl": "https://staging-api.example.com",
-    "apiUrl": "https://staging-api.example.com/api"
-  },
-  "production": {
-    "baseUrl": "https://api.example.com",
-    "apiUrl": "https://api.example.com/api"
-  }
-}
-```
-
-### Configuração do HTTP Client
-
-```http
-### Configuração global
-@baseUrl = {{$dotenv baseUrl}}
-@apiUrl = {{$dotenv apiUrl}}
-@contentType = application/json
-
-### Variáveis de teste
-@authToken = {{auth.response.body.data.token}}
-@userId = {{auth.response.body.data.user.id}}
-@tenantId = {{auth.response.body.data.tenant.id}}
-@projectId = {{createProject.response.body.data.id}}
-```
-
-## 📝 Tipos de Teste
-
-### 1. Testes de Autenticação
-
-#### Registro de Usuário
-
-```http
-### Registrar novo usuário
-# @name register
-POST {{apiUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "name": "Teste Usuário",
-  "email": "teste@example.com",
-  "password": "senha123",
-  "companyName": "Empresa Teste"
-}
-
-### Validar resposta
-> {%
-  client.test("Registro bem-sucedido", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.user.email === "teste@example.com", "Email deve corresponder");
-    client.assert(response.body.data.tenant.name === "Empresa Teste", "Nome da empresa deve corresponder");
-  });
-%}
-```
-
-#### Login de Usuário
-
-```http
-### Fazer login
-# @name login
-POST {{apiUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "email": "teste@example.com",
-  "password": "senha123"
-}
-
-### Validar resposta
-> {%
-  client.test("Login bem-sucedido", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.token, "Token deve estar presente");
-    client.assert(response.body.data.user, "Dados do usuário devem estar presentes");
-    client.assert(response.body.data.tenant, "Dados do tenant devem estar presentes");
-  });
-%}
-```
-
-### 2. Testes de Projetos
-
-#### Criar Projeto
-
-```http
-### Criar projeto
-# @name createProject
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Projeto Teste",
-  "slug": "projeto-teste",
-  "description": "Descrição do projeto teste",
-  "projectKey": "PT",
-  "tenantId": "{{tenantId}}",
-  "ownerId": "{{userId}}"
-}
-
-### Validar resposta
-> {%
-  client.test("Projeto criado com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.name === "Projeto Teste", "Nome deve corresponder");
-    client.assert(response.body.data.projectKey === "PT", "Project key deve corresponder");
-    client.assert(response.body.data.tenantId === client.global.get("tenantId"), "Tenant ID deve corresponder");
-  });
-%}
-```
-
-#### Listar Projetos
-
-```http
-### Listar projetos
-GET {{apiUrl}}/projects
-Authorization: Bearer {{authToken}}
-
-### Validar resposta
-> {%
-  client.test("Lista projetos com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(Array.isArray(response.body.data), "Data deve ser um array");
-  });
-%}
-```
-
-#### Buscar Projeto por ID
-
-```http
-### Buscar projeto por ID
-GET {{apiUrl}}/projects/{{projectId}}
-Authorization: Bearer {{authToken}}
-
-### Validar resposta
-> {%
-  client.test("Projeto encontrado", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.id === client.global.get("projectId"), "ID deve corresponder");
-  });
-%}
-```
-
-### 3. Testes de Equipes
-
-#### Criar Equipe
-
-```http
-### Criar equipe
-# @name createTeam
-POST {{apiUrl}}/teams
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Equipe Teste",
-  "description": "Descrição da equipe teste",
-  "tenantId": "{{tenantId}}"
-}
-
-### Validar resposta
-> {%
-  client.test("Equipe criada com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.name === "Equipe Teste", "Nome deve corresponder");
-  });
-%}
-```
-
-### 4. Testes de Sprints
-
-#### Criar Sprint
-
-```http
-### Criar sprint
-# @name createSprint
-POST {{apiUrl}}/sprints
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Sprint 1",
-  "description": "Primeiro sprint do projeto",
-  "projectId": "{{projectId}}",
-  "startDate": "2024-01-01T00:00:00.000Z",
-  "endDate": "2024-01-15T23:59:59.999Z"
-}
-
-### Validar resposta
-> {%
-  client.test("Sprint criado com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.name === "Sprint 1", "Nome deve corresponder");
-    client.assert(response.body.data.projectId === client.global.get("projectId"), "Project ID deve corresponder");
-  });
-%}
-```
-
-### 5. Testes de User Stories
-
-#### Criar User Story
-
-```http
-### Criar user story
-# @name createUserStory
-POST {{apiUrl}}/user-stories
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "title": "Como usuário, quero fazer login",
-  "description": "Implementar sistema de autenticação",
-  "acceptanceCriteria": "1. Usuário pode inserir email e senha\n2. Sistema valida credenciais\n3. Usuário é redirecionado para dashboard",
-  "projectId": "{{projectId}}",
-  "statusId": "{{statusId}}",
-  "storyPoints": 5,
-  "priority": 1
-}
-
-### Validar resposta
-> {%
-  client.test("User story criada com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.title === "Como usuário, quero fazer login", "Título deve corresponder");
-    client.assert(response.body.data.storyPoints === 5, "Story points devem corresponder");
-  });
-%}
-```
-
-### 6. Testes de Tarefas
-
-#### Criar Tarefa
-
-```http
-### Criar tarefa
-# @name createTask
-POST {{apiUrl}}/tasks
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "title": "Implementar validação de formulário",
-  "description": "Adicionar validação no frontend para o formulário de login",
-  "projectId": "{{projectId}}",
-  "statusId": "{{statusId}}",
-  "priority": 2,
-  "estimatedHours": 4,
-  "reporterId": "{{userId}}",
-  "assigneeId": "{{userId}}"
-}
-
-### Validar resposta
-> {%
-  client.test("Tarefa criada com sucesso", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.body.success === true, "Success deve ser true");
-    client.assert(response.body.data.title === "Implementar validação de formulário", "Título deve corresponder");
-    client.assert(response.body.data.estimatedHours === 4, "Horas estimadas devem corresponder");
-  });
-%}
-```
-
-## 🚀 Executando Testes
-
-### Via HTTP Client (VS Code)
-
-1. **Instalar extensão REST Client**
-2. **Abrir arquivo .http**
-3. **Executar teste individual**: Clique em "Send Request"
-4. **Executar todos os testes**: Use o script de execução
-
-### Via Script
-
-```bash
-# Executar todos os testes
-./run-tests.sh
-
-# Executar testes específicos
-./run-tests.sh auth
-./run-tests.sh projects
-./run-tests.sh teams
-```
-
-### Via curl
-
-```bash
-# Teste de login
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"teste@example.com","password":"senha123"}'
-
-# Teste de criação de projeto
-curl -X POST http://localhost:8080/api/projects \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{"name":"Projeto Teste","slug":"projeto-teste","projectKey":"PT","tenantId":"TENANT_ID","ownerId":"USER_ID"}'
-```
-
-## 📋 Cenários de Teste
-
-### 1. Fluxo Completo do Sistema
-
-```http
-### Fluxo completo: Registro → Login → Criar Projeto → Criar Equipe → Criar Sprint → Criar User Story → Criar Tarefa
-
-### 1. Registrar usuário
-# @name register
-POST {{apiUrl}}/auth/register
-Content-Type: {{contentType}}
-
-{
-  "name": "Usuário Teste",
-  "email": "usuario@teste.com",
-  "password": "senha123",
-  "companyName": "Empresa Teste"
-}
-
-### 2. Fazer login
-# @name login
-POST {{apiUrl}}/auth/login
-Content-Type: {{contentType}}
-
-{
-  "email": "usuario@teste.com",
-  "password": "senha123"
-}
-
-### 3. Criar projeto
-# @name createProject
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{login.response.body.data.token}}
-
-{
-  "name": "Projeto Completo",
-  "slug": "projeto-completo",
-  "description": "Projeto para testar fluxo completo",
-  "projectKey": "PC",
-  "tenantId": "{{login.response.body.data.tenant.id}}",
-  "ownerId": "{{login.response.body.data.user.id}}"
-}
-
-### 4. Criar equipe
-# @name createTeam
-POST {{apiUrl}}/teams
-Content-Type: {{contentType}}
-Authorization: Bearer {{login.response.body.data.token}}
-
-{
-  "name": "Equipe Desenvolvimento",
-  "description": "Equipe responsável pelo desenvolvimento",
-  "tenantId": "{{login.response.body.data.tenant.id}}"
-}
-
-### 5. Criar sprint
-# @name createSprint
-POST {{apiUrl}}/sprints
-Content-Type: {{contentType}}
-Authorization: Bearer {{login.response.body.data.token}}
-
-{
-  "name": "Sprint 1 - MVP",
-  "description": "Primeiro sprint para MVP",
-  "projectId": "{{createProject.response.body.data.id}}",
-  "startDate": "2024-01-01T00:00:00.000Z",
-  "endDate": "2024-01-15T23:59:59.999Z"
-}
-
-### 6. Criar user story
-# @name createUserStory
-POST {{apiUrl}}/user-stories
-Content-Type: {{contentType}}
-Authorization: Bearer {{login.response.body.data.token}}
-
-{
-  "title": "Como usuário, quero fazer login no sistema",
-  "description": "Implementar funcionalidade de autenticação",
-  "acceptanceCriteria": "1. Usuário insere email e senha\n2. Sistema valida credenciais\n3. Usuário é redirecionado para dashboard",
-  "projectId": "{{createProject.response.body.data.id}}",
-  "statusId": "{{statusId}}",
-  "storyPoints": 8,
-  "priority": 1
-}
-
-### 7. Criar tarefa
-# @name createTask
-POST {{apiUrl}}/tasks
-Content-Type: {{contentType}}
-Authorization: Bearer {{login.response.body.data.token}}
-
-{
-  "title": "Implementar formulário de login",
-  "description": "Criar interface do usuário para login",
-  "projectId": "{{createProject.response.body.data.id}}",
-  "statusId": "{{statusId}}",
-  "priority": 1,
-  "estimatedHours": 6,
-  "reporterId": "{{login.response.body.data.user.id}}",
-  "assigneeId": "{{login.response.body.data.user.id}}"
-}
-
-### Validar fluxo completo
-> {%
-  client.test("Fluxo completo executado com sucesso", function() {
-    // Verificar se todas as operações foram bem-sucedidas
-    client.assert(register.response.status === 200, "Registro deve ser bem-sucedido");
-    client.assert(login.response.status === 200, "Login deve ser bem-sucedido");
-    client.assert(createProject.response.status === 200, "Criação de projeto deve ser bem-sucedida");
-    client.assert(createTeam.response.status === 200, "Criação de equipe deve ser bem-sucedida");
-    client.assert(createSprint.response.status === 200, "Criação de sprint deve ser bem-sucedida");
-    client.assert(createUserStory.response.status === 200, "Criação de user story deve ser bem-sucedida");
-    client.assert(createTask.response.status === 200, "Criação de tarefa deve ser bem-sucedida");
-
-    // Verificar integridade dos dados
-    const project = createProject.response.body.data;
-    const userStory = createUserStory.response.body.data;
-    const task = createTask.response.body.data;
-
-    client.assert(userStory.projectId === project.id, "User story deve pertencer ao projeto");
-    client.assert(task.projectId === project.id, "Tarefa deve pertencer ao projeto");
-  });
-%}
-```
-
-### 2. Cenários de Erro
-
-#### Dados Inválidos
-
-```http
-### Teste: Criar projeto com dados inválidos
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "",  // Nome vazio
-  "projectKey": "INVALID_KEY_TOO_LONG",  // Chave muito longa
-  "tenantId": "invalid-uuid"  // UUID inválido
-}
-
-### Validar erro
-> {%
-  client.test("Erro de validação", function() {
-    client.assert(response.status === 400, "Status deve ser 400");
-    client.assert(response.body.success === false, "Success deve ser false");
-    client.assert(response.body.error, "Mensagem de erro deve estar presente");
-  });
-%}
-```
-
-#### Autenticação Inválida
-
-```http
-### Teste: Acessar endpoint sem token
-GET {{apiUrl}}/projects
-
-### Validar erro
-> {%
-  client.test("Erro de autenticação", function() {
-    client.assert(response.status === 401, "Status deve ser 401");
-    client.assert(response.body.success === false, "Success deve ser false");
-  });
-%}
-```
-
-#### Recurso Não Encontrado
-
-```http
-### Teste: Buscar projeto inexistente
-GET {{apiUrl}}/projects/invalid-id
-Authorization: Bearer {{authToken}}
-
-### Validar erro
-> {%
-  client.test("Recurso não encontrado", function() {
-    client.assert(response.status === 404, "Status deve ser 404");
-    client.assert(response.body.success === false, "Success deve ser false");
-  });
-%}
-```
-
-### 3. Testes de Performance
-
-#### Tempo de Resposta
-
-```http
-### Teste de performance: Listar projetos
-# @name performanceTest
-GET {{apiUrl}}/projects
-Authorization: Bearer {{authToken}}
-
-### Validar performance
-> {%
-  client.test("Performance aceitável", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-    client.assert(response.timings.duration < 1000, "Resposta deve ser menor que 1 segundo");
-  });
-%}
-```
-
-## ✨ Boas Práticas
-
-### 1. Organização dos Testes
-
-#### Estrutura Hierárquica
-
-```http
-### ========================================
-### GRUPO: Autenticação
-### ========================================
-
-### Teste 1: Registro de usuário
-# @name register
-POST {{apiUrl}}/auth/register
-...
-
-### Teste 2: Login de usuário
-# @name login
-POST {{apiUrl}}/auth/login
-...
-
-### ========================================
-### GRUPO: Projetos
-### ========================================
-
-### Teste 1: Criar projeto
-# @name createProject
-POST {{apiUrl}}/projects
-...
-```
-
-#### Nomenclatura Consistente
-
-```http
-### ✅ Bom
-# @name createProject
-# @name getUserById
-# @name updateTeam
-
-### ❌ Ruim
-# @name test1
-# @name project
-# @name team_update
-```
-
-### 2. Validações Robustas
-
-#### Validação de Status
-
-```http
-### Validar resposta
-> {%
-  client.test("Status correto", function() {
-    client.assert(response.status === 200, "Status deve ser 200");
-  });
-
-  client.test("Estrutura da resposta", function() {
-    client.assert(response.body.hasOwnProperty("success"), "Resposta deve ter campo 'success'");
-    client.assert(response.body.hasOwnProperty("data"), "Resposta deve ter campo 'data'");
-  });
-
-  client.test("Dados corretos", function() {
-    client.assert(response.body.data.name === "Projeto Teste", "Nome deve corresponder");
-    client.assert(response.body.data.projectKey === "PT", "Project key deve corresponder");
-  });
-%}
-```
-
-#### Validação de Tipos
-
-```http
-### Validar tipos de dados
-> {%
-  client.test("Tipos corretos", function() {
-    const data = response.body.data;
-    client.assert(typeof data.id === "string", "ID deve ser string");
-    client.assert(typeof data.name === "string", "Nome deve ser string");
-    client.assert(typeof data.createdAt === "string", "CreatedAt deve ser string");
-    client.assert(Array.isArray(data.tags), "Tags deve ser array");
-  });
-%}
-```
-
-### 3. Reutilização de Variáveis
-
-#### Configuração Global
-
-```http
-### Configuração
-@baseUrl = http://localhost:8080
-@apiUrl = {{baseUrl}}/api
-@contentType = application/json
-
-### Variáveis de teste
-@authToken = {{login.response.body.data.token}}
-@userId = {{login.response.body.data.user.id}}
-@tenantId = {{login.response.body.data.tenant.id}}
-@projectId = {{createProject.response.body.data.id}}
-```
-
-#### Variáveis Dinâmicas
-
-```http
-### Criar projeto e usar ID
-# @name createProject
-POST {{apiUrl}}/projects
-...
-
-### Usar ID do projeto criado
-GET {{apiUrl}}/projects/{{createProject.response.body.data.id}}
-```
-
-### 4. Documentação dos Testes
-
-#### Comentários Descritivos
-
-```http
-### ========================================
-### TESTE: Criação de Projeto
-### ========================================
-### Objetivo: Validar criação de projeto com dados válidos
-### Pré-condições: Usuário autenticado, tenant válido
-### Dados de teste: Nome, slug, project key únicos
-### Resultado esperado: Projeto criado com status 200
-### ========================================
-
-# @name createProject
-POST {{apiUrl}}/projects
-...
-```
-
-#### Cenários de Teste
-
-```http
-### Cenário 1: Dados válidos
-### Cenário 2: Nome duplicado
-### Cenário 3: Project key duplicada
-### Cenário 4: Dados inválidos
-### Cenário 5: Sem autenticação
-```
-
-## 🐛 Debugging
-
-### 1. Logs de Debug
-
-#### Ativar Logs
-
-```http
-### Teste com logs
-# @name debugTest
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Projeto Debug",
-  "slug": "projeto-debug",
-  "projectKey": "PD",
-  "tenantId": "{{tenantId}}",
-  "ownerId": "{{userId}}"
-}
-
-### Logs de debug
-> {%
-  console.log("Request Headers:", request.headers);
-  console.log("Request Body:", request.body);
-  console.log("Response Status:", response.status);
-  console.log("Response Body:", response.body);
-%}
-```
-
-#### Validação com Logs
-
-```http
-### Validar com logs
-> {%
-  client.test("Debug response", function() {
-    console.log("Full response:", response);
-    console.log("Response body:", response.body);
-    console.log("Response headers:", response.headers);
-
-    client.assert(response.status === 200, "Status deve ser 200");
-  });
-%}
-```
-
-### 2. Testes de Isolamento
-
-#### Limpeza de Dados
-
-```http
-### Limpar dados de teste
-DELETE {{apiUrl}}/projects/{{projectId}}
-Authorization: Bearer {{authToken}}
-
-### Validar limpeza
-> {%
-  client.test("Dados limpos", function() {
-    client.assert(response.status === 200, "Deleção deve ser bem-sucedida");
-  });
-%}
-```
-
-### 3. Testes de Concorrência
-
-#### Múltiplas Requisições
-
-```http
-### Teste de concorrência
-# @name concurrent1
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Projeto Concorrente 1",
-  "slug": "projeto-concorrente-1",
-  "projectKey": "PC1",
-  "tenantId": "{{tenantId}}",
-  "ownerId": "{{userId}}"
-}
-
----
-# @name concurrent2
-POST {{apiUrl}}/projects
-Content-Type: {{contentType}}
-Authorization: Bearer {{authToken}}
-
-{
-  "name": "Projeto Concorrente 2",
-  "slug": "projeto-concorrente-2",
-  "projectKey": "PC2",
-  "tenantId": "{{tenantId}}",
-  "ownerId": "{{userId}}"
-}
-
-### Validar concorrência
-> {%
-  client.test("Concorrência", function() {
-    client.assert(concurrent1.response.status === 200, "Primeira requisição deve ser bem-sucedida");
-    client.assert(concurrent2.response.status === 200, "Segunda requisição deve ser bem-sucedida");
-  });
-%}
-```
-
-## 📊 Relatórios de Teste
-
-### 1. Relatório de Execução
-
-```bash
-# Executar testes e gerar relatório
-./run-tests.sh --report
-
-# Saída esperada:
-# ========================================
-# RELATÓRIO DE TESTES
-# ========================================
-# Total de testes: 45
-# Passou: 42
-# Falhou: 3
-# Tempo total: 2m 30s
-# ========================================
-# DETALHES DOS FALHOS:
-# - auth.http: Teste de login com credenciais inválidas
-# - projects.http: Teste de criação com dados duplicados
-# - teams.http: Teste de autorização
-# ========================================
-```
-
-### 2. Métricas de Performance
-
-```bash
-# Métricas de tempo de resposta
-# Endpoint: /api/projects
-# Média: 150ms
-# P95: 300ms
-# P99: 500ms
-# Máximo: 800ms
-```
-
-## 🔄 Integração Contínua
-
-### 1. Pipeline de Testes
-
-```yaml
-# .github/workflows/tests.yml
-name: API Tests
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: "18"
-      - name: Install dependencies
-        run: bun install
-      - name: Start database
-        run: docker-compose up -d postgres
-      - name: Run migrations
-        run: bun run db:migrate
-      - name: Run tests
-        run: ./run-tests.sh
-      - name: Generate report
-        run: ./run-tests.sh --report
-```
-
-### 2. Testes Automatizados
-
-```bash
-# Script de execução automatizada
-#!/bin/bash
-# run-tests.sh
-
-set -e
-
-echo "🚀 Iniciando testes da API..."
-
-# Configurações
-BASE_URL="http://localhost:8080"
-API_URL="$BASE_URL/api"
-REPORT_FILE="test-report.json"
-
-# Função para executar teste
-run_test() {
-  local test_file=$1
-  echo "📝 Executando: $test_file"
-
-  # Executar teste e capturar resultado
-  result=$(curl -s -w "%{http_code}" -o /tmp/response.json "$API_URL/test")
-
-  # Validar resultado
-  if [ "$result" = "200" ]; then
-    echo "✅ $test_file: PASS"
-    return 0
-  else
-    echo "❌ $test_file: FAIL (Status: $result)"
-    return 1
-  fi
-}
-
-# Executar todos os testes
-echo "🧪 Executando suite de testes..."
-
-# Testes de autenticação
-run_test "auth.http"
-
-# Testes de projetos
-run_test "projects.http"
-
-# Testes de equipes
-run_test "teams.http"
-
-# Testes de sprints
-run_test "sprints.http"
-
-# Testes de user stories
-run_test "userStories.http"
-
-# Testes de tarefas
-run_test "tasks.http"
-
-echo "🎉 Testes concluídos!"
-```
-
----
-
-**🧪 Sistema de testes robusto e abrangente, garantindo qualidade e confiabilidade da API!**
+# Testes - Sistema de Gestão de Projetos Ágeis
+
+## Visão Geral dos Testes
+
+O sistema de testes do backend implementa uma estratégia abrangente de testing que segue as melhores práticas descritas por Kent Beck em "Test-Driven Development: By Example" (2002) e Gerard Meszaros em "xUnit Test Patterns" (2007). Os testes são organizados utilizando arquivos HTTP para testes de API, uma abordagem moderna que permite testar endpoints de forma isolada, documentar o comportamento esperado da API e facilitar a execução de testes manuais e automatizados.
+
+## Estratégia de Testing
+
+### Testes de API com Arquivos HTTP
+
+O sistema implementa testes de API utilizando arquivos HTTP (.http), uma abordagem inovadora que combina documentação e testes em um único formato. Esta estratégia, conforme descrita por Roy Osherove em "The Art of Unit Testing" (2009), oferece vantagens significativas sobre abordagens tradicionais de testing.
+
+**Documentação Viva**: Os arquivos de teste servem como documentação viva da API, demonstrando como utilizar cada endpoint e quais respostas esperar. Esta abordagem garante que a documentação esteja sempre atualizada e sincronizada com a implementação real.
+
+**Testes Isolados**: Cada endpoint é testado de forma isolada, permitindo identificar problemas específicos sem interferência de outros componentes. Esta abordagem facilita debugging e manutenção dos testes.
+
+**Execução Manual e Automatizada**: Os arquivos HTTP podem ser executados manualmente através de IDEs como VS Code ou IntelliJ IDEA, ou automatizados através de ferramentas como REST Client ou Newman. Esta flexibilidade permite diferentes abordagens de testing conforme necessário.
+
+**Versionamento de Testes**: Os arquivos de teste são versionados junto com o código, garantindo que mudanças na API sejam acompanhadas por mudanças nos testes. Esta abordagem facilita rastreamento de mudanças e rollback de funcionalidades.
+
+### Cobertura de Testes
+
+O sistema implementa cobertura completa de testes para todos os endpoints da API, seguindo o princípio de "test everything that could possibly break" descrito por Michael Feathers em "Working Effectively with Legacy Code" (2004).
+
+**Testes CRUD**: Todos os endpoints CRUD (Create, Read, Update, Delete) são testados para cada entidade do sistema, incluindo casos de sucesso e erro. Esta cobertura garante que operações básicas funcionem corretamente.
+
+**Testes de Negócio**: Endpoints específicos do domínio são testados para garantir que regras de negócio sejam aplicadas corretamente. Estes testes incluem validações complexas e operações que envolvem múltiplas entidades.
+
+**Testes de Autenticação**: Endpoints protegidos são testados para garantir que autenticação e autorização funcionem corretamente. Estes testes incluem casos de token válido, token inválido e token expirado.
+
+**Testes de Validação**: Endpoints que recebem dados de entrada são testados para garantir que validação funcione corretamente. Estes testes incluem casos de dados válidos, dados inválidos e dados malformados.
+
+## Estrutura dos Testes
+
+### Organização por Entidade
+
+Os testes são organizados por entidade do sistema, seguindo a estrutura de domínio implementada no backend. Esta organização facilita localização de testes e manutenção.
+
+**Arquivos por Entidade**: Cada entidade possui seu próprio arquivo de teste (users.http, projects.http, teams.http, etc.), facilitando navegação e manutenção dos testes.
+
+**Testes Sequenciais**: Os testes dentro de cada arquivo são organizados sequencialmente, seguindo o fluxo natural de operações (criar, ler, atualizar, deletar).
+
+**Dependências entre Testes**: Testes que dependem de outros testes (como testes de relacionamento) são organizados de forma que dependências sejam criadas antes do uso.
+
+### Configuração de Ambiente
+
+O sistema implementa configuração de ambiente para testes que permite execução em diferentes contextos, seguindo as práticas descritas por Jez Humble e David Farley em "Continuous Delivery" (2010).
+
+**Variáveis de Ambiente**: Configuração através de arquivo http-client.env.json que define variáveis como base URL, tokens de autenticação e dados de teste.
+
+**Ambientes Separados**: Configuração para diferentes ambientes (desenvolvimento, teste, produção) permitindo execução de testes em contextos apropriados.
+
+**Dados de Teste**: Definição de dados de teste consistentes que podem ser reutilizados em diferentes testes, facilitando manutenção e garantindo consistência.
+
+## Testes Implementados
+
+### Testes de Usuários (users.http)
+
+O arquivo users.http implementa testes completos para a entidade User, incluindo operações CRUD básicas e funcionalidades específicas do domínio.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de usuários, incluindo validação de dados e tratamento de erros.
+
+**Testes de Autenticação**: Implementado testes para login e logout de usuários, incluindo validação de credenciais e geração de tokens JWT.
+
+**Testes de Relacionamento**: Implementado testes para consulta de projetos e times associados a usuários, garantindo que relacionamentos funcionem corretamente.
+
+**Testes de Validação**: Implementado testes para validação de dados de entrada, incluindo casos de email inválido, senha fraca e dados obrigatórios ausentes.
+
+### Testes de Projetos (projects.http)
+
+O arquivo projects.http implementa testes completos para a entidade Project, incluindo operações CRUD e funcionalidades específicas de gestão de projetos.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de projetos, incluindo validação de dados e tratamento de erros.
+
+**Testes de Relacionamento**: Implementado testes para consulta de times, epics, user stories e tarefas associados a projetos, garantindo que relacionamentos hierárquicos funcionem corretamente.
+
+**Testes de Configuração**: Implementado testes para configurações de projeto, incluindo criação, atualização e consulta de configurações específicas.
+
+**Testes de Labels**: Implementado testes para gestão de labels de projeto, incluindo criação, atualização e exclusão de labels.
+
+### Testes de Times (teams.http)
+
+O arquivo teams.http implementa testes completos para a entidade Team, incluindo operações CRUD e funcionalidades de gestão de membros.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de times, incluindo validação de dados e tratamento de erros.
+
+**Testes de Membros**: Implementado testes para gestão de membros de times, incluindo adição, remoção e consulta de membros.
+
+**Testes de Relacionamento**: Implementado testes para consulta de projetos associados a times, garantindo que relacionamentos funcionem corretamente.
+
+**Testes de Validação**: Implementado testes para validação de dados de entrada, incluindo casos de nome duplicado e dados obrigatórios ausentes.
+
+### Testes de Sprints (sprints.http)
+
+O arquivo sprints.http implementa testes completos para a entidade Sprint, incluindo operações CRUD e funcionalidades específicas de metodologia ágil.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de sprints, incluindo validação de datas e metas.
+
+**Testes de Backlog**: Implementado testes para gestão de sprint backlog, incluindo adição e remoção de user stories do backlog.
+
+**Testes de Métricas**: Implementado testes para consulta de métricas de sprint, garantindo que cálculos de performance funcionem corretamente.
+
+**Testes de Validação**: Implementado testes para validação de datas de sprint, incluindo casos de datas inválidas e conflitos temporais.
+
+### Testes de User Stories (userStories.http)
+
+O arquivo userStories.http implementa testes completos para a entidade UserStory, incluindo operações CRUD e funcionalidades de priorização.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de user stories, incluindo validação de dados e tratamento de erros.
+
+**Testes de Relacionamento**: Implementado testes para consulta de tarefas associadas a user stories, garantindo que decomposição hierárquica funcione corretamente.
+
+**Testes de Priorização**: Implementado testes para atualização de prioridade de user stories, garantindo que ordenação funcione corretamente.
+
+**Testes de Validação**: Implementado testes para validação de critérios de aceitação e estimativas, incluindo casos de dados inválidos.
+
+### Testes de Tarefas (tasks.http)
+
+O arquivo tasks.http implementa testes completos para a entidade Task, incluindo operações CRUD e funcionalidades de atribuição.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de tarefas, incluindo validação de dados e tratamento de erros.
+
+**Testes de Atribuição**: Implementado testes para atribuição de tarefas a usuários específicos, garantindo que distribuição de trabalho funcione corretamente.
+
+**Testes de Relacionamento**: Implementado testes para consulta de comentários e atividades associadas a tarefas, garantindo que colaboração funcione corretamente.
+
+**Testes de Validação**: Implementado testes para validação de estimativas de tempo, incluindo casos de estimativas inválidas.
+
+### Testes de Epics (epics.http)
+
+O arquivo epics.http implementa testes completos para a entidade Epic, incluindo operações CRUD e funcionalidades de agrupamento.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de epics, incluindo validação de dados e tratamento de erros.
+
+**Testes de Relacionamento**: Implementado testes para consulta de user stories associadas a epics, garantindo que agrupamento lógico funcione corretamente.
+
+**Testes de Priorização**: Implementado testes para atualização de prioridade de epics, garantindo que ordenação funcione corretamente.
+
+**Testes de Validação**: Implementado testes para validação de dados de entrada, incluindo casos de nome duplicado e dados obrigatórios ausentes.
+
+### Testes de Comentários (comments.http)
+
+O arquivo comments.http implementa testes completos para a entidade Comment, incluindo operações CRUD e funcionalidades de colaboração.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de comentários, incluindo validação de dados e tratamento de erros.
+
+**Testes de Threading**: Implementado testes para comentários aninhados, garantindo que discussões organizadas funcionem corretamente.
+
+**Testes de Relacionamento**: Implementado testes para comentários em diferentes entidades (user stories, tarefas, sprints), garantindo que colaboração funcione corretamente.
+
+**Testes de Validação**: Implementado testes para validação de conteúdo de comentários, incluindo casos de conteúdo vazio e muito longo.
+
+### Testes de Atividades (activities.http)
+
+O arquivo activities.http implementa testes completos para a entidade Activity, incluindo operações CRUD e funcionalidades de auditoria.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de atividades, incluindo validação de dados e tratamento de erros.
+
+**Testes de Auditoria**: Implementado testes para consulta de atividades por usuário e projeto, garantindo que rastreamento funcione corretamente.
+
+**Testes de Contexto**: Implementado testes para atividades com contexto completo (valores antigos e novos), garantindo que auditoria seja detalhada.
+
+**Testes de Validação**: Implementado testes para validação de dados de atividade, incluindo casos de ação inválida e entidade inexistente.
+
+### Testes de Tenants (tenants.http)
+
+O arquivo tenants.http implementa testes completos para a entidade Tenant, incluindo operações CRUD e funcionalidades de multi-tenancy.
+
+**Testes CRUD**: Implementado testes para criação, leitura, atualização e exclusão de tenants, incluindo validação de dados e tratamento de erros.
+
+**Testes de Isolamento**: Implementado testes para garantir que dados de diferentes tenants sejam isolados corretamente.
+
+**Testes de Validação**: Implementado testes para validação de slug único e dados obrigatórios, incluindo casos de slug duplicado.
+
+## Execução dos Testes
+
+### Execução Manual
+
+Os testes podem ser executados manualmente através de IDEs que suportam arquivos HTTP, seguindo as práticas descritas por James Shore em "The Art of Agile Development" (2007).
+
+**VS Code**: Utilizando a extensão REST Client, que permite execução direta de requisições HTTP e visualização de respostas.
+
+**IntelliJ IDEA**: Utilizando a funcionalidade HTTP Client integrada, que oferece execução, debugging e histórico de requisições.
+
+**Outras IDEs**: Qualquer IDE que suporte arquivos HTTP pode ser utilizada para execução dos testes.
+
+### Execução Automatizada
+
+Os testes podem ser automatizados através de ferramentas especializadas, seguindo as práticas de Continuous Integration descritas por Martin Fowler em "Continuous Integration" (2006).
+
+**REST Client**: Ferramenta de linha de comando que permite execução automatizada de arquivos HTTP em pipelines de CI/CD.
+
+**Newman**: Ferramenta de linha de comando do Postman que permite execução de coleções de testes em ambientes automatizados.
+
+**Scripts Customizados**: Scripts personalizados que utilizam ferramentas como curl ou wget para execução automatizada de testes.
+
+### Configuração de Ambiente
+
+O sistema implementa configuração de ambiente que permite execução de testes em diferentes contextos.
+
+**Arquivo de Configuração**: http-client.env.json define variáveis como base URL, tokens de autenticação e dados de teste.
+
+**Ambientes Separados**: Configuração para diferentes ambientes (desenvolvimento, teste, produção) permitindo execução apropriada.
+
+**Dados de Teste**: Definição de dados de teste consistentes que podem ser reutilizados em diferentes testes.
+
+## Boas Práticas Implementadas
+
+### Nomenclatura e Organização
+
+O sistema implementa nomenclatura e organização consistentes para facilitar manutenção e compreensão dos testes.
+
+**Nomenclatura Descritiva**: Nomes de testes descritivos que explicam claramente o que está sendo testado e qual resultado é esperado.
+
+**Organização Lógica**: Testes organizados logicamente seguindo o fluxo natural de operações e relacionamentos entre entidades.
+
+**Comentários Explicativos**: Comentários em cada teste explicando o propósito e contexto da operação sendo testada.
+
+### Dados de Teste
+
+O sistema implementa estratégia consistente para dados de teste que garante reprodutibilidade e isolamento.
+
+**Dados Consistentes**: Dados de teste consistentes que podem ser reutilizados em diferentes testes, facilitando manutenção.
+
+**Isolamento de Dados**: Cada teste utiliza dados isolados para evitar interferência entre testes e garantir reprodutibilidade.
+
+**Limpeza de Dados**: Estratégia para limpeza de dados após execução de testes, garantindo que ambiente de teste permaneça limpo.
+
+### Tratamento de Erros
+
+O sistema implementa tratamento de erros consistente que garante que problemas sejam identificados e documentados adequadamente.
+
+**Testes de Erro**: Testes específicos para casos de erro, garantindo que sistema responda adequadamente a situações problemáticas.
+
+**Validação de Respostas**: Validação de respostas de erro para garantir que mensagens sejam apropriadas e códigos de status sejam corretos.
+
+**Documentação de Erros**: Documentação de erros esperados e como sistema deve responder a diferentes tipos de problema.
+
+## Integração com Desenvolvimento
+
+### Test-Driven Development
+
+O sistema de testes suporta práticas de Test-Driven Development (TDD), conforme descrito por Kent Beck em "Test-Driven Development: By Example".
+
+**Red-Green-Refactor**: Ciclo TDD implementado através de testes que definem comportamento esperado antes da implementação.
+
+**Documentação de Requisitos**: Testes servem como documentação de requisitos, garantindo que implementação atenda às expectativas.
+
+**Feedback Rápido**: Execução rápida de testes fornece feedback imediato sobre qualidade da implementação.
+
+### Continuous Integration
+
+O sistema de testes integra-se com práticas de Continuous Integration, seguindo as práticas descritas por Jez Humble e David Farley.
+
+**Execução Automatizada**: Testes executados automaticamente em pipelines de CI/CD para garantir qualidade contínua.
+
+**Gate de Qualidade**: Testes servem como gate de qualidade, impedindo deploy de código que não passe nos testes.
+
+**Feedback Contínuo**: Resultados de testes fornecem feedback contínuo sobre saúde do sistema.
+
+## Monitoramento e Relatórios
+
+### Relatórios de Teste
+
+O sistema implementa relatórios de teste que fornecem visibilidade sobre cobertura e qualidade dos testes.
+
+**Cobertura de Endpoints**: Relatórios que mostram quais endpoints estão cobertos por testes e quais precisam de atenção.
+
+**Taxa de Sucesso**: Métricas de taxa de sucesso dos testes, identificando tendências e problemas recorrentes.
+
+**Tempo de Execução**: Métricas de tempo de execução dos testes, identificando gargalos e oportunidades de otimização.
+
+### Análise de Tendências
+
+O sistema implementa análise de tendências que permite identificar padrões e melhorar continuamente a qualidade dos testes.
+
+**Histórico de Falhas**: Análise de histórico de falhas de testes, identificando problemas recorrentes e oportunidades de melhoria.
+
+**Padrões de Uso**: Análise de padrões de uso dos endpoints, identificando quais funcionalidades são mais utilizadas e precisam de mais atenção.
+
+**Feedback de Desenvolvedores**: Coleta de feedback de desenvolvedores sobre qualidade e utilidade dos testes.
+
+## Conclusão
+
+O sistema de testes do backend implementa uma estratégia abrangente e moderna de testing que combina documentação viva, testes isolados e execução flexível. A abordagem utilizando arquivos HTTP oferece vantagens significativas sobre métodos tradicionais, incluindo documentação sempre atualizada, testes isolados e flexibilidade de execução.
+
+A cobertura completa de testes garante que todos os endpoints da API sejam testados adequadamente, incluindo casos de sucesso e erro. A organização por entidade facilita manutenção e navegação dos testes, enquanto a configuração de ambiente permite execução em diferentes contextos.
+
+O sistema de testes integra-se perfeitamente com práticas modernas de desenvolvimento como Test-Driven Development e Continuous Integration, fornecendo feedback rápido e garantindo qualidade contínua. A implementação de boas práticas como nomenclatura consistente, dados isolados e tratamento de erros garante que os testes sejam confiáveis e manuteníveis.
+
+## Referências Bibliográficas
+
+1. Beck, Kent. "Test-Driven Development: By Example." Addison-Wesley, 2002.
+2. Meszaros, Gerard. "xUnit Test Patterns: Refactoring Test Code." Addison-Wesley, 2007.
+3. Osherove, Roy. "The Art of Unit Testing: With Examples in .NET." Manning, 2009.
+4. Feathers, Michael. "Working Effectively with Legacy Code." Prentice Hall, 2004.
+5. Humble, Jez; Farley, David. "Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation." Addison-Wesley, 2010.
+6. Shore, James. "The Art of Agile Development." O'Reilly Media, 2007.
+7. Fowler, Martin. "Continuous Integration." 2006.
+8. REST Client Team. "REST Client Documentation." 2023.
+9. Postman Team. "Newman Documentation." 2023.
+10. VS Code Team. "VS Code REST Client Extension Documentation." 2023.
+
+## Licença
+
+Este projeto é desenvolvido como trabalho acadêmico e está sujeito às políticas da instituição de ensino.

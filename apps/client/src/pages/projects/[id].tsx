@@ -186,7 +186,7 @@ export default function ProjectDetailsPage() {
   const handleSprintCreated = () => {
     setOpenSprintDialog(false);
     fetchProjectSprints();
-    addToast({ title: "Sprint criado com sucesso", type: "success" });
+    addToast({ title: "Sprint criado com sucesso KKK", type: "success" });
   };
 
   // Filtrar times disponíveis para adicionar (não associados ainda)
@@ -415,7 +415,7 @@ export default function ProjectDetailsPage() {
             <div className="text-center py-8 text-muted-foreground">
               Carregando sprints...
             </div>
-          ) : !Array.isArray(sprints) || sprints.length === 0 ? (
+          ) : sprints.length === 0 ? (
             <Card className="text-center py-8">
               <CardContent>
                 <span className="text-muted-foreground">
@@ -448,11 +448,11 @@ export default function ProjectDetailsPage() {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-end">
-                    <Button asChild size="sm" variant="outline">
-                      <Link to={`/dashboard/sprints/${sprint.id}`}>
+                    <Link to={`/dashboard/sprints/${sprint.id}`}>
+                      <Button size="sm" variant="outline">
                         Ver detalhes
-                      </Link>
-                    </Button>
+                      </Button>
+                    </Link>
                   </CardFooter>
                 </Card>
               ))}

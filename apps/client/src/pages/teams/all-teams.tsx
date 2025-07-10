@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Users, Plus, Calendar } from "lucide-react";
 import { teamsApi } from "@/services/domains/teamsApi";
 import { useToast } from "@/contexts/toast-context";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EntityCard } from "@/components/ui/entity-card";
 import type { Team } from "@packages/shared";
@@ -26,7 +25,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 export function AllTeamsPage() {
-  const navigate = useNavigate();
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -35,6 +33,7 @@ export function AllTeamsPage() {
   const [editForm, setEditForm] = useState({ name: "", description: "" });
   const [editLoading, setEditLoading] = useState(false);
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   const fetchTeams = async () => {
     try {
@@ -170,6 +169,7 @@ export function AllTeamsPage() {
           <Calendar className="w-4 h-4" />
           <span>Criada em {formatDate(team.createdAt)}</span>
         </div>
+        
       </div>
     </EntityCard>
   );
@@ -185,10 +185,12 @@ export function AllTeamsPage() {
             Visualize todas as equipes disponíveis.
           </p>
         </div>
-        <Button onClick={() => navigate("/dashboard/teams/create")}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Equipe
-        </Button>
+        <Link to="/dashboard/teams/create">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Equipe
+          </Button>
+        </Link>
       </div>
 
       <Card>

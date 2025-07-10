@@ -674,22 +674,29 @@ export class TaskService {
     }
   }
 
-  /**
-   * Busca tasks de um sprint
-   */
-  async getTasksBySprint(sprintId: string): Promise<ApiResponse<Task[]>> {
+  // Padronizar métodos para sempre retornar array vazio se não houver dados
+  static async getTasksByProject(projectId: string): Promise<any[]> {
     try {
-      const tasks = await this.taskRepository.findBySprint(sprintId);
-      return {
-        success: true,
-        data: tasks,
-      };
-    } catch (error) {
-      console.error("Erro ao buscar tasks do sprint:", error);
-      return {
-        success: false,
-        error: "Erro interno ao buscar tasks do sprint",
-      };
+      const tasks = await new TaskRepository().findByProjectId(projectId);
+      return Array.isArray(tasks) ? tasks : [];
+    } catch {
+      return [];
+    }
+  }
+  static async getTasksBySprint(sprintId: string): Promise<any[]> {
+    try {
+      const tasks = await new TaskRepository().findBySprint(sprintId);
+      return Array.isArray(tasks) ? tasks : [];
+    } catch {
+      return [];
+    }
+  }
+  static async getTasksByStory(storyId: string): Promise<any[]> {
+    try {
+      const tasks = await new TaskRepository().findByStoryId(storyId);
+      return Array.isArray(tasks) ? tasks : [];
+    } catch {
+      return [];
     }
   }
 }

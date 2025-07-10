@@ -163,198 +163,200 @@ export function LoginDialog({ open, onOpenChange }: LoginDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-background/80 backdrop-blur-xl border-white/10">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Bem-vindo de volta
-          </DialogTitle>
-        </DialogHeader>
-        <motion.div
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.1 }}
-        >
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-white/10 border">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Cadastro</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <motion.div
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <Card className=" bg-white/50 dark:bg-white/5 min-h-[420px]">
-                  <CardHeader className="space-y-1">
-                    <CardTitle className="text-xl">
-                      Entre na sua conta
-                    </CardTitle>
-                    <CardDescription>
-                      Digite seu email e senha para acessar
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="seu@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className=""
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password">Senha</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="••••••••"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          className=""
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                          "Entrar"
-                        )}
-                      </Button>
-                    </form>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-white/10" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground/20">
-                          Ou continue com
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button variant="outline">
-                        <Icons.gitHub className="mr-2 h-4 w-4" />
-                        GitHub
-                      </Button>
-                      <Button variant="outline">
-                        <Icons.google className="mr-2 h-4 w-4" />
-                        Google
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </TabsContent>
-
-            <TabsContent value="register">
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <Card className="min-h-[425px] bg-white/50 dark:bg-white/5">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Crie sua conta</CardTitle>
-                    <CardDescription className="text-xs">
-                      Comece grátis e organize sua equipe
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <form onSubmit={handleRegister} className="space-y-1">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Nome completo</Label>
-                        <Input
-                          id="name"
-                          placeholder="Seu nome"
-                          value={registerData.name}
-                          onChange={(e) =>
-                            handleRegisterInputChange("name", e.target.value)
-                          }
-                          required
-                          className=""
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email-register">Email</Label>
-                        <Input
-                          id="email-register"
-                          type="email"
-                          placeholder="seu@email.com"
-                          value={registerData.email}
-                          onChange={(e) =>
-                            handleRegisterInputChange("email", e.target.value)
-                          }
-                          required
-                          className=""
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="company-name">Nome da empresa</Label>
-                        <Input
-                          id="company-name"
-                          placeholder="Nome da sua empresa"
-                          value={registerData.companyName}
-                          onChange={(e) =>
-                            handleRegisterInputChange(
-                              "companyName",
-                              e.target.value
-                            )
-                          }
-                          required
-                          className=""
-                        />
-                      </div>
-                      <div className="space-y-2 pb-2">
-                        <Label htmlFor="password-register">Senha</Label>
-                        <Input
-                          id="password-register"
-                          type="password"
-                          placeholder="••••••••"
-                          value={registerData.password}
-                          onChange={(e) =>
-                            handleRegisterInputChange(
-                              "password",
-                              e.target.value
-                            )
-                          }
-                          required
-                          minLength={6}
-                          className=""
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                        disabled={isRegistering}
-                      >
-                        {isRegistering ? (
-                          <>
+      <form>
+        <DialogContent className="sm:max-w-[425px] bg-background/80 backdrop-blur-xl border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-center text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Bem-vindo de volta
+            </DialogTitle>
+          </DialogHeader>
+          <motion.div
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.1 }}
+          >
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-white/50 dark:bg-white/10 border">
+                <TabsTrigger value="login">Login</TabsTrigger>
+                <TabsTrigger value="register">Cadastro</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login">
+                <motion.div
+                  initial={{ opacity: 0, x: -50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  <Card className=" bg-white/50 dark:bg-white/5 min-h-[420px]">
+                    <CardHeader className="space-y-1">
+                      <CardTitle className="text-xl">
+                        Entre na sua conta
+                      </CardTitle>
+                      <CardDescription>
+                        Digite seu email e senha para acessar
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <form onSubmit={handleLogin} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="seu@email.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className=""
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="password">Senha</Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className=""
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
                             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                            Criando conta...
-                          </>
-                        ) : (
-                          "Criar conta grátis"
-                        )}
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </TabsContent>
-          </Tabs>
-        </motion.div>
-      </DialogContent>
+                          ) : (
+                            "Entrar"
+                          )}
+                        </Button>
+                      </form>
+
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t border-white/10" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background px-2 text-muted-foreground/20">
+                            Ou continue com
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button variant="outline">
+                          <Icons.gitHub className="mr-2 h-4 w-4" />
+                          GitHub
+                        </Button>
+                        <Button variant="outline">
+                          <Icons.google className="mr-2 h-4 w-4" />
+                          Google
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="register">
+                <motion.div
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  <Card className="min-h-[425px] bg-white/50 dark:bg-white/5">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Crie sua conta</CardTitle>
+                      <CardDescription className="text-xs">
+                        Comece grátis e organize sua equipe
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <form onSubmit={handleRegister} className="space-y-1">
+                        <div className="space-y-2">
+                          <Label htmlFor="name">Nome completo</Label>
+                          <Input
+                            id="name"
+                            placeholder="Seu nome"
+                            value={registerData.name}
+                            onChange={(e) =>
+                              handleRegisterInputChange("name", e.target.value)
+                            }
+                            required
+                            className=""
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email-register">Email</Label>
+                          <Input
+                            id="email-register"
+                            type="email"
+                            placeholder="seu@email.com"
+                            value={registerData.email}
+                            onChange={(e) =>
+                              handleRegisterInputChange("email", e.target.value)
+                            }
+                            required
+                            className=""
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="company-name">Nome da empresa</Label>
+                          <Input
+                            id="company-name"
+                            placeholder="Nome da sua empresa"
+                            value={registerData.companyName}
+                            onChange={(e) =>
+                              handleRegisterInputChange(
+                                "companyName",
+                                e.target.value
+                              )
+                            }
+                            required
+                            className=""
+                          />
+                        </div>
+                        <div className="space-y-2 pb-2">
+                          <Label htmlFor="password-register">Senha</Label>
+                          <Input
+                            id="password-register"
+                            type="password"
+                            placeholder="••••••••"
+                            value={registerData.password}
+                            onChange={(e) =>
+                              handleRegisterInputChange(
+                                "password",
+                                e.target.value
+                              )
+                            }
+                            required
+                            minLength={6}
+                            className=""
+                          />
+                        </div>
+                        <Button
+                          type="submit"
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                          disabled={isRegistering}
+                        >
+                          {isRegistering ? (
+                            <>
+                              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                              Criando conta...
+                            </>
+                          ) : (
+                            "Criar conta grátis"
+                          )}
+                        </Button>
+                      </form>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+            </Tabs>
+          </motion.div>
+        </DialogContent>
+      </form>
     </Dialog>
   );
 }

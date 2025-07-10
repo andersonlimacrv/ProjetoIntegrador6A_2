@@ -197,6 +197,24 @@ export class ProjectController {
     }
   }
 
+  
+  static async getProjectMembers(c: Context) {
+    const projectId = c.req.param("projectId");
+    if (!projectId) {
+      return c.json({ success: false, error: "projectId é obrigatório" }, 400);
+    }
+    const members = await ProjectController.projectService.getProjectMembers(
+      projectId
+    );
+    return c.json({
+      success: true,
+      data: members,
+      message: "Membros do projeto listados com sucesso",
+    });
+  }
+
+
+
   static async getProjectsByOwner(c: Context) {
     try {
       const ownerId = c.req.param("ownerId");
@@ -219,6 +237,34 @@ export class ProjectController {
   static async getProjectsByUser(c: Context) {
     try {
       const userId = c.req.param("userId");
+      const projects = await ProjectController.projectService.getProjectsByUser(
+        userId
+      );
+      return c.json(
+        {
+          ...projects,
+          message: projects.success
+            ? "Projetos do usuário listados com sucesso"
+            : projects.error || "Erro ao buscar projetos",
+        },
+        projects.success ? 200 : 400
+      );
+    } catch (error) {
+      return c.json({ success: false, error: "Erro ao buscar projetos" }, 500);
+    }
+  }
+
+  static async getMyProjects(c: Context) {
+    try {
+      const { userId } = await c.req.json();
+      
+      if (!userId) {
+        return c.json(
+          { success: false, error: "userId é obrigatório" },
+          400
+        );
+      }
+
       const projects = await ProjectController.projectService.getProjectsByUser(
         userId
       );
@@ -374,7 +420,7 @@ export class ProjectController {
     }
   }
 
-  static async createProjectLabel(c: Context) {
+  /* static async createProjectLabel(c: Context) {
     try {
       const projectId = c.req.param("id");
       const data = await c.req.json();
@@ -471,4 +517,6 @@ export class ProjectController {
       );
     }
   }
+  */
+
 }

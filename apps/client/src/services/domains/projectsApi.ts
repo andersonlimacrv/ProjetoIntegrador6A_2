@@ -67,9 +67,10 @@ export const projectsApi = {
     );
     return response;
   },
-  getByUser: async (userId: string | number) => {
-    const response = await apiClient.get<ApiResponse<Project[]>>(
-      `/projects/user/${userId}`
+  getMyProjects: async (userId: string | number) => {
+    const response = await apiClient.post<ApiResponse<Project[]>>(
+      `/projects/my-projects`,
+      { userId }
     );
     return response;
   },
@@ -160,6 +161,12 @@ export const projectsApi = {
       `/projects/${id}/status-flows`,
       data
     );
+    return response;
+  },
+
+  // Membros do projeto
+  getMembers: async (projectId: string) => {
+    const response = await apiClient.get(`/projects/${projectId}/members`);
     return response;
   },
 };

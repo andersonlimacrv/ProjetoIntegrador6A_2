@@ -33,6 +33,10 @@ sprints.delete(
   SprintController.removeStoryFromBacklog
 );
 
+// Rotas de user stories e tasks do sprint
+sprints.get("/:id/user-stories", SprintController.getSprintBacklog);
+sprints.get("/:id/tasks", SprintController.getSprintTasks);
+
 // Rotas de métricas
 sprints.get("/:id/metrics", SprintController.getSprintMetrics);
 sprints.post("/:id/metrics", SprintController.createSprintMetrics);

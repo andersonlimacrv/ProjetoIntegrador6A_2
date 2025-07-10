@@ -5,6 +5,7 @@ export interface Task {
   id: string;
   storyId?: string;
   projectId: string;
+  sprintId?: string;
   statusId: string;
   title: string;
   description?: string;
@@ -57,6 +58,7 @@ export interface TaskDependency {
 export interface CreateTaskDTO {
   storyId?: string;
   projectId: string;
+  sprintId?: string;
   statusId: string;
   title: string;
   description?: string;
@@ -76,6 +78,7 @@ export interface UpdateTaskDTO {
   estimatedHours?: number;
   actualHours?: number;
   assigneeId?: string;
+  sprintId?: string;
   dueDate?: Date;
 }
 
@@ -83,6 +86,7 @@ export interface UpdateTaskDTO {
 export const CreateTaskSchema = z.object({
   storyId: z.string().uuid("ID da história deve ser um UUID válido").optional(),
   projectId: z.string().uuid("ID do projeto deve ser um UUID válido"),
+  sprintId: z.string().uuid("ID da sprint deve ser um UUID válido").optional(),
   statusId: z.string().uuid("ID do status deve ser um UUID válido"),
   title: z
     .string()
@@ -115,6 +119,7 @@ export const UpdateTaskSchema = z.object({
     .string()
     .uuid("ID do responsável deve ser um UUID válido")
     .optional(),
+  sprintId: z.string().uuid("ID da sprint deve ser um UUID válido").optional(),
   dueDate: z.date().optional(),
 });
 

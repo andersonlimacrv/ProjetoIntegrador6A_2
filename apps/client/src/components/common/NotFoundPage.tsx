@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Home, Search, MapPin, Zap, Ghost, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 
@@ -236,22 +236,24 @@ export function NotFoundPage() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Button
-                  onClick={() => navigate(-1)}
+                  asChild
                   variant="outline"
                   className="relative overflow-hidden"
                 >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0"
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  />
-                  <span className="relative z-10">Voltar</span>
+                  <Link to={-1}>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0"
+                      animate={{
+                        x: ["-100%", "100%"],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    />
+                    <span className="relative z-10">Voltar</span>
+                  </Link>
                 </Button>
               </motion.div>
 
@@ -259,24 +261,23 @@ export function NotFoundPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  onClick={() => navigate("/dashboard")}
-                  className="relative overflow-hidden"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "linear",
-                      delay: 0.5,
-                    }}
-                  />
-                  <Home className="mr-2 h-4 w-4 relative z-10" />
-                  <span className="relative z-10">Página Inicial</span>
+                <Button asChild className="relative overflow-hidden">
+                  <Link to="/dashboard">
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                      animate={{
+                        x: ["-100%", "100%"],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                        delay: 0.5,
+                      }}
+                    />
+                    <Home className="mr-2 h-4 w-4 relative z-10" />
+                    <span className="relative z-10">Página Inicial</span>
+                  </Link>
                 </Button>
               </motion.div>
             </motion.div>

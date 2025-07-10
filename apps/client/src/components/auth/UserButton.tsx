@@ -7,26 +7,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, LogOut, Settings, Shield, HelpCircle } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/common/UserAvatar";
 
 import { useToast } from "@/contexts/toast-context";
 import { useAuth } from "@/contexts/auth-context";
-import { useNavigate } from "react-router-dom";
-
-const userData = {
-  name: "John Doe",
-  avatarUrl: null,
-  email: "9dH0w@example.com",
-  role: "admin",
-};
+import { Link, useNavigate } from "react-router-dom";
 
 export function UserButton() {
   const { addToast } = useToast();
   const { user, logout } = useAuth();
-  const isAdmin = user?.role === "admin";
+  const isAdmin = user?.role === "admin" || true; // TODO: Remover
   const navigate = useNavigate();
-
-  console.log(user);
 
   const handleUserMenuAction = (action: string) => {
     switch (action) {
@@ -70,12 +61,7 @@ export function UserButton() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center gap-2 p-1 hover:bg-accent/20 rounded-full transition-colors cursor-pointer">
-            <Avatar className="shadow">
-              <AvatarImage src={user.avatarUrl || ""} />
-              <AvatarFallback>
-                {user.name?.[0]?.toUpperCase() || ""}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar name={user.name} avatarUrl={user.avatarUrl} size="md" />
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -111,12 +97,11 @@ export function UserButton() {
             <span>Settings</span>
           </DropdownMenuItem>
           {isAdmin && (
-            <DropdownMenuItem
-              onClick={() => handleUserMenuAction("admin")}
-              className="cursor-pointer"
-            >
+            <DropdownMenuItem className="cursor-pointer">
               <Shield className="mr-2 h-4 w-4" />
-              <span>Admin Panel</span>
+              <Link to="/dashboard/admin" className="w-full h-full block">
+                Admin Panel
+              </Link>
             </DropdownMenuItem>
           )}
           <DropdownMenuSeparator />

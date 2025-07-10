@@ -41,6 +41,8 @@ import { AdminPage } from "@/pages/admin";
 import CreateTeamPage from "@/pages/teams/create-team";
 import ProjectDetailsPage from "@/pages/projects/[id]";
 import { ProjectSprintDetailsPage } from "@/pages/sprints/project-sprint-details";
+import CreateTask from "@/pages/tasks/CreateTask";
+import TaskDetails from "@/pages/tasks/TaskDetails";
 
 function App() {
   return (
@@ -98,6 +100,12 @@ function App() {
 
             {/* Tasks Routes */}
             <Route path="tasks" element={<TasksPage />} />
+            <Route path="tasks/create" element={<CreateTask />} />
+            <Route path="task/:id" element={<TaskDetails />} />
+            <Route
+              path="projects/:projectId/tasks/create"
+              element={<CreateTask />}
+            />
 
             {/* Analytics Routes */}
             <Route path="analytics" element={<AnalyticsPage />}>

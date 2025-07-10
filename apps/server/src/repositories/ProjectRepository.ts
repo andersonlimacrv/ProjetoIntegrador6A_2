@@ -15,7 +15,7 @@ import {
   project_settings,
   project_labels,
 } from "../db/schema";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, inArray } from "drizzle-orm";
 import type {
   NewProject,
   Project,
@@ -447,6 +447,68 @@ export class ProjectRepository {
       .from(project_labels)
       .where(eq(project_labels.projectId, projectId))
       .orderBy(asc(project_labels.name));
+  }
+
+  async findProjectMembers(projectId: string) {
+    // Busca todos os times do projeto
+    const projectTeams = await this.findProjectTeams(projectId);
+    const teamIds = projectTeams.map((t: any) => t.team.id);
+    if (teamIds.length === 0) return [];
+
+    // Busca todos os membros de todos os times com informações dos times
+    const members = await db
+      .select({
+        userId: users.id,
+        userName: users.name,
+        userAvatarUrl: users.avatarUrl,
+        userIsActive: users.isActive,
+        userLastLogin: users.lastLogin,
+        userCreatedAt: users.createdAt,
+        userUpdatedAt: users.updatedAt,
+        teamId: teams.id,
+        teamName: teams.name,
+        userRole: user_teams.role,
+      })
+      .from(user_teams)
+      .innerJoin(users, eq(user_teams.userId, users.id))
+      .innerJoin(teams, eq(user_teams.teamId, teams.id))
+      .where(inArray(user_teams.teamId, teamIds))
+      .orderBy(asc(users.name));
+
+    // Agrupar membros por userId e coletar informações dos times
+    const membersWithTeams = members.reduce((acc, curr) => {
+      const userId = curr.userId;
+
+      if (!acc[userId]) {
+        // Primeira vez vendo este usuário, criar entrada
+        acc[userId] = {
+          id: curr.userId,
+          name: curr.userName,
+          avatarUrl: curr.userAvatarUrl,
+          isActive: curr.userIsActive,
+          lastLogin: curr.userLastLogin,
+          createdAt: curr.userCreatedAt,
+          updatedAt: curr.userUpdatedAt,
+          teams: [],
+        };
+      }
+
+      // Adicionar time à lista de times do usuário
+      acc[userId].teams.push({
+        id: curr.teamId,
+        name: curr.teamName,
+        role: curr.userRole,
+      });
+
+      return acc;
+    }, {} as Record<string, any>);
+
+    // Converter para array e ordenar por nome
+    const result = Object.values(membersWithTeams).sort((a: any, b: any) =>
+      a.name.localeCompare(b.name)
+    );
+
+    return result;
   }
 }
 

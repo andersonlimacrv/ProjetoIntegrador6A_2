@@ -136,7 +136,7 @@ export default function CreateTeamPage() {
               >
                 Cancelar
               </Button>
-              <Button type="submit" loading={loading}>
+              <Button type="submit" disabled={loading}>
                 Criar Equipe
               </Button>
             </div>

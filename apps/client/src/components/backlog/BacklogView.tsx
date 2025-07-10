@@ -45,6 +45,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import UserAvatar from "@/components/common/UserAvatar";
 
 interface BacklogItem {
   id: string;
@@ -522,13 +523,14 @@ export function BacklogView({
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           {item.assigneeName && (
                             <div className="flex items-center gap-1">
-                              <Avatar className="w-4 h-4">
-                                <AvatarImage src={item.assigneeAvatar} />
-                                <AvatarFallback className="text-xs">
-                                  {getInitials(item.assigneeName)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{item.assigneeName}</span>
+                              <UserAvatar
+                                name={item.assigneeName}
+                                avatarUrl={item.assigneeAvatar}
+                                size="sm"
+                              />
+                              <span className="text-xs text-muted-foreground">
+                                {item.assigneeName}
+                              </span>
                             </div>
                           )}
                           {item.dueDate && (

@@ -40,6 +40,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/common/UserAvatar";
 
 interface KanbanItem {
   id: string;
@@ -297,14 +298,13 @@ export function KanbanBoard({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {item.assigneeName && (
-                          <div className="flex items-center gap-1">
-                            <Avatar className="w-5 h-5">
-                              <AvatarImage src={item.assigneeAvatar} />
-                              <AvatarFallback className="text-xs">
-                                {getInitials(item.assigneeName)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <UserAvatar
+                              name={item.assigneeName}
+                              avatarUrl={item.assigneeAvatar}
+                              size="sm"
+                            />
+                            <span className="text-xs text-gray-600">
                               {item.assigneeName}
                             </span>
                           </div>

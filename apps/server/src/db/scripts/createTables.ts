@@ -2,6 +2,113 @@ import { db_script as db } from "./connection";
 import { sql } from "drizzle-orm";
 
 /**
+ * Cria os status padrão para todos os projetos existentes
+ */
+async function createDefaultStatuses() {
+  try {
+    console.log("🌱 Criando status padrão para projetos existentes...");
+
+    // Buscar todos os projetos
+    const projects = await db.execute(sql`SELECT id FROM projects`);
+
+    if (projects.length === 0) {
+      console.log(
+        "ℹ️ Nenhum projeto encontrado. Status padrão serão criados quando projetos forem adicionados."
+      );
+      return;
+    }
+
+    // Para cada projeto, criar fluxo de status padrão se não existir
+    for (const project of projects) {
+      const projectId = project.id;
+
+      // Verificar se já existe um fluxo padrão para este projeto
+      const existingFlow = await db.execute(sql`
+        SELECT id FROM status_flows 
+        WHERE project_id = ${projectId} 
+        AND entity_type = 'task' 
+        AND is_default = true
+      `);
+
+      if (existingFlow.length === 0) {
+        // Criar fluxo de status padrão
+        const flowResult = await db.execute(sql`
+          INSERT INTO status_flows (id, project_id, name, entity_type, is_default, created_at)
+          VALUES (gen_random_uuid(), ${projectId}, 'Fluxo Kanban Padrão', 'task', true, CURRENT_TIMESTAMP)
+          RETURNING id
+        `);
+
+        const flowId = flowResult[0].id;
+        console.log(`✅ Fluxo de status criado para projeto ${projectId}`);
+
+        // Criar status padrão para este fluxo
+        const defaultStatuses = [
+          {
+            name: "TODO",
+            color: "#6B7280",
+            order: 1,
+            isFinal: false,
+            isInitial: true,
+          },
+          {
+            name: "IN PROGRESS",
+            color: "#3B82F6",
+            order: 2,
+            isFinal: false,
+            isInitial: false,
+          },
+          {
+            name: "REVIEW",
+            color: "#F59E0B",
+            order: 3,
+            isFinal: false,
+            isInitial: false,
+          },
+          {
+            name: "DONE",
+            color: "#10B981",
+            order: 4,
+            isFinal: true,
+            isInitial: false,
+          },
+          {
+            name: "CANCELLED",
+            color: "#EF4444",
+            order: 5,
+            isFinal: true,
+            isInitial: false,
+          },
+        ];
+
+        for (const status of defaultStatuses) {
+          await db.execute(sql`
+            INSERT INTO statuses (id, flow_id, name, color, "order", is_final, is_initial)
+            VALUES (
+              gen_random_uuid(), 
+              ${flowId}, 
+              ${status.name}, 
+              ${status.color}, 
+              ${status.order}, 
+              ${status.isFinal}, 
+              ${status.isInitial}
+            )
+          `);
+        }
+
+        console.log(`✅ Status padrão criados para projeto ${projectId}`);
+      } else {
+        console.log(`ℹ️ Fluxo de status já existe para projeto ${projectId}`);
+      }
+    }
+
+    console.log("✅ Status padrão criados com sucesso!");
+  } catch (error) {
+    console.error("❌ Erro ao criar status padrão:", error);
+    throw error;
+  }
+}
+
+/**
  * Script para criar as tabelas do banco de dados baseado no novo diagrama ER
  */
 export async function createTables() {
@@ -172,12 +279,29 @@ export async function createTables() {
     `);
     console.log("✅ Tabela 'user_stories' criada com sucesso!");
 
+    // Cria a tabela sprints
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS sprints (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        goal TEXT,
+        start_date DATE,
+        end_date DATE,
+        status VARCHAR(20) DEFAULT 'planned' NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("✅ Tabela 'sprints' criada com sucesso!");
+
     // Cria a tabela tasks
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS tasks (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         story_id UUID REFERENCES user_stories(id) ON DELETE SET NULL,
         project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        sprint_id UUID REFERENCES sprints(id) ON DELETE SET NULL,
         status_id UUID NOT NULL REFERENCES statuses(id) ON DELETE CASCADE,
         title VARCHAR(255) NOT NULL,
         description TEXT,
@@ -204,22 +328,6 @@ export async function createTables() {
       );
     `);
     console.log("✅ Tabela 'task_assignments' criada com sucesso!");
-
-    // Cria a tabela sprints
-    await db.execute(sql`
-      CREATE TABLE IF NOT EXISTS sprints (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-        name VARCHAR(255) NOT NULL,
-        goal TEXT,
-        start_date DATE,
-        end_date DATE,
-        status VARCHAR(20) DEFAULT 'planned' NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    console.log("✅ Tabela 'sprints' criada com sucesso!");
 
     // Cria a tabela sprint_backlog_items
     await db.execute(sql`
@@ -412,6 +520,9 @@ export async function createTables() {
       );
     `);
     console.log("✅ Tabela 'task_dependencies' criada com sucesso!");
+
+    // Criar status padrão para projetos existentes
+    await createDefaultStatuses();
   } catch (error) {
     console.error("❌ Erro ao criar tabelas:", error);
     throw error;

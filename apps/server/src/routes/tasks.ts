@@ -19,15 +19,15 @@ tasks.use(
 );
 
 // Rotas básicas CRUD
-tasks.get("/", (c) => taskController.getAllTasks(c));
-tasks.get("/:id", (c) => taskController.getTaskById(c));
-tasks.get("/:id/details", (c) => taskController.getTaskByIdWithDetails(c));
-tasks.post("/", (c) => taskController.createTask(c));
-tasks.put("/:id", (c) => taskController.updateTask(c));
-tasks.delete("/:id", (c) => taskController.deleteTask(c));
+tasks.get("/", TaskController.getAllTasks);
+tasks.get("/:id", TaskController.getTaskById);
+tasks.get("/:id/details", TaskController.getTaskByIdWithDetails);
+tasks.post("/", TaskController.createTask);
+tasks.put("/:id", TaskController.updateTask);
+tasks.delete("/:id", TaskController.deleteTask);
 
 // Rotas por projeto
-tasks.get("/project/:projectId", (c) => taskController.getTasksByProject(c));
+tasks.get("/project/:projectId", TaskController.getTasksByProject);
 
 // Rotas por história de usuário
 tasks.get("/story/:storyId", (c) => taskController.getTasksByStory(c));

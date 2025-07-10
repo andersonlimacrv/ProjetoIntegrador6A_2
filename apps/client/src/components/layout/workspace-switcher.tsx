@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/common/UserAvatar";
 
 export function WorkspaceSwitcher({
   workspaces,
@@ -38,20 +39,13 @@ export function WorkspaceSwitcher({
         <DropdownMenu>
           <DropdownMenuTrigger className="cursor-pointer shadow-lg font-bold rounded-lg w-full py-2 flex items-center justify-between data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground px-2 bg-muted-foreground/5 hover:bg-muted-foreground/10 transition-colors duration-150">
             <div className="flex items-center gap-2">
-              <Avatar>
-                {activeWorkspace.logo_url ? (
-                  <AvatarImage src={activeWorkspace.logo_url} />
-                ) : null}
-                <AvatarFallback>
-                  {activeWorkspace.name.slice(0, 1).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex text-lg 2xl:text-2xl flex-col text-left">
-                <span className="truncate w-34">{activeWorkspace.name}</span>
-                <span className="font-light text-xs text-gray-500/80 truncate w-34">
-                  {activeWorkspace.enterprise}
-                </span>
-              </div>
+              <UserAvatar
+                name={activeWorkspace.name}
+                avatarUrl={activeWorkspace.logo_url}
+                size="sm"
+                fallbackIcon={activeWorkspace.name?.[0]?.toUpperCase()}
+              />
+              <span className="font-medium">{activeWorkspace.name}</span>
             </div>
             <ChevronsUpDown className="w-4 h-4" />
           </DropdownMenuTrigger>

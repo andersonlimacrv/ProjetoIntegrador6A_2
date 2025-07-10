@@ -42,9 +42,24 @@ export class UserStoryService {
     return this.userStoryRepository.delete(id);
   }
 
-  async getUserStoriesByProject(projectId: string): Promise<UserStory[]> {
-    // TODO: Implementar busca por projeto
-    return [];
+  async getUserStoriesByProject(
+    projectId: string
+  ): Promise<ApiResponse<UserStory[]>> {
+    try {
+      const stories = await this.userStoryRepository.getUserStoriesByProject(
+        projectId
+      );
+      return {
+        success: true,
+        data: stories,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro ao buscar histórias",
+      };
+    }
   }
 
   async getUserStoriesByEpic(epicId: string): Promise<UserStory[]> {

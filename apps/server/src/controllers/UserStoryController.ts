@@ -203,10 +203,12 @@ export class UserStoryController {
         {
           ...stories,
           message: stories.success
-            ? "Histórias do projeto listadas com sucesso"
+            ? stories.data && stories.data.length > 0
+              ? "Histórias do projeto listadas com sucesso"
+              : "Nenhuma user story encontrada para este projeto"
             : stories.error || "Erro ao buscar histórias",
         },
-        stories.success ? 200 : 400
+        stories.success ? 200 : 500
       );
     } catch (error) {
       return c.json({ success: false, error: "Erro ao buscar histórias" }, 500);

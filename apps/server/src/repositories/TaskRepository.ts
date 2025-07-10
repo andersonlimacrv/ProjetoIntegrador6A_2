@@ -45,22 +45,24 @@ export class TaskRepository {
    * Busca todas as tasks de um projeto
    */
   async findByProjectId(projectId: string): Promise<DbTask[]> {
-    return await db
+    const result = await db
       .select()
       .from(tasks)
       .where(eq(tasks.projectId, projectId))
       .orderBy(desc(tasks.createdAt));
+    return Array.isArray(result) ? result : [];
   }
 
   /**
    * Busca todas as tasks de uma história de usuário
    */
   async findByStoryId(storyId: string): Promise<DbTask[]> {
-    return await db
+    const result = await db
       .select()
       .from(tasks)
       .where(eq(tasks.storyId, storyId))
       .orderBy(desc(tasks.createdAt));
+    return Array.isArray(result) ? result : [];
   }
 
   /**
@@ -461,22 +463,12 @@ export class TaskRepository {
    * Busca tasks de um sprint
    */
   async findBySprint(sprintId: string): Promise<DbTask[]> {
-    const sprintBacklogItems = await db
-      .select({ storyId: sprint_backlog_items.storyId })
-      .from(sprint_backlog_items)
-      .where(eq(sprint_backlog_items.sprintId, sprintId));
-
-    const storyIds = sprintBacklogItems.map((s) => s.storyId);
-
-    if (storyIds.length === 0) {
-      return [];
-    }
-
-    return await db
+    const result = await db
       .select()
       .from(tasks)
-      .where(inArray(tasks.storyId, storyIds))
+      .where(eq(tasks.sprintId, sprintId))
       .orderBy(desc(tasks.createdAt));
+    return Array.isArray(result) ? result : [];
   }
 }
 

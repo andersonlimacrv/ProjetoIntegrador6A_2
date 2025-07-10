@@ -59,8 +59,9 @@ export const commentsApi = {
     return response;
   },
   getByUser: async (userId: string | number) => {
-    const response = await apiClient.get<ApiResponse<Comment[]>>(
-      `/comments/user/${userId}`
+    const response = await apiClient.post<ApiResponse<Comment[]>>(
+      `/comments/my-comments`,
+      { userId }
     );
     return response;
   },

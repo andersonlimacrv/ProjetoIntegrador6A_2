@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function CreateProjectPage() {
   const navigate = useNavigate();
@@ -321,12 +321,8 @@ export function CreateProjectPage() {
               <Button type="submit" disabled={loading}>
                 {loading ? "Criando..." : "Criar Projeto"}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/dashboard/projects")}
-              >
-                Cancelar
+              <Button asChild variant="outline">
+                <Link to="/dashboard/projects">Cancelar</Link>
               </Button>
             </div>
           </form>

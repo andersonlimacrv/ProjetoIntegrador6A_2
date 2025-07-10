@@ -6,6 +6,7 @@ import {
   sprint_backlog_items,
   user_stories,
   sprint_metrics,
+  tasks,
 } from "../db/schema";
 import { eq, and, desc, asc } from "drizzle-orm";
 
@@ -145,5 +146,18 @@ export class SprintRepository {
     }
 
     return metrics;
+  }
+
+  async getSprintTasks(sprintId: string): Promise<any[]> {
+    // Busca todas as user stories do sprint
+    const backlog = await this.getSprintBacklog(sprintId);
+    const storyIds = backlog.map((item) => item.story.id);
+    if (storyIds.length === 0) return [];
+    // Busca todas as tasks vinculadas às user stories do sprint
+    const results = await db
+      .select()
+      .from(tasks)
+      .where(tasks.storyId.in(storyIds));
+    return results;
   }
 }

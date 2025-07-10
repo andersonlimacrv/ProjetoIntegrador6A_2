@@ -185,7 +185,7 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         <div className="lg:hidden px-4">
-          <div className="bg-background/80 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
+          <div className="bg-black/50 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-3 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg">
@@ -217,7 +217,7 @@ export function Navbar() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mt-2 bg-background/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              className="mt-2 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
             >
               <div className="px-4 py-6 space-y-4">
                 <div className="space-y-2">

@@ -9,11 +9,15 @@ import "./globals.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+      }}
+    >
       <ThemeProvider>
-      <ToastProvider>
-        <App />
-      </ToastProvider>
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
