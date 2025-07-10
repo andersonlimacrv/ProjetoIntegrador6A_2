@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Projetos Ágeis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .slide h2 {
+            color: #764ba2;
+            font-size: 2em;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .slide h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .slide p, .slide li {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .slide ul {
+            margin-left: 20px;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tech-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .architecture-diagram {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .layer {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .figure-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            border-radius: 10px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">10</span>
+        </div>
+
+        <!-- Slide 1: Título -->
+        <div class="slide active">
+            <h1>Sistema de Gestão de Projetos Ágeis</h1>
+            <div style="text-align: center; margin: 40px 0;">
+                <h3>Implementação com Arquitetura MVC</h3>
+                <p style="font-size: 1.2em; color: #666; margin-top: 20px;">
+                    Projeto Integrador VI-A<br>
+                    Anderson de Lima Carvalho<br>
+                    Universidade Católica de Pelotas
+                </p>
+            </div>
+            
+        </div>
+
+        <!-- Slide 2: Objetivos -->
+        <div class="slide">
+            <h2>Objetivos do Projeto</h2>
+            <ul>
+                <li>Implementar sistema SaaS de gerenciamento ágil com arquitetura MVC</li>
+                <li>Aplicar conceitos de Clean Architecture e boas práticas de engenharia de software</li>
+                <li>Desenvolver funcionalidades multi-tenancy e controle de acesso</li>
+                <li>Criar sistema de gestão de sprints, épicos e user stories</li>
+                <li>Implementar métricas e relatórios para análise de produtividade</li>
+            </ul>
+            <div class="highlight">
+                <strong>Foco:</strong> Demonstrar aplicação prática de conceitos teóricos em um sistema real seguindo metodologias ágeis
+            </div>
+        </div>
+
+        <!-- Slide 3: Arquitetura MVC -->
+        <div class="slide">
+            <h2>Arquitetura Model-View-Controller</h2>
+            <div class="architecture-diagram">
+                <div class="layer">VIEW (React + TypeScript)</div>
+                <div style="margin: 10px 0;">↕</div>
+                <div class="layer">CONTROLLER (Hono Framework)</div>
+                <div style="margin: 10px 0;">↕</div>
+                <div class="layer">MODEL (Drizzle ORM + PostgreSQL)</div>
+            </div>
+            <ul>
+                <li><strong>Model:</strong> Drizzle ORM mapeando tabelas PostgreSQL com type safety</li>
+                <li><strong>View:</strong> Componentes React funcionais com hooks modernos</li>
+                <li><strong>Controller:</strong> Classes que processam requisições HTTP via Hono</li>
+            </ul>
+          
+        </div>
+
+        <!-- Slide 4: Estrutura em Camadas -->
+        <div class="slide">
+            <h2>Estrutura em Camadas do Backend</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h3>Controllers</h3>
+                    <p>Recebem requisições HTTP e coordenam operações</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Services</h3>
+                    <p>Contêm lógica de negócio e regras do domínio</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Repositories</h3>
+                    <p>Encapsulam acesso a dados com padrão Repository</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Models</h3>
+                    <p>Definem estrutura do banco via Drizzle ORM</p>
+                </div>
+            </div>
+            <div class="highlight">
+                Seguindo princípios de Clean Architecture de Robert C. Martin
+            </div>
+      
+        </div>
+
+        <!-- Slide 5: Stack Tecnológica -->
+        <div class="slide">
+            <h2>Stack Tecnológica</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h3>Backend</h3>
+                    <ul>
+                        <li>Node.js + TypeScript</li>
+                        <li>Hono Framework</li>
+                        <li>Drizzle ORM</li>
+                        <li>PostgreSQL</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>Frontend</h3>
+                    <ul>
+                        <li>React + TypeScript</li>
+                        <li>Vite (bundler)</li>
+                        <li>Tailwind CSS</li>
+                        <li>React Router</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight">
+                <strong>Pacote @shared:</strong> Implementa Shared Kernel para type safety end-to-end
+            </div>
+          
+        </div>
+
+        <!-- Slide 6: Funcionalidades Principais -->
+        <div class="slide">
+            <h2>Funcionalidades Implementadas</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Gestão de Projetos</h3>
+                    <p>CRUD completo, configurações, associação de times</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Gestão de Times</h3>
+                    <p>Criação, membros, papéis e permissões</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Gestão de Sprints</h3>
+                    <p>Seguindo metodologia Scrum com backlogs</p>
+                </div>
+                <div class="feature-card">
+                    <h3>User Stories</h3>
+                    <p>Priorização, estimativas, critérios de aceitação</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Multi-tenancy</h3>
+                    <p>Isolamento de dados entre organizações</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Segurança</h3>
+                    <p>JWT, validação rigorosa, controle de acesso</p>
+                </div>
+            </div>
+          
+        </div>
+
+        <!-- Slide 7: Metodologias Ágeis -->
+        <div class="slide">
+            <h2>Implementação de Metodologias Ágeis</h2>
+            <ul>
+                <li><strong>Scrum Framework:</strong> Baseado no Scrum Guide de Schwaber & Sutherland</li>
+                <li><strong>Sprints:</strong> Ciclos iterativos com metas específicas</li>
+                <li><strong>Product Backlog:</strong> Gerenciamento de user stories priorizadas</li>
+                <li><strong>Sprint Backlog:</strong> Itens selecionados para cada sprint</li>
+                <li><strong>Kanban Board:</strong> Visualização do fluxo de trabalho</li>
+            </ul>
+            <div class="highlight">
+                Sistema flexível que apoia processos ágeis sem engessá-los
+            </div>
+          
+        </div>
+
+        <!-- Slide 8: Boas Práticas Aplicadas -->
+        <div class="slide">
+            <h2>Boas Práticas de Engenharia de Software</h2>
+            <ul>
+                <li><strong>Clean Code:</strong> Nomes significativos, funções pequenas e específicas</li>
+                <li><strong>Type Safety:</strong> TypeScript end-to-end eliminando erros de runtime</li>
+                <li><strong>Validação:</strong> Múltiplas camadas seguindo "never trust user input"</li>
+                <li><strong>Injeção de Dependência:</strong> Baixo acoplamento e facilidade de testes</li>
+                <li><strong>Transações:</strong> Garantia de consistência em operações críticas</li>
+                <li><strong>Logging:</strong> Rastreabilidade e debug estruturado</li>
+            </ul>
+            <div class="highlight">
+                Documentação consistente mantida como parte integrante do desenvolvimento
+            </div>
+        
+        </div>
+
+        <!-- Slide 9: Resultados e Aprendizados -->
+        <div class="slide">
+            <h2>Resultados e Aprendizados</h2>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <h3>Sucessos</h3>
+                    <ul>
+                        <li>Arquitetura MVC eficaz para sistemas complexos</li>
+                        <li>Type safety eliminou classe inteira de erros</li>
+                        <li>Pacote @shared evitou dessincronização</li>
+                        <li>Separação clara de responsabilidades</li>
+                    </ul>
+                </div>
+                <div class="tech-item">
+                    <h3>Desafios</h3>
+                    <ul>
+                        <li>Aprendizado do Drizzle ORM</li>
+                        <li>Implementação de multi-tenancy</li>
+                        <li>Tempo escasso para todas as funcionalidades</li>
+                        <li>Testes limitados por restrições de tempo</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight">
+                Projeto validou a importância de arquitetura bem fundamentada desde o início
+            </div>
+            
+        </div>
+
+        <!-- Slide 10: Conclusões -->
+        <div class="slide">
+            <h2>Conclusões</h2>
+            <ul>
+                <li>Validação prática de conceitos teóricos de engenharia de software</li>
+                <li>Arquitetura MVC adaptada eficazmente para sistemas modernos</li>
+                <li>Importância do design inicial e estabelecimento de boas práticas</li>
+                <li>TypeScript essencial para projetos de médio/grande porte</li>
+                <li>Metodologias ágeis como meio para entregar valor, não fim em si</li>
+            </ul>
+            <div class="highlight">
+                <strong>Contribuição:</strong> Sistema que implementa metodologias ágeis sendo exemplo de boas práticas de engenharia de software
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <h3>Obrigado!</h3>
+                <p>Dúvidas e discussões são bem-vindas</p>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn" onclick="changeSlide(-1)" id="prevBtn">❮ Anterior</button>
+            <button class="nav-btn" onclick="changeSlide(1)" id="nextBtn">Próximo ❯</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            if (direction === 1 && currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            } else if (direction === -1 && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') changeSlide(1);
+            if (event.key === 'ArrowLeft') changeSlide(-1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
